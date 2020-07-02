@@ -10,7 +10,6 @@ module.exports={
     },
     Mutation: {
         ...personResolvers.Mutation,
-        ...courseResolvers.Mutation,
-        ...notificationResolvers.Mutation
+        ...courseResolvers.Mutation
     }
 }

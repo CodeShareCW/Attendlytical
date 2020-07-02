@@ -1,136 +1,139 @@
-const { gql } = require('apollo-server');
+const { gql } = require("apollo-server");
 
 module.exports = gql`
-    """
-        Type
-        Note: Here declare the object type
-    """    
-    type Person{
-        _id: ID!
-        firstName: String!
-        lastName: String!
-        email: String!
-        password: String!
-        notifications: [Notification!]
-        createdAt: String
-        lastLogin: String
-        userLevel: Int!
-        createdCourses: [Course!]
-        enrolledCourses: [Course!]
-        token: String!
-    }
+  """
+  Type
+  Note: Here declare the object type
+  """
+  type Person {
+    _id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+    notifications: [Notification!]
+    createdAt: String
+    lastLogin: String
+    userLevel: Int!
+    token: String!
+  }
 
-    type Course{
-        _id: ID!
-        creator: Person!
-        code: String!
-        name: String!
-        session: String!
-        enrolledStudents: [Person!]
-        attendanceList: [Attendance!]
-    }
+  type pendingEnrolledCourse{
+    _id: ID!
+    student: Person!
+    course: Course!
+  }
 
-    type Notification{
-        _id: ID!
-        receiver: Person!
-        title: String!
-        content: String!
-        createdAt: String!
-        updatedAt: String!
-    }
+  type Course {
+    _id: ID!
+    creator: Person!
+    code: String!
+    name: String!
+    session: String!
+    enrolledStudents: [Person!]
+    attendanceList: [Attendance!]
+  }
 
-    type Attendance{
-        _id: ID!
-        course: Course!
-        start: String!
-        end: String!
-        date: String!
-        gPhoto: [GroupPhoto!]
-        absentees: [Person!]
-        attendees: [Person!]
-    }
+  type Notification {
+    _id: ID!
+    receiver: Person!
+    title: String!
+    content: String!
+    createdAt: String!
+    updatedAt: String!
+  }
 
-    type GroupPhoto{
-        _id: ID!
-        attendance: Attendance!
-        data: String!
-    }
+  type Attendance {
+    _id: ID!
+    course: Course!
+    start: String!
+    end: String!
+    date: String!
+    gPhoto: [GroupPhoto!]
+    absentees: [Person!]
+    attendees: [Person!]
+  }
 
-    type Photo{
-        _id: ID!
-        creator: Person!
-        data: String!
-        faceDescriptor: [Float!]
-    }
+  type GroupPhoto {
+    _id: ID!
+    attendance: Attendance!
+    data: String!
+  }
 
-    """
-        Input
-        Note: Here Declare the input type
-    """   
-    input personInput{
-        firstName: String!
-        lastName: String!
-        email: String!
-        password: String!
-        confirmPassword: String!
-        userLevel: Int!
-    }
+  type Photo {
+    _id: ID!
+    creator: Person!
+    data: String!
+    faceDescriptor: [Float!]
+  }
 
-    input courseInput{
-        creatorID: ID!
-        code: String!
-        name: String!
-        session: String!
-    }
+  """
+  Input
+  Note: Here Declare the input type
+  """
+  input personInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+    confirmPassword: String!
+    userLevel: Int!
+  }
 
-    input notificationInput{
-        receiverID: ID!
-        title: String!
-        content: String!
-    }
+  input courseInput {
+    code: String!
+    name: String!
+    session: String!
+  }
 
-    input attendanceInput{
-        start: String!
-        end: String!
-        date: String!
-        courseID: ID!
-    }
+  input notificationInput {
+    receiverID: ID!
+    title: String!
+    content: String!
+  }
 
-    """
-        Main Type
-        Note: Here declare the main Query and Mutation rules
-    """   
-    type Query {
-        getPeople: [Person]
-        getPerson (personID: ID!): Person!
-        
-        getCourses: [Course]
-        getCourse (courseID: ID!): Course!
-        
-        getNotifications: [Notification]
-        getNotification (notificationID: ID!): Notification!
+  input attendanceInput {
+    start: String!
+    end: String!
+    date: String!
+    courseID: ID!
+  }
 
-        getAttendance (attendanceID: ID!): Attendance!
-    }
+  """
+  Main Type
+  Note: Here declare the main Query and Mutation rules
+  """
+  type Query {
+    getPeople: [Person]
+    getPerson(personID: ID!): Person!
 
-    type Mutation {
-        register (personInput: personInput!): Person!
-        login (email: String!, password: String!): Person!
+    getCourses: [Course]
+    getCourse(courseID: ID!): Course!
 
-        createCourse (courseInput: courseInput!): Course!
-        deleteCourse (personID: ID!, courseID: ID!): Course
-        
-        enrolCourse (personID: ID!, courseID: ID!): Course!
-        unEnrolCourse (personID: ID!, courseID: ID!): Course!
-        
-        createNotification (notificationInput: notificationInput!): Notification!
+    getNotifications: [Notification]
+    getNotification(notificationID: ID!): Notification!
 
-        createAttendance (attendanceInput: attendanceInput!): Attendance!
-        deleteAttendance (attendanceID: ID!): Attendance
+    getAttendance(attendanceID: ID!): Attendance!
+  }
 
-        addPhoto (data: String!): Photo!
-        deletePhoto (data: String!): Photo
+  type Mutation {
+    register(personInput: personInput!): Person!
+    login(email: String!, password: String!): Person!
 
-        addGroupPhoto (data: String!): GroupPhoto!
-    }
+    createCourse(courseInput: courseInput!): Course!
+    deleteCourse(personID: ID!, courseID: ID!): Course
+    approveEnrolment(enrolmentID: ID!): String
+    rejectEnrolment(enrolmentID: ID!): String
+
+    enrolCourse(courseID: ID!): Course!
+    unEnrolCourse(courseID: ID!): Course!
+
+    createAttendance(attendanceInput: attendanceInput!): Attendance!
+    deleteAttendance(attendanceID: ID!): Attendance
+
+    addPhoto(data: String!): Photo!
+    deletePhoto(data: String!): Photo
+
+    addGroupPhoto(data: String!): GroupPhoto!
+  }
 `;

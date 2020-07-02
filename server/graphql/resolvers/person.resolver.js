@@ -48,7 +48,9 @@ module.exports = {
           throw new UserInputError("Person not exist");
         }
       } catch (err) {
-        throw new UserInputError(err);
+        let errors = {};
+        errors.general = err.message;
+        throw new UserInputError(err.message, { errors });
       }
     },
   },
@@ -70,11 +72,12 @@ module.exports = {
         const existingPerson = await Person.findOne({
           email: args.personInput.email,
         });
-        if (existingPerson)
+        if (existingPerson) {
+          errors.general = "Email already taken";
           throw new UserInputError("User exists already", {
-            errors: "Email already taken",
+            errors,
           });
-
+        }
         const hashedPassword = await bcrypt.hash(args.personInput.password, 12);
 
         const newPerson = new Person({
@@ -89,26 +92,34 @@ module.exports = {
         const savedPerson = await newPerson.save();
         return PersongqlParser(savedPerson);
       } catch (err) {
-        throw err;
+        let errors = {};
+        errors.general = err.message;
+        throw new UserInputError(err.message, { errors });
       }
     },
     login: async (_, { email, password }) => {
-      const { valid, errors } = validateLoginInput(email, password);
+      try {
+        const { valid, errors } = validateLoginInput(email, password);
 
-      if (!valid) throw new UserInputError("UserInputError", { errors });
+        if (!valid) throw new UserInputError("UserInputError", { errors });
 
-      const person = await Person.findOne({ email: email });
-      if (!person) {
-        errors.general = "Email does not exist";
-        throw new UserInputError("Email does not exist!", { errors });
+        const person = await Person.findOne({ email: email });
+        if (!person) {
+          errors.general = "Email does not exist";
+          throw new UserInputError("Email does not exist!", { errors });
+        }
+        const isEqual = await bcrypt.compare(password, person.password);
+        if (!isEqual) {
+          errors.general = "Password is incorrect";
+          throw new UserInputError("Password is incorrect!", { errors });
+        }
+        const token = generateToken(person);
+        return PersongqlParser(person, token);
+      } catch (err) {
+        let errors = {};
+        errors.general = err.message;
+        throw new UserInputError(err.message, { errors });
       }
-      const isEqual = await bcrypt.compare(password, person.password);
-      if (!isEqual) {
-        errors.general = "Password is incorrect";
-        throw new UserInputError("Password is incorrect!", { errors });
-      }
-      const token = generateToken(person);
-      return PersongqlParser(person, token);
     },
   },
 };
