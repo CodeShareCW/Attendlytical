@@ -1,6 +1,7 @@
 const Person = require("../../models/person.model");
 const Course = require("../../models/course.model");
 const Notification = require("../../models/notification.model");
+const Attendance = require("../../models/attendance.model");
 
 const person = async (personID) => {
   try {
@@ -19,6 +20,16 @@ const people = async (personID) => {
       return results.map((r) => {
         return PersongqlParser(r);
       });
+  } catch (err) {
+    throw err;
+  }
+};
+
+const course = async (courseID) => {
+  try {
+    const result = await Course.findById(courseID);
+    if (result) return CoursegqlParser(result);
+    else return null;
   } catch (err) {
     throw err;
   }
@@ -77,12 +88,22 @@ const NotificationgqlParser = (notification) => {
   };
 };
 
+const AttendancegqlParser = (attendance) => {
+  console.log(attendance)
+  return {
+    ...attendance._doc,
+    course: course.bind(this, attendance._doc.course),
+  };
+};
+
 module.exports = {
   person,
   people,
+  course,
   courses,
   notifications,
   CoursegqlParser,
   PersongqlParser,
   NotificationgqlParser,
+  AttendancegqlParser
 };

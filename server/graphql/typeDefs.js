@@ -114,6 +114,9 @@ module.exports = gql`
     getNotification(notificationID: ID!): Notification!
 
     getAttendance(attendanceID: ID!): Attendance!
+    getCourseAttendance(courseID: ID!): [Attendance]
+    getCoursesAttendance: [Attendance]
+    
   }
 
   type Mutation {
@@ -129,7 +132,7 @@ module.exports = gql`
     unEnrolCourse(courseID: ID!): Course!
 
     createAttendance(attendanceInput: attendanceInput!): Attendance!
-    deleteAttendance(attendanceID: ID!): Attendance
+    deleteAttendance(attendanceID: ID!): String
 
     addPhoto(data: String!): Photo!
     deletePhoto(data: String!): Photo
