@@ -112,9 +112,18 @@ module.exports = {
           });
         }
 
-        await Course.deleteOne(course2Delete);
-
         //TODO: Notification to student who enrol to this
+
+        course2Delete.enrolledStudents.map(async (stud) => {
+          notification = new Notification({
+            receiver: stud,
+            title: `Enrolment Status: Rejected`,
+            content: `Lecturer: ${owner.firstName} ${owner.lastName} had deleted the course: ${course.name} (${course.code}-${course.session})`,
+          });
+
+          await notification.save();
+        });
+        await Course.deleteOne(course2Delete);
 
         return CoursegqlParser(course2Delete);
       } catch (err) {
@@ -280,6 +289,15 @@ module.exports = {
             "Course do not exist but student wish to enrol!",
             { errors }
           );
+        }
+
+        const checkPending = await PendingEnrolledCourse.find({
+          course: course2enrol.id,
+          student: currUser.id,
+        });
+        if (checkPending) {
+          errors.general = `Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`;
+          throw new UserInputError(`Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`, { errors });
         }
 
         const student = course2enrol.enrolledStudents.find(
