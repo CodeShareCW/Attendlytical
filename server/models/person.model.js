@@ -33,14 +33,7 @@ const personSchema=new Schema({
     lastLogin: {
         type: Date,
         default: new Date(0,0,0)
-    },
-    enrolledCourses: {
-        type: [Schema.Types.ObjectId]
-    },
-    createdCourses:{
-        type: [Schema.Types.ObjectId]
     }
-
 })
 
 module.exports=model('Person', personSchema)
