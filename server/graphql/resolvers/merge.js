@@ -89,9 +89,10 @@ const NotificationgqlParser = (notification) => {
 };
 
 const AttendancegqlParser = (attendance) => {
-  console.log(attendance)
+  console.log(attendance);
   return {
     ...attendance._doc,
+    creator: person.bind(this, attendance._doc.creator),
     course: course.bind(this, attendance._doc.course),
   };
 };
@@ -105,5 +106,5 @@ module.exports = {
   CoursegqlParser,
   PersongqlParser,
   NotificationgqlParser,
-  AttendancegqlParser
+  AttendancegqlParser,
 };

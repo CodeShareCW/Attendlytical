@@ -6,6 +6,10 @@ const attendanceSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
+    creator: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     start: {
       type: String,
       required: true,

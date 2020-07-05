@@ -45,6 +45,7 @@ module.exports = gql`
 
   type Attendance {
     _id: ID!
+    creator: Person!
     course: Course!
     start: String!
     end: String!
@@ -114,9 +115,7 @@ module.exports = gql`
     getNotification(notificationID: ID!): Notification!
 
     getAttendance(attendanceID: ID!): Attendance!
-    getCourseAttendance(courseID: ID!): [Attendance]
-    getCoursesAttendance: [Attendance]
-    
+    getAllAttendance: [Attendance!]    
   }
 
   type Mutation {

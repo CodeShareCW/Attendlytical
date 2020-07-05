@@ -26,42 +26,16 @@ module.exports = {
         throw new UserInputError(err.message, { errors });
       }
     },
-    async getCourseAttendance(_, { courseID }, context) {
+    async getAllAttendance(_, __, context) {
       const currUser = checkAuth(context);
       let errors = {};
       try {
-        const course = await Course.findById(courseID);
-
-        if (!course) {
-          errors.general = "Course do not exist";
-          throw new UserInputError("Course do not exist", { errors });
-        }
-
-        const all_attendance_for_this_course = await Attendance.find({
-          course: courseID,
+        const createdAttendance_list = await Attendance.find({
+          creator: currUser.id,
         }).sort({ createdAt: -1 });
-        return all_attendance_for_this_course.map((attendance) => {
-          return AttendancegqlParser(attendance);
-        });
-      } catch (err) {
-        errors.general = err.message;
-        throw new UserInputError(err.message, { errors });
-      }
-    },
-    async getCoursesAttendance(_, __, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        const courses = await Course.find({ creator: currUser.id });
-
-        //TODO: BUG!! Give null items from the array
-        return courses.map(async course => {
-          const all_attendance_for_this_course = await Attendance.find({
-            course: course.id
-          }).sort({ createdAt: -1 });
-          return all_attendance_for_this_course.map((attendance) => AttendancegqlParser(attendance)
-          );
-        });
+        return createdAttendance_list.map((attendance) =>
+          AttendancegqlParser(attendance)
+        );
       } catch (err) {
         errors.general = err.message;
         throw new UserInputError(err.message, { errors });
@@ -88,15 +62,25 @@ module.exports = {
             { errors }
           );
         }
-        console.log("here");
 
+        const course = await Course.find({_id: courseID, creator: currUser.id});
+        if (course.length===0) {
+          errors.general = "Course do not exist or current user is not course owner";
+          throw new UserInputError("Course do not exist or current user is not course owner", { errors });
+        }
+        console.log(course)
+        
         const attendance = new Attendance({
           start,
           end,
           date,
           course: courseID,
+          creator: currUser.id,
         });
 
+        //Because the course give the array, we need to put index
+        course[0].attendanceList.push(attendance);
+        await course[0].save();
         await attendance.save();
 
         return AttendancegqlParser(attendance);

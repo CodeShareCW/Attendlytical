@@ -295,7 +295,8 @@ module.exports = {
           course: course2enrol.id,
           student: currUser.id,
         });
-        if (checkPending) {
+        
+        if ( checkPending.length > 0) {
           errors.general = `Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`;
           throw new UserInputError(`Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`, { errors });
         }
