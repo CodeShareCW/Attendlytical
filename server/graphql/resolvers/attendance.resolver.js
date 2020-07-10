@@ -45,9 +45,10 @@ module.exports = {
   Mutation: {
     async createAttendance(
       _,
-      { attendanceInput: { start, end, date, courseID } },
+      { attendanceInput: { start, end, date, courseID, attendees, absentees} },
       context
     ) {
+
       const currUser = checkAuth(context);
       const { valid, errors } = validateAttendanceInput(start, end, date);
       try {
@@ -69,6 +70,8 @@ module.exports = {
           throw new UserInputError("Course do not exist or current user is not course owner", { errors });
         }
         console.log(course)
+        console.log(absentees)
+        console.log(attendees)
         
         const attendance = new Attendance({
           start,
@@ -76,6 +79,8 @@ module.exports = {
           date,
           course: courseID,
           creator: currUser.id,
+          attendees: attendees,
+          absentees: absentees
         });
 
         //Because the course give the array, we need to put index

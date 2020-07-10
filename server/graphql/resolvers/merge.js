@@ -92,6 +92,8 @@ const AttendancegqlParser = (attendance) => {
   console.log(attendance);
   return {
     ...attendance._doc,
+    attendees: people.bind(this, attendance._doc.attendees),
+    absentees: people.bind(this, attendance._doc.absentees),
     creator: person.bind(this, attendance._doc.creator),
     course: course.bind(this, attendance._doc.course),
   };

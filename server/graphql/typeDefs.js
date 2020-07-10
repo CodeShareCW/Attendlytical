@@ -51,7 +51,7 @@ module.exports = gql`
     end: String!
     date: String!
     gPhoto: [GroupPhoto!]
-    absentees: [Person!]
+    absentees: [ID!]
     attendees: [Person!]
   }
 
@@ -98,6 +98,8 @@ module.exports = gql`
     end: String!
     date: String!
     courseID: ID!
+    attendees: [ID!]
+    absentees: [ID!]
   }
 
   """
