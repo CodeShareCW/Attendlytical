@@ -69,9 +69,6 @@ module.exports = {
           errors.general = "Course do not exist or current user is not course owner";
           throw new UserInputError("Course do not exist or current user is not course owner", { errors });
         }
-        console.log(course)
-        console.log(absentees)
-        console.log(attendees)
         
         const attendance = new Attendance({
           start,
@@ -79,8 +76,8 @@ module.exports = {
           date,
           course: courseID,
           creator: currUser.id,
-          attendees: attendees,
-          absentees: absentees
+          attendees,
+          absentees
         });
 
         //Because the course give the array, we need to put index
