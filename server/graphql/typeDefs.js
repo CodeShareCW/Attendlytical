@@ -51,7 +51,7 @@ module.exports = gql`
     end: String!
     date: String!
     gPhoto: [GroupPhoto!]
-    absentees: [ID!]
+    absentees: [Person!]
     attendees: [Person!]
   }
 
@@ -138,6 +138,6 @@ module.exports = gql`
     addPhoto(data: String!): Photo!
     deletePhoto(data: String!): Photo
 
-    addGroupPhoto(data: String!): GroupPhoto!
+    addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
   }
 `;
