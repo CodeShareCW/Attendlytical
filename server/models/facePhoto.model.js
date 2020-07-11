@@ -1,7 +1,7 @@
 const {model, Schema}=require('mongoose')
 
 const facePhotoSchema=new Schema({
-    creatorID:{
+    creator:{
         type: Schema.Types.ObjectId,
         required: true
     },
@@ -10,7 +10,7 @@ const facePhotoSchema=new Schema({
         required: true
     },
     faceDescriptor: {
-        type: [Schema.Types.Double],
+        type: [Schema.Types.Decimal128],
         required: true
     }
 },

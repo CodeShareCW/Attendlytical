@@ -1,7 +1,7 @@
 const {model, Schema}=require('mongoose')
 
 const groupPhotoSchema=new Schema({
-    attendanceID:{
+    attendance:{
         type: Schema.Types.ObjectId,
         required: true
     },

@@ -57,6 +57,17 @@ const notifications = async (notificationID) => {
   }
 };
 
+const attendance = async (attendanceID) => {
+  try {
+    const results = await Attendance.findByID(attendanceID);
+    return results.map((r) => {
+      return AttendancegqlParser(r);
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 const PersongqlParser = (person, token) => {
   return {
     ...person._doc,
@@ -99,6 +110,22 @@ const AttendancegqlParser = (attendance) => {
   };
 };
 
+const FacePhotogqlParser = (photo) => {
+  console.log(photo);
+  return {
+    ...photo._doc,
+    creator: person.bind(this, photo._doc.creator),
+  };
+};
+
+const GroupPhotogqlParser = (gPhoto) => {
+  console.log(gPhoto);
+  return {
+    ...gPhoto._doc,
+    attendance: attendance.bind(this, gPhoto._doc.attendance),
+  };
+};
+
 module.exports = {
   person,
   people,
@@ -109,4 +136,6 @@ module.exports = {
   PersongqlParser,
   NotificationgqlParser,
   AttendancegqlParser,
+  FacePhotogqlParser,
+  GroupPhotogqlParser
 };

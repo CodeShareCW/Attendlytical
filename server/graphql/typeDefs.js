@@ -61,13 +61,6 @@ module.exports = gql`
     data: String!
   }
 
-  type FacePhoto {
-    _id: ID!
-    creator: Person!
-    data: String!
-    faceDescriptor: [Float!]
-  }
-
   type Photo {
     _id: ID!
     creator: Person!
@@ -142,10 +135,9 @@ module.exports = gql`
     createAttendance(attendanceInput: attendanceInput!): Attendance!
     deleteAttendance(attendanceID: ID!): String
 
-    addPhoto(data: String!): Photo!
-    deletePhoto(data: String!): Photo
+    addPhoto(faceDescriptor: [Float!], data: String!): Photo!
+    deletePhoto(facePhotoID: ID!): String
 
     addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
-    addFacePhoto(faceDescriptor: [Float!], data: String!): FacePhoto!
   }
 `;
