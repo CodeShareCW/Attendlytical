@@ -1,4 +1,3 @@
-const Attendance = require("../../models/attendance.model");
 const FacePhoto = require("../../models/facePhoto.model");
 
 module.exports = {
@@ -8,7 +7,7 @@ module.exports = {
       let errors = {};
 
       try {
-        const facePhoto = new GroupPhoto({
+        const facePhoto = new FacePhoto({
           creatorID: currUser.id,
           data,
           faceDescriptor
