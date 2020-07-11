@@ -2,6 +2,7 @@ const personResolvers=require('./person.resolver')
 const courseResolvers=require('./course.resolver')
 const notificationResolvers=require('./notification.resolver')
 const attendanceResolvers=require('./attendance.resolver')
+const groupPhotoResolvers=require('./groupPhoto.resolver')
 module.exports={
     Query: {
         ...personResolvers.Query,
@@ -12,6 +13,7 @@ module.exports={
     Mutation: {
         ...personResolvers.Mutation,
         ...courseResolvers.Mutation,
-        ...attendanceResolvers.Mutation
+        ...attendanceResolvers.Mutation,
+        ...groupPhotoResolvers.Mutation
     }
 }
