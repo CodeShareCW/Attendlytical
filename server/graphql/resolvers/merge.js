@@ -115,6 +115,7 @@ const FacePhotogqlParser = (photo) => {
   return {
     ...photo._doc,
     creator: person.bind(this, photo._doc.creator),
+    faceDescriptor: photo._doc.faceDescriptor.map(p=>p.toString())
   };
 };
 
