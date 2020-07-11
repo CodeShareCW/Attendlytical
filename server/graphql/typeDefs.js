@@ -61,6 +61,13 @@ module.exports = gql`
     data: String!
   }
 
+  type FacePhoto {
+    _id: ID!
+    creator: Person!
+    data: String!
+    faceDescriptor: [Float!]
+  }
+
   type Photo {
     _id: ID!
     creator: Person!
