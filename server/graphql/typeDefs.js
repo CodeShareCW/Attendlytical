@@ -139,5 +139,6 @@ module.exports = gql`
     deletePhoto(data: String!): Photo
 
     addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
+    addFacePhoto(faceDescriptor: [Float!], data: String!): FacePhoto!
   }
 `;
