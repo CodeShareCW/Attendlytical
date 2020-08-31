@@ -15,7 +15,7 @@ const person = async (personID) => {
 
 const people = async (personID) => {
   try {
-    const results = await Person.find({ _id: { $in: personID } });
+    const results = await Person.find({ _id: { $in: personID } }).sort({firstName: 1});
     if (results)
       return results.map((r) => {
         return PersongqlParser(r);
@@ -71,31 +71,33 @@ const attendance = async (attendanceID) => {
 const PersongqlParser = (person, token) => {
   return {
     ...person._doc,
-    createdAt: new Date(person._doc.createdAt).toString(),
-    lastLogin: new Date(person._doc.lastLogin).toString(),
+    createdAt: new Date(person._doc.createdAt).toISOString(),
+    lastLogin: new Date(person._doc.lastLogin).toISOString(),
     enrolledCourses: courses.bind(this, person._doc.enrolledCourses),
     createdCourses: courses.bind(this, person._doc.createdCourses),
-    notification: notifications.bind(this, person._doc.notification),
-    token: token,
+    notifications: notifications.bind(this, person._doc.notification),
+    token,
   };
 };
 
-const CoursegqlParser = (course) => {
+const CoursegqlParser = (course, hasNextPage) => {
   return {
     ...course._doc,
-    createdAt: new Date(course._doc.createdAt).toString(),
-    updatedAt: new Date(course._doc.updatedAt).toString(),
+    createdAt: new Date(course._doc.createdAt).toISOString(),
+    updatedAt: new Date(course._doc.updatedAt).toISOString(),
     creator: person.bind(this, course._doc.creator),
     enrolledStudents: people.bind(this, course._doc.enrolledStudents),
+    hasNextPage
   };
 };
 
-const NotificationgqlParser = (notification) => {
+const NotificationgqlParser = (notification, hasNextPage) => {
   return {
     ...notification._doc,
-    createdAt: new Date(notification._doc.createdAt).toString(),
-    updatedAt: new Date(notification._doc.updatedAt).toString(),
+    createdAt: new Date(notification._doc.createdAt).toISOString(),
+    updatedAt: new Date(notification._doc.updatedAt).toISOString(),
     receiver: person.bind(this, notification._doc.receiver),
+    hasNextPage
   };
 };
 
@@ -115,7 +117,7 @@ const FacePhotogqlParser = (photo) => {
   return {
     ...photo._doc,
     creator: person.bind(this, photo._doc.creator),
-    faceDescriptor: photo._doc.faceDescriptor.map(p=>p.toString())
+    faceDescriptor: photo._doc.faceDescriptor.map(p=>p.toISOString())
   };
 };
 

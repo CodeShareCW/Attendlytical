@@ -1,0 +1,29 @@
+.takeAttendance__layout{
+    min-height: 100vh !important;
+}
+.takeAttendance__content{
+    margin: 24px 16px 0;
+}
+
+.takeAttendance__card{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.takeAttendance__card__webcam{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.takeAttendance__card__participant{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.takeAttendance__card__participant *
+{
+    background: aqua !important;
+}

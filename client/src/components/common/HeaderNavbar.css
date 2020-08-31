@@ -1,0 +1,22 @@
+.headerNavbar__text{
+    float: left;
+}
+.headerNavbar__text__item:first-child{
+    font-weight: bold;
+    color: #99f;
+    margin-right: 5px;
+}
+.headerNavbar__text__item:nth-child(2){
+    font-weight: bold;
+    color: #fff;
+    margin-right: 5px;
+}
+.headerNavbar__menu{
+    float: right;
+}
+
+.headerNavbar .avatar{
+    top: 10px;
+    float: left;
+    margin-right: 10px;
+}

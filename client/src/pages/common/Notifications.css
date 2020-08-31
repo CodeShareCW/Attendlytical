@@ -1,0 +1,24 @@
+.notifications__card{
+    margin: 24px 16px !important;
+}
+
+.notifications__loading__container{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.notifications__loading{
+    display: flex;
+    width: 20%;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+
+.notifications__allLoadedCard{
+    background: rgb(230, 230, 230) !important;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid rgb(180, 180, 255, 0.8);
+}

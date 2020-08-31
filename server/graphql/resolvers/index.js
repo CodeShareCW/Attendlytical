@@ -14,6 +14,7 @@ module.exports={
     Mutation: {
         ...personResolvers.Mutation,
         ...courseResolvers.Mutation,
+        ...notificationResolvers.Mutation,
         ...attendanceResolvers.Mutation,
         ...groupPhotoResolvers.Mutation,
         ...facePhotoResolvers.Mutation

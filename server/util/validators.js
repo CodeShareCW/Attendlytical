@@ -2,6 +2,7 @@ module.exports.validateRegisterInput = (
   firstName,
   lastName,
   email,
+  cardID,
   password,
   confirmPassword
 ) => {
@@ -13,6 +14,10 @@ module.exports.validateRegisterInput = (
 
   if (lastName.trim() === "") {
     errors.lastName = "Last name must not be empty";
+  }
+  
+  if (cardID.trim() === "") {
+    errors.lastName = "CardID must not be empty";
   }
 
   if (email.trim() === "") {

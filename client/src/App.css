@@ -1,5 +1,25 @@
+@import '~antd/dist/antd.css';
+
 .App {
   text-align: center;
+}
+.layout{
+  min-height: 100vh !important;
+}
+
+.error{
+  background-color: pink;
+  color: red;
+  font-weight: 500;
+  padding: 20px;
+}
+
+.breadcrumb{
+  margin: 20px !important;
+}
+
+.breadcrumb__item{
+  font-size: 15px !important;
 }
 
 .App-logo {

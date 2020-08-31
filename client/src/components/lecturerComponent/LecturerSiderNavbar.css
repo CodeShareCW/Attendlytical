@@ -1,0 +1,33 @@
+.lecturerSiderNavbar{
+    position: sticky !important;
+    top: 15px;
+}
+.lecturerSiderNavbar__logo{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 50px;
+}
+
+.lecturerSiderNavbar__text__hidden{
+    display: none;
+}
+
+.lecturerSiderNavbar__text__item:first-child{
+    font-weight: bold;
+    color: #99f;
+    margin-right: 5px;
+}
+
+.lecturerSiderNavbar__text__item:nth-child(2){
+    font-weight: bold;
+    color: #fff;
+}
+
+
+@media only screen and (min-width: 960px) {
+    /* styles for browsers larger than 960px; */
+
+}

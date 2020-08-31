@@ -1,0 +1,37 @@
+.courseDetails__card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.courseDetails__row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.courseDetails__info{
+    background-color: rgba(224, 224, 224, 0.925) !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    min-width: 800px;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+
+.courseDetails__shortID{
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.courseDetails__addStudentForm{
+    display: flex !important;
+    align-items: flex-end !important;
+    
+}
+.courseDetails__addStudentForm__input{
+    width: 450px !important;
+    margin-right: 20px !important;
+}

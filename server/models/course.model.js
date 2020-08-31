@@ -5,6 +5,10 @@ const courseSchema=new Schema({
         type: Schema.Types.ObjectId,
         required: true
     },
+    shortID:{
+        type: String,
+        default: "abc"
+    },
     code:{
         type: String,
         required: true

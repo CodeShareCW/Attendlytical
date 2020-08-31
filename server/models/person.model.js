@@ -14,6 +14,16 @@ const personSchema=new Schema({
         required: true,
         unique: true
     },
+    cardID:{
+        type: String,
+        required: true,
+    },
+    profilePictureURL:{
+        type: String
+    },
+    profilePicturePublicID:{
+        type: String
+    },
     password: {
         type: String,
         required: true

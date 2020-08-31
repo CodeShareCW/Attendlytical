@@ -11,27 +11,35 @@ module.exports = gql`
     lastName: String!
     email: String!
     password: String!
+    cardID: String!
+    profilePictureURL: String
+    profilePicturePublicID: String
     notifications: [Notification!]
     createdAt: String
     lastLogin: String
     userLevel: Int!
-    token: String!
+    token: String
   }
 
-  type pendingEnrolledCourse{
+  type pendingEnrolledCourse {
     _id: ID!
     student: Person!
     course: Course!
+    status: String!
+    message: String!
   }
 
   type Course {
     _id: ID!
+    shortID: String!
     creator: Person!
     code: String!
     name: String!
     session: String!
     enrolledStudents: [Person!]
     attendanceList: [Attendance!]
+    createdAt: String
+    hasNextPage: Boolean
   }
 
   type Notification {
@@ -39,8 +47,10 @@ module.exports = gql`
     receiver: Person!
     title: String!
     content: String!
+    checked: Boolean!
     createdAt: String!
     updatedAt: String!
+    hasNextPage: Boolean
   }
 
   type Attendance {
@@ -76,6 +86,7 @@ module.exports = gql`
     firstName: String!
     lastName: String!
     email: String!
+    cardID: String!
     password: String!
     confirmPassword: String!
     userLevel: Int!
@@ -110,27 +121,50 @@ module.exports = gql`
     getPeople: [Person]
     getPerson(personID: ID!): Person!
 
-    getCourses: [Course]
+    getCreatedCourses(cursor: String, first: Int!): [Course]
+    getEnrolledCourses(cursor: String, first: Int!): [Course]
+    getCreatedCoursesCount: Int!
+    getEnrolledCoursesCount: Int!
     getCourse(courseID: ID!): Course!
 
-    getNotifications: [Notification]
+    getWarning(courseID: ID!): Int!
+
+    getNotifications(cursor: String, limit: Int!): [Notification]
     getNotification(notificationID: ID!): Notification!
+    getUncheckedNotificationsCount: Int!
 
     getAttendance(attendanceID: ID!): Attendance!
-    getAllAttendance: [Attendance!]    
+    getAllAttendance: [Attendance!]
   }
 
   type Mutation {
+    #TODO: Remove this later
+    testingRegisterStudent(courseID: String!): String
     register(personInput: personInput!): Person!
     login(email: String!, password: String!): Person!
 
+    editProfile(
+      firstName: String!
+      lastName: String!
+      cardID: String!
+      profilePicture: String
+    ): Person!
+
+    testingCreateCourse: String
+    testingDeleteAllCourse: String
+
     createCourse(courseInput: courseInput!): Course!
-    deleteCourse(personID: ID!, courseID: ID!): Course
-    approveEnrolment(enrolmentID: ID!): String
-    rejectEnrolment(enrolmentID: ID!): String
+    deleteCourse(courseID: ID!): Course
+    approveEnrolment(notificationID: ID!): String
+    rejectEnrolment(notificationID: ID!): String
+
+    addParticipant(email: String!, courseID: String!): Person!
+    kickParticipant(participantID: ID!, courseID: String!): String!
+    warnParticipant(participantID: ID!, courseID: String!): String!
+    obtainStudentWarning(participantID: ID!, courseID: String!): Int!
 
     enrolCourse(courseID: ID!): Course!
-    unEnrolCourse(courseID: ID!): Course!
+    withdrawCourse(courseID: ID!): Course!
 
     createAttendance(attendanceInput: attendanceInput!): Attendance!
     deleteAttendance(attendanceID: ID!): String
@@ -139,5 +173,11 @@ module.exports = gql`
     deletePhoto(facePhotoID: ID!): String
 
     addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
+
+    getNotifications: [Notification!]
+    getNotification(notificationID: ID!): Notification!
+    createNotification: String
+    deleteAllNotification: String
+    checkNotification(notificationID: ID!): Notification!
   }
 `;

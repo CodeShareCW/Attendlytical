@@ -1,0 +1,27 @@
+.studentSiderNavbar{
+    position: sticky !important;
+    top: 15px;
+}
+.studentSiderNavbar__logo{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 50px;
+}
+
+.studentSiderNavbar__text__hidden{
+    display: none;
+}
+
+.studentSiderNavbar__text__item:first-child{
+    font-weight: bold;
+    color: #99f;    
+    margin-right: 5px;
+}
+
+.studentSiderNavbar__text__item:nth-child(2){
+    font-weight: bold;
+    color: #fff;
+}
