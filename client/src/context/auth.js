@@ -1,5 +1,6 @@
-import React, { useReducer, createContext } from 'react';
 import jwtDecode from 'jwt-decode';
+import React, { createContext, useReducer } from 'react';
+import { actionTypes } from "../globalData";
 
 const initialState = {
   user: null
@@ -24,17 +25,17 @@ const AuthContext = createContext({
 
 function authReducer(state, action) {
   switch (action.type) {
-    case 'LOGIN':
+    case actionTypes.LOGIN_ACTION:
       return {
         ...state,
         user: action.payload
       };
-    case "EDIT_PROFILE":
+    case actionTypes.EDIT_PROFILE_ACTION:
       return {
         ...state,
         user: action.updated
       }
-    case 'LOGOUT':
+    case actionTypes.LOGOUT_ACTION:
       return {
         ...state,
         user: null
@@ -50,19 +51,19 @@ function AuthProvider(props) {
   function login(userData) {
     localStorage.setItem('jwtToken', userData.token);
     dispatch({
-      type: 'LOGIN',
+      type: actionTypes.LOGIN_ACTION,
       payload: userData
     });
   }
 
   function editProfile(updated) {
     localStorage.setItem('jwtToken', updated.token);
-    dispatch({ type: 'EDIT_PROFILE', updated });
+    dispatch({ type: actionTypes.EDIT_PROFILE_ACTION, updated });
   }
 
   function logout() {
     localStorage.removeItem('jwtToken');
-    dispatch({ type: 'LOGOUT' });
+    dispatch({ type: actionTypes.LOGOUT_ACTION });
     window.location.reload();
   }
 
@@ -75,3 +76,4 @@ function AuthProvider(props) {
 }
 
 export { AuthContext, AuthProvider };
+

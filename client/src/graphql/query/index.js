@@ -1,20 +1,31 @@
-import gql from "graphql-tag";
+import { FETCH_CREATEDCOURSE_QUERY } from "./course/createdCourseQuery";
+import {
+  FETCH_CREATEDCOURSES_COUNT_QUERY,
+  FETCH_CREATEDCOURSES_QUERY
+} from "./course/createdCoursesQuery";
+import { FETCH_ENROLLEDCOURSE_QUERY } from "./course/enrolledCourseQuery";
+import { FETCH_ENROLLEDCOURSES_QUERY } from "./course/enrolledCoursesQuery";
+import {
+  FETCH_ENROLPENDING_COUNT_QUERY,
+  FETCH_ENROLPENDING_QUERY
+} from "./enrolment/enrolPendingQuery";
+import {
+  FETCH_ENROLREQUEST_COUNT_QUERY,
+  FETCH_ENROLREQUEST_QUERY
+} from "./enrolment/enrolRequestQuery";
+import { FETCH_NOTIFICATION_QUERY, FETCH_UNCHECKED_NOTIFICATIONS_QUERY } from "./notification/notificationsQuery";
 
-export const FETCH_UNCHECKED_NOTIFICATIONS_QUERY = gql`
-  query getUncheckedNotificationsCount {
-    getUncheckedNotificationsCount
-  }
-`;
 
-export const FETCH_NOTIFICATION_QUERY = gql`
-  query getNotifications($cursor: String, $limit: Int!) {
-    getNotifications(cursor: $cursor, limit: $limit) {
-      _id
-      title
-      content
-      checked
-      createdAt
-      updatedAt
-    }
-  }
-`;
+export {
+  FETCH_CREATEDCOURSES_COUNT_QUERY,
+  FETCH_CREATEDCOURSE_QUERY,
+  FETCH_CREATEDCOURSES_QUERY,
+};
+export { FETCH_ENROLLEDCOURSE_QUERY, FETCH_ENROLLEDCOURSES_QUERY };
+export { FETCH_ENROLREQUEST_COUNT_QUERY, FETCH_ENROLREQUEST_QUERY };
+export { FETCH_ENROLPENDING_COUNT_QUERY, FETCH_ENROLPENDING_QUERY };
+export { FETCH_UNCHECKED_NOTIFICATIONS_QUERY, FETCH_NOTIFICATION_QUERY };
+
+
+
+

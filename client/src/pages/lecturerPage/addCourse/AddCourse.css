@@ -1,0 +1,27 @@
+.addCourse__layout{
+    min-height: 100vh !important;
+}
+
+.addCourse__card{
+    display: flex;
+    justify-content: center;
+    min-width: 50% !important;
+    max-height: 60% !important;
+}
+
+.addCourse__background{
+    background: #fff !important;
+    padding: 24;
+}
+
+.addCourse__content{
+    display: flex;
+    justify-content: center;
+    margin: 24px 16px 0;
+}
+
+.addCourse__form{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}

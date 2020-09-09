@@ -1,38 +1,48 @@
-import React, { useReducer, createContext } from "react";
+import React, { createContext, useReducer } from "react";
+import { actionTypes } from "../globalData";
 
 const initialState = {
   notifications: [],
   uncheckedNotificationCount: 0,
   fetchedDone: false,
   pressedNotification: false,
+  isInitialAccess: false,
 };
 
 const NotificationContext = createContext({});
 
 function notificationReducer(state, action) {
   switch (action.type) {
-    case "FETCH_DONE":
+    case actionTypes.FETCH_NOTIFICATIONS_DONE_ACTION:
       return {
         ...state,
         fetchedDone: action.done,
       };
-    case "ALREADY_CLICK_NOTIFICATION_BUTTON":
+
+    case actionTypes.PRESSED_NOTIFICATION_ACTION:
       return {
         ...state,
-        pressedNotification: action.value
-      }
-    case "LOAD_NOTIFICATIONS":
+        pressedNotification: action.done,
+      };
+
+    case actionTypes.SET_IS_INITIAL_ACCESS_ACTION:
+      return {
+        ...state,
+        isInitialAccess: action.done,
+      };
+      
+    case actionTypes.LOAD_NOTIFICATIONS_ACTION:
       return {
         ...state,
         notifications: [...state.notifications, ...action.notifications],
       };
-    case "SET_UNCHECKED_NOTIFICATION_COUNT":
+    case actionTypes.SET_UNCHECKED_NOTIFICATION_COUNT_ACTION:
       return {
         ...state,
         uncheckedNotificationCount: action.value,
       };
 
-    case "ACCEPT_ENROLMENT":
+    case actionTypes.ACCEPT_ENROLMENT_ACTION:
       let approveEnrolment = state.notifications.find(
         (notification) => notification._id === action.notification._id
       );
@@ -40,7 +50,7 @@ function notificationReducer(state, action) {
 
       return state;
 
-    case "REJECT_ENROLMENT":
+    case actionTypes.REJECT_ENROLMENT_ACTION:
       let rejectedEnrolment = state.notifications.find(
         (notification) => notification._id === action.notification._id
       );
@@ -54,28 +64,35 @@ function notificationReducer(state, action) {
 function NotificationProvider(props) {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
 
-  function setFetchedDone(done) {
-    dispatch({ type: "FETCH_DONE", done });
+  function setIsInitialAccess(done) {
+    dispatch({ type: actionTypes.SET_IS_INITIAL_ACCESS_ACTION, done });
   }
 
-  function setPressedNotification(value){
-    dispatch({ type: "ALREADY_CLICK_NOTIFICATION_BUTTON", value });
+  function setFetchedDone(done) {
+    dispatch({ type: actionTypes.FETCH_NOTIFICATIONS_DONE_ACTION, done });
+  }
+
+  function setPressedNotification(done) {
+    dispatch({ type: actionTypes.PRESSED_NOTIFICATION_ACTION, done });
   }
 
   function setUncheckedNotificationCount(value) {
-    dispatch({ type: "SET_UNCHECKED_NOTIFICATION_COUNT", value });
+    dispatch({
+      type: actionTypes.SET_UNCHECKED_NOTIFICATION_COUNT_ACTION,
+      value,
+    });
   }
 
   function loadNotifications(notifications) {
-    dispatch({ type: "LOAD_NOTIFICATIONS", notifications });
+    dispatch({ type: actionTypes.LOAD_NOTIFICATIONS_ACTION, notifications });
   }
 
   function approveEnrolment(notification) {
-    dispatch({ type: "ACCEPT_ENROLMENT", notification });
+    dispatch({ type: actionTypes.ACCEPT_ENROLMENT_ACTION, notification });
   }
 
   function rejectEnrolment(notification) {
-    dispatch({ type: "REJECT_ENROLMENT", notification });
+    dispatch({ type: actionTypes.REJECT_ENROLMENT_ACTION, notification });
   }
 
   return (
@@ -84,8 +101,10 @@ function NotificationProvider(props) {
         notifications: state.notifications,
         uncheckedNotificationCount: state.uncheckedNotificationCount,
         fetchedDone: state.fetchedDone,
-        pressedNotification:state.pressedNotification,
+        pressedNotification: state.pressedNotification,
+        isInitialAccess: state.isInitialAccess,
 
+        setIsInitialAccess,
         setPressedNotification,
         loadNotifications,
         setUncheckedNotificationCount,
@@ -99,3 +118,4 @@ function NotificationProvider(props) {
 }
 
 export { NotificationContext, NotificationProvider };
+

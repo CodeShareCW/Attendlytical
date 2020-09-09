@@ -17,6 +17,10 @@ const pendingEnrolledCourseSchema=new Schema({
         type: Schema.Types.ObjectId,
         require: true
     },
+    courseOwner: {
+        type: Schema.Types.ObjectId,
+        require: true
+    },
 },{timestamps: true})
 
 module.exports=model('PendingEnrolledCourse', pendingEnrolledCourseSchema)

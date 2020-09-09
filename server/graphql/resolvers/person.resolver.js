@@ -12,7 +12,13 @@ const {
   validateRegisterInput,
   validateLoginInput,
 } = require("../../util/validators");
+
 const checkAuth = require("../../util/check-auth");
+
+const {sendEmail}=require("../../util/mail");
+
+//global mail type naming
+const {MAIL_TEMPLATE_TYPE} = require("../../globalData");
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -29,7 +35,7 @@ function generateToken(person) {
     },
     SECRET_KEY,
     {
-      expiresIn: "1h",
+      expiresIn: "8h",
     }
   );
   return token;
@@ -149,6 +155,9 @@ module.exports = {
           newPerson.notifications.push(notification.id);
         }
         const savedPerson = await newPerson.save();
+
+        //send email
+        sendEmail(email, firstName, MAIL_TEMPLATE_TYPE.Welcome);
 
         const token = generateToken(savedPerson);
         return PersongqlParser(savedPerson, token);

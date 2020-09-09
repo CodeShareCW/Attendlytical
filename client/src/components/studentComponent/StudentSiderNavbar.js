@@ -1,23 +1,10 @@
-/*
-  student navbar
- */
-
-
-//react
-import React, {useContext} from "react";
-import { Link } from "react-router-dom";
-
-//antd
 import { Avatar } from "antd";
-
-//context
-import { NavbarContext } from "../../context/navbar";
-
-//comp
-import StudentMenu from "./StudentMenu";
-
-//style
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { NavbarContext } from "../../context";
+import { StudentMenu } from "./";
 import "./StudentSiderNavbar.css";
+
 
 export default () => {
   const {collapsed}=useContext(NavbarContext);

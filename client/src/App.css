@@ -7,11 +7,28 @@
   min-height: 100vh !important;
 }
 
+.alert{
+  color: red;
+  text-align: "center"!important;
+  font-style: italic;
+}
+
+.alert::before{
+  content: "*";
+}
+
 .error{
   background-color: pink;
   color: red;
   font-weight: 500;
   padding: 20px;
+}
+
+.allLoadedCard{
+  background: rgb(230, 230, 230) !important;
+  text-align: center;
+  padding: 10px;
+  border: 2px solid rgb(180, 180, 255, 0.8);
 }
 
 .breadcrumb{

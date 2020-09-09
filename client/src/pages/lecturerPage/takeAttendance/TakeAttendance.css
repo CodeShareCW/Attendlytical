@@ -1,0 +1,23 @@
+.takeAttendance__content{
+
+}
+
+.takeAttendance__card{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.takeAttendance__card__webcam{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.takeAttendance__card__item{
+}
+
+.takeAttendance__card__participant *
+{
+}

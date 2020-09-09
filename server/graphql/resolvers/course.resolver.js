@@ -9,43 +9,49 @@ const Warning = require("../../models/warning.model");
 
 const { validateCourseInput } = require("../../util/validators");
 
-const { PersongqlParser, CoursegqlParser, course } = require("./merge");
+const {
+  PersongqlParser,
+  CoursegqlParser,
+  CoursesgqlParser,
+} = require("./merge");
 
 const checkAuth = require("../../util/check-auth");
 
+const { sendEmail } = require("../../util/mail");
+
+//global mail type naming
+const { MAIL_TEMPLATE_TYPE } = require("../../globalData");
+
 module.exports = {
   Query: {
-    async getEnrolledCourses(_, { cursor, first }, context) {
+    async getEnrolledCourses(_, { cursor, limit }, context) {
       const currUser = checkAuth(context);
       try {
-        let courseEnrolled;
+        let coursesEnrolled;
         if (!cursor) {
-          courseEnrolled = await Course.find({
+          coursesEnrolled = await Course.find({
             enrolledStudents: currUser.id,
           })
-            .limit(first)
+            .limit(limit)
             .sort({ _id: -1 });
         } else {
-          courseEnrolled = await Course.find({
+          coursesEnrolled = await Course.find({
             enrolledStudents: currUser.id,
             _id: { $lt: cursor },
           })
-            .limit(first)
+            .limit(limit)
             .sort({ _id: -1 });
         }
-        let hasNextPage;
+        let hasNextPage = true;
 
-        if (courseEnrolled.length < first) hasNextPage = false;
-        else hasNextPage = true;
+        if (coursesEnrolled.length === 0) hasNextPage = false;
 
-        return courseEnrolled.map((course) => {
-          return CoursegqlParser(course, hasNextPage);
-        });
+        return CoursesgqlParser(coursesEnrolled, hasNextPage);
       } catch (err) {
         throw err;
       }
     },
-    async getCreatedCourses(_, { cursor, first }, context) {
+    async getCreatedCourses(_, { cursor, limit }, context) {
       const currUser = checkAuth(context);
       try {
         let courseCreated;
@@ -53,22 +59,21 @@ module.exports = {
           courseCreated = await Course.find({
             creator: currUser.id,
           })
-            .limit(first)
+            .limit(limit)
             .sort({ _id: -1 });
         } else {
           courseCreated = await Course.find({
             creator: currUser.id,
             _id: { $lt: cursor },
           })
-            .limit(first)
+            .limit(limit)
             .sort({ _id: -1 });
         }
+        let hasNextPage = true;
 
-        if (courseCreated.length < first) hasNextPage = false;
-        else hasNextPage = true;
-        return courseCreated.map((course) =>
-          CoursegqlParser(course, hasNextPage)
-        );
+        if (courseCreated.length < limit) hasNextPage = false;
+
+        return CoursesgqlParser(courseCreated, hasNextPage);
       } catch (err) {
         throw err;
       }
@@ -291,10 +296,19 @@ module.exports = {
             receiver: stud,
             title: `Course Deleted Notification - Course ID: ${course2Delete.id}`,
             content: `Course owner: [${currUser.firstName} ${currUser.lastName}] had deleted the course: ${course2Delete.name} (${course2Delete.code}-${course2Delete.session})`,
-            checked: false,
           });
 
           await notification.save();
+
+          const studentDoc = await Person.findById(stud);
+
+          //notify student through email
+          sendEmail(
+            studentDoc.email,
+            studentDoc.firstName,
+            MAIL_TEMPLATE_TYPE.DeleteCourse,
+            { owner: currUser, course: course2Delete }
+          );
         });
         return CoursegqlParser(course2Delete);
       } catch (err) {
@@ -302,129 +316,6 @@ module.exports = {
       }
     },
 
-    async approveEnrolment(_, { enrolmentID }, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "You are not a lecturer but want to approve course enrolment";
-          throw new UserInputError(
-            "You are not a lecturer but want to approve course enrolment",
-            { errors }
-          );
-        }
-
-        const pending = await PendingEnrolledCourse.findOne({
-          notification: notificationID,
-        });
-
-        if (!pending) {
-          errors.general = "The enrolment do not exist";
-          throw new UserInputError("The enrolment do not exist", { errors });
-        }
-
-        const course = await Course.findById(pending.course);
-
-        if (!course) {
-          errors.general = "The course do not exist";
-          throw new UserInputError("The course do not exist", { errors });
-        }
-
-        if (course.creator != currUser.id) {
-          errors.general = "User is not the course owner";
-          throw new UserInputError("User is not the course owner", { errors });
-        }
-
-        course.enrolledStudents.push(pending.student);
-        await course.save();
-
-        const student = await Person.findById(pending.student);
-        //update notification
-        await PendingEnrolledCourse.findByIdAndUpdate(enrolmentID, {
-          $set: {
-            status: "accepted",
-            message: `You accepted the Course Enrolment: [${course.name} (${course.code}-${course.session})] for Student: [${student.firstName} ${student.lastName} (${student.cardID})]`,
-          },
-        });
-
-        //notify student
-        notification = new Notification({
-          receiver: pending.student,
-          title: `Enrolment Status: Approved (CourseID: ${course.id})`,
-          content: `Course owner: [${currUser.firstName} ${currUser.lastName}] had approved your enrolment to Course: [${course.name} (${course.code}-${course.session})]`,
-          status: "approved",
-          checked: false,
-        });
-
-        await notification.save();
-
-        return "Approve Success!";
-      } catch (err) {
-        throw err;
-      }
-    },
-
-    async rejectEnrolment(_, { enrolmentID }, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "You are not a lecturer but want to reject course enrolment";
-          throw new UserInputError(
-            "You are not a lecturer but want to reject course enrolment",
-            { errors }
-          );
-        }
-
-        const pending = await PendingEnrolledCourse.findOne({
-          notification: notificationID,
-        });
-
-        if (!pending) {
-          errors.general = "The enrolment do not exist";
-          throw new UserInputError("The enrolment do not exist", { errors });
-        }
-
-        const course = await Course.findById(pending.course);
-
-        if (!course) {
-          errors.general = "The course do not exist";
-          throw new UserInputError("The course do not exist", { errors });
-        }
-
-        if (course.creator != currUser.id) {
-          errors.general = "User is not the course owner";
-          throw new UserInputError("User is not the course owner", { errors });
-        }
-
-        const student = await Person.findById(pending.student);
-
-        //update notification
-        await PendingEnrolledCourse.findByIdAndUpdate(enrolmentID, {
-          $set: {
-            status: "rejected",
-            message: `You rejected the Course Enrolment: [${course.name} (${course.code}-${course.session})] for Student: [${student.firstName} ${student.lastName} (${student.cardID})]`,
-          },
-        });
-
-        //notify student
-        notification = new Notification({
-          receiver: pending.student,
-          title: `Enrolment Status: Rejected (CourseID: ${course.id})`,
-          content: `Course owner: [${currUser.firstName} ${currUser.lastName}] had rejected your enrolment to course: ${course.name} (${course.code}-${course.session})`,
-          status: "rejected",
-          checked: false,
-        });
-
-        await notification.save();
-
-        return "Reject Success!";
-      } catch (err) {
-        throw err;
-      }
-    },
     /*
         Student
     */
@@ -453,6 +344,7 @@ module.exports = {
         const checkPending = await PendingEnrolledCourse.find({
           course: course2enrol.id,
           student: currUser.id,
+          status: "pending",
         });
 
         if (checkPending.length > 0) {
@@ -477,6 +369,7 @@ module.exports = {
         const pending = new PendingEnrolledCourse({
           student: currUser.id,
           course: course2enrol.id,
+          courseOwner: course2enrol.creator,
         });
 
         await pending.save();
@@ -493,10 +386,17 @@ module.exports = {
           receiver: owner.id,
           title: `Enrolment Request - Course ID: ${courseID}`,
           content: `Student: [${currUser.firstName} ${currUser.lastName}(${currUser.cardID})] requested to enrol course: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}).`,
-          checked: false,
         });
 
         await notification.save();
+
+        //notify lecturer through email
+        sendEmail(
+          owner.email,
+          owner.firstName,
+          MAIL_TEMPLATE_TYPE.EnrolRequest,
+          { student: currUser, course: course2enrol }
+        );
 
         return CoursegqlParser(course2enrol);
       } catch (err) {
@@ -554,7 +454,6 @@ module.exports = {
           receiver: owner.id,
           title: `Course Withdrawal - Course ID: ${course2withdraw.id}`,
           content: `Student: [${currUser.firstName} ${currUser.lastName}(${currUser.cardID})] had withdrawn the course: ${course2withdraw.name} (${course2withdraw.code}-${course2withdraw.session}).`,
-          checked: false,
         });
 
         await notification.save();
@@ -628,7 +527,6 @@ module.exports = {
           receiver: addedPerson.id,
           title: `Added Notification - Course ID: ${courseID}`,
           content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have added you in the course: ${course.name} (${course.code}-${course.session})`,
-          status: "invitePending",
         });
 
         await notification.save();
@@ -686,6 +584,15 @@ module.exports = {
         });
 
         await notification.save();
+
+        //notify student through email
+        sendEmail(
+          kickedPerson.email,
+          kickedPerson.firstName,
+          MAIL_TEMPLATE_TYPE.KickStudent,
+          { owner: currUser, course: course }
+        );
+
         return "Kick Success!";
       } catch (err) {
         throw err;
@@ -738,7 +645,7 @@ module.exports = {
 
           const notification = new Notification({
             receiver: participantID,
-            title: `Attendance Warning (First time) Notification - Course ID: ${courseID}`,
+            title: `Attendance Warning (limit time) Notification - Course ID: ${courseID}`,
             content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have warned your low attendance in the course: ${course.name} (${course.code}-${course.session})`,
           });
           await notification.save();
@@ -752,6 +659,14 @@ module.exports = {
           });
           await notification.save();
         }
+
+        //notify student through email
+        sendEmail(
+          warnedPerson.email,
+          warnedPerson.firstName,
+          MAIL_TEMPLATE_TYPE.WarnStudent,
+          { owner: currUser, course: course }
+        );
 
         return "Warn Success!";
       } catch (err) {

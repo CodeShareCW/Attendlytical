@@ -1,21 +1,8 @@
-/*
-  lecturer navbar
-*/
-
-//react
+import { Avatar } from "antd";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-
-//antd
-import { Avatar } from "antd";
-
-//context
-import { NavbarContext } from "../../context/navbar";
-
-//comp
-import LecturerMenu from "./LecturerMenu";
-
-//style
+import { NavbarContext } from "../../context";
+import { LecturerMenu } from "./";
 import "./LecturerSiderNavbar.css";
 
 export default () => {

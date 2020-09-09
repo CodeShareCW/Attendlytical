@@ -35,10 +35,9 @@ const course = async (courseID) => {
   }
 };
 
-const courses = async (courseID) => {
+const courses = async (coursesData) => {
   try {
-    const results = await Course.find({ _id: { $in: courseID } });
-    return results.map((r) => {
+    return coursesData.map((r) => {
       return CoursegqlParser(r);
     });
   } catch (err) {
@@ -91,6 +90,26 @@ const CoursegqlParser = (course, hasNextPage) => {
   };
 };
 
+const CoursesgqlParser=(coursesData, hasNextPage)=>{
+  
+  return {
+   courses: courses.bind(this, coursesData),
+   hasNextPage
+  }
+}
+
+const PendingEnrolledCoursegqlParser = (enrolment, hasNextPage) => {
+  return {
+    ...enrolment._doc,
+    createdAt: new Date(enrolment._doc.createdAt).toISOString(),
+    updatedAt: new Date(enrolment._doc.updatedAt).toISOString(),
+    student: person.bind(this, enrolment._doc.student),
+    course: course.bind(this, enrolment._doc.course),
+    courseOwner: person.bind(this, enrolment._doc.courseOwner),
+    hasNextPage
+  };
+};
+
 const NotificationgqlParser = (notification, hasNextPage) => {
   return {
     ...notification._doc,
@@ -129,6 +148,7 @@ const GroupPhotogqlParser = (gPhoto) => {
   };
 };
 
+
 module.exports = {
   person,
   people,
@@ -136,6 +156,9 @@ module.exports = {
   courses,
   notifications,
   CoursegqlParser,
+  CoursesgqlParser,
+
+  PendingEnrolledCoursegqlParser,
   PersongqlParser,
   NotificationgqlParser,
   AttendancegqlParser,

@@ -1,7 +1,9 @@
-import React, { useReducer, createContext } from "react";
+import React, { createContext, useReducer } from "react";
+import { actionTypes } from "../globalData";
 
 const initialState = {
   courses: [],
+  isInitialAccess: false,
   fetchedDone: false,
 };
 
@@ -9,18 +11,25 @@ const CourseContext = createContext({});
 
 function courseReducer(state, action) {
   switch (action.type) {
-    case "FETCHED_DONE":
+
+    case actionTypes.SET_IS_INITIAL_ACCESS_ACTION:
+      return {
+        ...state,
+        isInitialAccess: action.done,
+      };
+
+    case actionTypes.FETCH_COURSES_DONE_ACTION:
       return {
         ...state,
         fetchedDone: action.done,
       };
-    case "LOAD_COURSES":
+    case actionTypes.LOAD_COURSES_ACTION:
       return {
         ...state,
         courses: [...state.courses, ...action.courses],
       };
 
-    case "ADD_COURSE":
+    case actionTypes.ADD_COURSE_ACTION:
       console.log(state);
       if (state.courses) {
         return {
@@ -32,7 +41,7 @@ function courseReducer(state, action) {
         ...state,
         courses: [action.course],
       };
-    case "DELETE_COURSE":
+    case actionTypes.DELETE_COURSE_ACTION:
       let newCourses = [...state.courses];
       newCourses = newCourses.filter((course) => course._id !== action._id);
 
@@ -40,11 +49,11 @@ function courseReducer(state, action) {
         ...state,
         courses: newCourses,
       };
-    case "ENROL_COURSE":
+    case actionTypes.ENROL_COURSE_ACTION:
       return {
         ...state,
       };
-    case "WITHDRAW_COURSE":
+    case actionTypes.WITHDRAW_COURSE_ACTION:
       return {
         ...state,
       };
@@ -57,23 +66,27 @@ function courseReducer(state, action) {
 function CourseProvider(props) {
   const [state, dispatch] = useReducer(courseReducer, initialState);
 
+  function setIsInitialAccess(done) {
+    dispatch({ type: actionTypes.SET_IS_INITIAL_ACCESS_ACTION, done });
+  }
+
   function loadCourses(courses) {
-    dispatch({ type: "LOAD_COURSES", courses });
+    dispatch({ type: actionTypes.LOAD_COURSES_ACTION, courses });
   }
 
   function setFetchedDone(done) {
-    dispatch({ type: "FETCHED_DONE", done });
+    dispatch({ type: actionTypes.FETCH_COURSES_DONE_ACTION, done });
   }
 
   function addCourse(course) {
     dispatch({
-      type: "ADD_COURSE",
+      type: actionTypes.ADD_COURSE_ACTION,
       course,
     });
   }
 
   function deleteCourse(_id) {
-    dispatch({ type: "DELETE_COURSE", _id });
+    dispatch({ type: actionTypes.DELETE_COURSE_ACTION, _id });
   }
 
   return (
@@ -81,6 +94,8 @@ function CourseProvider(props) {
       value={{
         courses: state.courses,
         fetchedDone: state.fetchedDone,
+        isInitialAccess: state.isInitialAccess,
+        setIsInitialAccess,
         setFetchedDone,
         loadCourses,
         addCourse,
@@ -92,3 +107,4 @@ function CourseProvider(props) {
 }
 
 export { CourseContext, CourseProvider };
+

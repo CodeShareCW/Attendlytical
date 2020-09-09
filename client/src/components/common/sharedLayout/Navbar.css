@@ -1,0 +1,24 @@
+@media only screen and (min-width: 0px) {
+    .siderNavbar{
+        display: none;
+    }
+    .siderNavbar__collapse{
+       display: block;
+       float: left;
+    }
+    .drawerMenu{
+        display: block;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .siderNavbar{
+        display: block;
+    }
+    .siderNavbar__collapse{
+       display: none;
+    }
+    .drawerMenu{
+        display: none;
+    }
+}

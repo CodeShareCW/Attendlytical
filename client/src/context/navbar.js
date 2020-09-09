@@ -1,10 +1,10 @@
-import React, { useState, createContext } from "react";
+import React, { createContext, useState } from "react";
+import { INITIAL_COLLAPSE } from "../globalData";
 
-const NavbarContext = createContext({
-  collapsed: false,
-});
+const NavbarContext = createContext();
+
 const NavbarProvider = (props) => {
-  const [collapsed, SetCollapsed] = useState(false);
+  const [collapsed, SetCollapsed] = useState(INITIAL_COLLAPSE);
   function toggleCollapsed() {
     SetCollapsed((collapsed) => !collapsed);
   }
@@ -13,3 +13,4 @@ const NavbarProvider = (props) => {
   );
 };
 export { NavbarContext, NavbarProvider };
+

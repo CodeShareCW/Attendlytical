@@ -25,8 +25,10 @@ module.exports = gql`
     _id: ID!
     student: Person!
     course: Course!
+    courseOwner: Person!
     status: String!
     message: String!
+    hasNextPage: Boolean
   }
 
   type Course {
@@ -39,7 +41,11 @@ module.exports = gql`
     enrolledStudents: [Person!]
     attendanceList: [Attendance!]
     createdAt: String
-    hasNextPage: Boolean
+  }
+
+  type Courses{
+    courses: [Course]
+    hasNextPage: Boolean!
   }
 
   type Notification {
@@ -121,11 +127,16 @@ module.exports = gql`
     getPeople: [Person]
     getPerson(personID: ID!): Person!
 
-    getCreatedCourses(cursor: String, first: Int!): [Course]
-    getEnrolledCourses(cursor: String, first: Int!): [Course]
+    getCreatedCourses(cursor: String, limit: Int!): Courses
+    getEnrolledCourses(cursor: String, limit: Int!): Courses
+    
     getCreatedCoursesCount: Int!
     getEnrolledCoursesCount: Int!
     getCourse(courseID: ID!): Course!
+
+    getPendingEnrolledCourse(cursor: String, limit: Int!): [pendingEnrolledCourse]
+    getEnrolRequestCount: Int!
+    getEnrolPendingCount: Int!
 
     getWarning(courseID: ID!): Int!
 
@@ -140,9 +151,12 @@ module.exports = gql`
   type Mutation {
     #TODO: Remove this later
     testingRegisterStudent(courseID: String!): String
+    testingCreateCourse: String
+    testingDeleteAllCourse: String    
+    
+    #Welcome
     register(personInput: personInput!): Person!
     login(email: String!, password: String!): Person!
-
     editProfile(
       firstName: String!
       lastName: String!
@@ -150,13 +164,14 @@ module.exports = gql`
       profilePicture: String
     ): Person!
 
-    testingCreateCourse: String
-    testingDeleteAllCourse: String
 
     createCourse(courseInput: courseInput!): Course!
     deleteCourse(courseID: ID!): Course
-    approveEnrolment(notificationID: ID!): String
-    rejectEnrolment(notificationID: ID!): String
+
+    #enrolments
+
+    approveEnrolment(enrolmentID: ID!): String
+    rejectEnrolment(enrolmentID: ID!): String
 
     addParticipant(email: String!, courseID: String!): Person!
     kickParticipant(participantID: ID!, courseID: String!): String!
