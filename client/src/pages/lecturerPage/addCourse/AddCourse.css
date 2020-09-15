@@ -1,13 +1,25 @@
+@media screen and (min-width: 0px){
+    
+    .addCourse__card{
+        display: flex;
+        justify-content: center;
+        min-width: 50% !important;
+    }
+}
+@media screen and (min-width: 600px){
+    
+    .addCourse__card{
+        display: flex;
+        justify-content: center;
+        min-width: 50% !important;
+        max-height: 70% !important;
+    }
+}
+
 .addCourse__layout{
     min-height: 100vh !important;
 }
 
-.addCourse__card{
-    display: flex;
-    justify-content: center;
-    min-width: 50% !important;
-    max-height: 60% !important;
-}
 
 .addCourse__background{
     background: #fff !important;

@@ -1,3 +1,5 @@
+const {OfficialURL}=require("../globalData");
+
 module.exports.Welcome = (firstName) => {
   return `
         <p>Dear ${firstName}: </p>
@@ -34,7 +36,7 @@ module.exports.EnrolRequest = (firstName, payload) => {
           <p>Course Name: <strong>${payload.course.name}</strong> </p>
           <p>Course Session: <strong>${payload.course.session}</strong> </p>
 
-          Click <a href="https://www.google.com">here</a> to sign in
+          Click <a href=${OfficialURL}>here</a> to sign in
           <p>
           Best regards, <br/>
           Face In
@@ -57,7 +59,7 @@ module.exports.ApproveEnrolment = (firstName, payload) => {
         <p>Course Name: <strong>${payload.course.name}</strong> </p>
         <p>Course Session: <strong>${payload.course.session}</strong> </p>
         
-        Click <a href="https://www.google.com">here</a> to sign in
+        Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
         Face In
@@ -80,7 +82,7 @@ module.exports.WarnStudent = (firstName, payload) => {
         <p>Course Name: <strong>${payload.course.name}</strong> </p>
         <p>Course Session: <strong>${payload.course.session}</strong> </p>
         
-        Click <a href="https://www.google.com">here</a> to sign in
+        Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
         Face In
@@ -103,7 +105,7 @@ module.exports.KickStudent = (firstName, payload) => {
         <p>Course Name: <strong>${payload.course.name}</strong> </p>
         <p>Course Session: <strong>${payload.course.session}</strong> </p>
         
-        Click <a href="https://www.google.com">here</a> to sign in
+        Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
         Face In
@@ -126,10 +128,63 @@ module.exports.DeleteCourse = (firstName, payload) => {
         <p>Course Name: <strong>${payload.course.name}</strong> </p>
         <p>Course Session: <strong>${payload.course.session}</strong> </p>
       
-        Click <a href="https://www.google.com">here</a> to sign in
+        Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
         Face In
         </p>
     `;
+};
+
+module.exports.DeletePendingCourse = (firstName, payload) => {
+  console.log(payload);
+  return `
+        <p>Dear ${firstName}: </p>
+        <p>
+          Course owner had deleted the course below, hence disappeared in your enrolment pending list.
+        </p>
+      
+        <p>---------------------Course Detail---------------------</p>
+        <p>Course ID: <strong>${payload.course.shortID}</strong> </p>
+        <p>Course Owner: <strong>${payload.owner.firstName} ${payload.owner.lastName}</strong></p>
+        <p>Course Code: <strong>${payload.course.code}</strong> </p>
+        <p>Course Name: <strong>${payload.course.name}</strong> </p>
+        <p>Course Session: <strong>${payload.course.session}</strong> </p>
+      
+        Click <a href=${OfficialURL}>here</a> to sign in
+        <p>
+        Best regards, <br/>
+        Face In
+        </p>
+    `;
+};
+
+module.exports.WithdrawCourse = (firstName, payload) => {
+  console.log(payload);
+  return `
+    <p>Dear ${firstName}: </p>
+
+    <p>
+      A student had withdrawn from your course below. 
+    </p>
+    
+    <p>---------------------Student Detail---------------------</p>
+    <p>First Name: <strong>${payload.student.firstName}</strong></p>
+    <p>Last Name: <strong>${payload.student.lastName}</strong> </p>
+    <p>Matric No: <strong>${payload.student.cardID}</strong> </p>
+    <p>Email: <strong>${payload.student.email}</strong> </p>
+    <br />
+    <p>---------------------Enrolled Course Detail---------------------</p>
+    <p>Course ID: <strong>${payload.course.shortID}</strong> </p>
+    <p>Course Owner: <strong>You</strong></p>
+    <p>Course Code: <strong>${payload.course.code}</strong> </p>
+    <p>Course Name: <strong>${payload.course.name}</strong> </p>
+    <p>Course Session: <strong>${payload.course.session}</strong> </p>
+
+    Click <a href=${OfficialURL}>here</a> to sign in
+    <p>
+    Best regards, <br/>
+    Face In
+    </p>
+      `;
 };

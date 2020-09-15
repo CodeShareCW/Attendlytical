@@ -6,15 +6,18 @@ export const FETCH_UNCHECKED_NOTIFICATIONS_QUERY = gql`
   }
 `;
 
-export const FETCH_NOTIFICATION_QUERY = gql`
-  query getNotifications($cursor: String, $limit: Int!) {
+export const FETCH_NOTIFICATIONS_QUERY = gql`
+  query getNotifications($cursor: ID, $limit: Int!) {
     getNotifications(cursor: $cursor, limit: $limit) {
-      _id
-      title
-      content
-      checked
-      createdAt
-      updatedAt
+      notifications {
+        _id
+        title
+        content
+        checked
+        createdAt
+        updatedAt
+      }
+      hasNextPage
     }
   }
 `;

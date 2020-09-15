@@ -23,9 +23,3 @@ export const ADD_PARTICIPANT_MUTATION = gql`
     }
   }
 `;
-
-export const OBTAIN_STUDENT_WARNING_MUTATION = gql`
-  mutation obtainStudentWarning($participantID: ID!, $courseID: String!) {
-    obtainStudentWarning(participantID: $participantID, courseID: $courseID)
-  }
-`;

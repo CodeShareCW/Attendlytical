@@ -25,7 +25,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 function generateToken(person) {
   const token = jwt.sign(
     {
-      id: person.id,
+      _id: person.id,
       email: person.email,
       firstName: person.firstName,
       lastName: person.lastName,
@@ -152,7 +152,6 @@ module.exports = {
               "Please remember to upload your face photograph for attendance verification",
           });
           await notification.save();
-          newPerson.notifications.push(notification.id);
         }
         const savedPerson = await newPerson.save();
 
@@ -182,6 +181,8 @@ module.exports = {
           throw new UserInputError("Password is incorrect!", { errors });
         }
 
+        await Person.updateOne(person, {"$set": {lastLogin: Date.now()}})
+
         const token = generateToken(person);
         return PersongqlParser(person, token);
       } catch (err) {
@@ -204,7 +205,7 @@ module.exports = {
             { upload_preset: "facein_profilepicture" }
           );
 
-          const oldPerson = await Person.findByIdAndUpdate(currUser.id, {
+          const oldPerson = await Person.findByIdAndUpdate(currUser._id, {
             $set: {
               firstName,
               lastName,
@@ -216,7 +217,7 @@ module.exports = {
 
           await cloudinary.uploader.destroy(oldPerson.profilePicturePublicID);
         } else {
-          await Person.findByIdAndUpdate(currUser.id, {
+          await Person.findByIdAndUpdate(currUser._id, {
             $set: {
               firstName,
               lastName,
@@ -224,7 +225,7 @@ module.exports = {
             },
           });
         }
-        const updatedPerson = await Person.findById(currUser.id);
+        const updatedPerson = await Person.findById(currUser._id);
 
         if (!updatedPerson) {
           errors.general = "User do not exist";

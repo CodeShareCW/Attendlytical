@@ -1,12 +1,17 @@
 import { useQuery } from "@apollo/react-hooks";
 import { Button, Card, Layout, Spin } from "antd";
-import React, { useContext, useState } from "react";
-import { Notification } from "../../../components/common/notification";
-import { Footer, Greeting, Navbar, PageTitleBreadcrumb } from "../../../components/common/sharedLayout";
+import React, { useContext, useState, useEffect } from "react";
+import Notification from "../../../components/common/notification/Notification";
+import {
+  Footer,
+  Greeting,
+  Navbar,
+  PageTitleBreadcrumb,
+} from "../../../components/common/sharedLayout";
 import { NotificationContext } from "../../../context";
 import { CheckError } from "../../../ErrorHandling";
 import { FETCH_NOTIFICATION_LIMIT } from "../../../globalData";
-import { FETCH_NOTIFICATION_QUERY } from "../../../graphql/query";
+import { FETCH_NOTIFICATIONS_QUERY } from "../../../graphql/query";
 import "./Notifications.css";
 
 const { Content } = Layout;
@@ -19,72 +24,71 @@ export default () => {
     loadNotifications,
     uncheckedNotificationCount,
     setUncheckedNotificationCount,
-    isInitialAccess,
-    setIsInitialAccess,
   } = useContext(NotificationContext);
 
-  const [fetchedLimit] = useState(FETCH_NOTIFICATION_LIMIT);
 
-  const { loading, fetchMore, networkStatus } = useQuery(
-    FETCH_NOTIFICATION_QUERY,
+  const { data, loading, fetchMore, networkStatus } = useQuery(
+    FETCH_NOTIFICATIONS_QUERY,
     {
-      onCompleted: (data) => {
-        if (!isInitialAccess) {
-          loadNotifications(data.getNotifications);
-
-          let count = 0;
-          data.getNotifications.map((n) => {
-            if (!n.checked) count++;
-            return null;
-          });
-          if (uncheckedNotificationCount >= count)
-            setUncheckedNotificationCount(uncheckedNotificationCount - count);
-
-          setIsInitialAccess(true);
-        }
-      },
       onError(err) {
         CheckError(err);
       },
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_NOTIFICATION_LIMIT,
       },
       notifyOnNetworkStatusChange: true,
     }
   );
 
+  useEffect(() => {
+    if (data) {
+      loadNotifications(data.getNotifications.notifications);
+
+      let count = 0;
+      data.getNotifications.notifications.map((n) => {
+        if (!n.checked) count++;
+        setTimeout(()=>n.checked=true, 2000);
+      });
+
+      if (uncheckedNotificationCount >= count)
+        setUncheckedNotificationCount(uncheckedNotificationCount - count);
+
+      if (!data.getNotifications.hasNextPage) {
+        setFetchedDone(true);
+      }
+    }
+  }, [data]);
+
   const handleFetchMore = () => {
     fetchMore({
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_NOTIFICATION_LIMIT,
         cursor: notifications[notifications.length - 1]._id,
       },
       onError(err) {
         CheckError(err);
       },
       updateQuery: (pv, { fetchMoreResult }) => {
-        if (fetchMoreResult.getNotifications.length === 0) {
-          setFetchedDone(true);
-          return pv;
-        }
-        if (fetchMoreResult.getNotifications.length < fetchedLimit) {
+        if (!fetchMoreResult.getNotifications.hasNextPage) {
           setFetchedDone(true);
         }
-
-        loadNotifications(fetchMoreResult.getNotifications);
         let count = 0;
 
-        fetchMoreResult.getNotifications.map((n) => {
+        fetchMoreResult.getNotifications.notifications.map((n) => {
           if (!n.checked) count++;
           return null;
         });
         if (uncheckedNotificationCount >= count)
           setUncheckedNotificationCount(uncheckedNotificationCount - count);
         return {
-          getNotifications: [
-            ...pv.getNotifications,
-            ...fetchMoreResult.getNotifications,
-          ],
+          getNotifications: {
+            __typename: "Notifications",
+            notifications: [
+              ...pv.getNotifications.notifications,
+              ...fetchMoreResult.getNotifications.notifications,
+            ],
+            hasNextPage: fetchMoreResult.getNotifications.hasNextPage,
+          },
         };
       },
     });

@@ -7,21 +7,26 @@ export const FETCH_ENROLPENDING_COUNT_QUERY = gql`
 `;
 
 export const FETCH_ENROLPENDING_QUERY = gql`
-  query getPendingEnrolledCourse($cursor: String, $limit: Int!) {
-    getPendingEnrolledCourse(cursor: $cursor, limit: $limit) {
-      _id
-      courseOwner {
-        firstName
-        lastName
-        cardID
+  query getPendingEnrolledCourses($cursor: ID, $limit: Int!) {
+    getPendingEnrolledCourses(cursor: $cursor, limit: $limit) {
+      pendingEnrolledCourses {
+        _id
+        courseOwner {
+          firstName
+          lastName
+          cardID
+        }
+        course {
+          _id
+          name
+          shortID
+          code
+          session
+        }
+        status
+        message
       }
-      course {
-        name
-        code
-        session
-      }
-      status
-      message
+      hasNextPage
     }
   }
 `;

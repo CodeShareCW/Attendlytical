@@ -5,12 +5,16 @@ const facePhotoSchema=new Schema({
         type: Schema.Types.ObjectId,
         required: true
     },
-    data:{
+    photoURL:{
+        type: String,
+        required: true
+    },
+    photoPublicID:{
         type: String,
         required: true
     },
     faceDescriptor: {
-        type: [Schema.Types.Decimal128],
+        type: String,
         required: true
     }
 },

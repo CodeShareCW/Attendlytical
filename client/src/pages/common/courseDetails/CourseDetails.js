@@ -15,7 +15,7 @@ import {
   Table,
 } from "antd";
 import React, { useContext, useState } from "react";
-import { CourseDetailCard } from "../../../components/common/course";
+import CourseDetailCard from "./CourseDetailCard";
 import {
   Footer,
   Greeting,
@@ -121,7 +121,7 @@ export default (props) => {
               setSelectedParticipant(index);
             }}
             loading={
-              index.key === selectedParticipant && warnParticipantStatus.loading
+              index.key === selectedParticipant.key && warnParticipantStatus.loading
             }
           >
             Warn
@@ -134,7 +134,7 @@ export default (props) => {
               setSelectedParticipant(index);
             }}
             loading={
-              index.key === selectedParticipant && kickParticipantStatus.loading
+              index.key === selectedParticipant.key && kickParticipantStatus.loading
             }
           >
             Kick
@@ -163,6 +163,11 @@ export default (props) => {
             isFetchingParticipants(false);
 
             setParticipants((prevState) => {
+
+              if (item._id === user._id) {
+                item.firstName = "You";
+                item.lastName = "You";
+              }
               const newParticipant = {
                 key: item._id,
                 firstName: item.firstName,
@@ -172,12 +177,16 @@ export default (props) => {
                 warningCount: warning,
               };
 
+              if (item._id === user._id) return [newParticipant, ...prevState];
               return [...prevState, newParticipant];
             });
           },
+          onError(err) {
+            CheckError(err);
+          },
           variables: {
             participantID: item._id,
-            courseID: props.match.params.id,
+            courseID: data.getCourse._id,
           },
         });
       });
@@ -279,7 +288,6 @@ export default (props) => {
           profilePicture={user.profilePicture}
         />
         <PageTitleBreadcrumb titleList={titleList} />
-
         <Content>
           <Card className="courseDetails__card">
             <LoadingSpin loading={loading} />
@@ -292,7 +300,6 @@ export default (props) => {
                 >
                   Participants
                 </Divider>
-
                 <Row className="courseDetails__row">
                   <Col>
                     <LoadingSpin loading={fetchingParticipants} />

@@ -1,13 +1,18 @@
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Button, Card, Layout, message, Modal, Spin } from "antd";
-import React, { useContext, useState } from "react";
-import { Footer, Greeting, Navbar, PageTitleBreadcrumb } from "../../../components/common/sharedLayout";
-import { EnrolmentContext } from "../../../context";
+import React, { useContext, useState, useEffect } from "react";
+import {
+  Footer,
+  Greeting,
+  Navbar,
+  PageTitleBreadcrumb,
+} from "../../../components/common/sharedLayout";
+import { CourseContext, EnrolmentContext } from "../../../context";
 import { CheckError } from "../../../ErrorHandling";
 import { FETCH_ENROLMENT_LIMIT } from "../../../globalData";
 import {
   APPROVE_ENROLMENT_MUTATION,
-  REJECT_ENROLMENT_MUTATION
+  REJECT_ENROLMENT_MUTATION,
 } from "../../../graphql/mutation";
 import { FETCH_ENROLREQUEST_QUERY } from "../../../graphql/query";
 import Enrolment from "./Enrolment";
@@ -22,43 +27,39 @@ export default () => {
     enrolments,
     fetchedDone,
     loadEnrolments,
-    setFetchedDone,
-    approveEnrolment,
-    rejectEnrolment,
+    setFetchedDone
   } = useContext(EnrolmentContext);
   const [visible, SetVisible] = useState(false);
   const [selectedEnrolment, SetSelectedEnrolment] = useState({});
   const [isApprove, SetIsApprove] = useState(false);
-  const [fetchedLimit] = useState(FETCH_ENROLMENT_LIMIT);
 
-  const { loading, fetchMore, networkStatus, refetch } = useQuery(
+  const { data, loading, fetchMore, networkStatus, refetch } = useQuery(
     FETCH_ENROLREQUEST_QUERY,
     {
-      onCompleted: (data) => {
-        console.log(data);
-        if (enrolments.length === 0)
-          loadEnrolments(data.getPendingEnrolledCourse);
-        if (data.getPendingEnrolledCourse.length < fetchedLimit) {
-          setFetchedDone(true);
-        }
-      },
       onError(err) {
         CheckError(err);
       },
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_ENROLMENT_LIMIT,
       },
       notifyOnNetworkStatusChange: true,
     }
   );
+
+  useEffect(() => {
+    loadEnrolments(
+      data?.getPendingEnrolledCourses.pendingEnrolledCourses || []
+    );
+    if (data && !data.getPendingEnrolledCourses.hasNextPage)
+      setFetchedDone(true);
+  }, [data]);
 
   const [approveEnrolmentCallback, approveEnrolmentStatus] = useMutation(
     APPROVE_ENROLMENT_MUTATION,
     {
       onCompleted: (data) => {
         message.success(data.approveEnrolment);
-        setEnrolCount(enrolCount-1);
-        refetch();
+        setEnrolCount(enrolCount - 1);
       },
       onError(err) {
         SetVisible(false);
@@ -72,8 +73,7 @@ export default () => {
     {
       onCompleted: (data) => {
         message.success(data.rejectEnrolment);
-        setEnrolCount(enrolCount-1);
-        refetch();
+        setEnrolCount(enrolCount - 1);
       },
       onError(err) {
         SetVisible(false);
@@ -85,28 +85,31 @@ export default () => {
   const handleFetchMore = () => {
     fetchMore({
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_ENROLMENT_LIMIT,
         cursor: enrolments[enrolments.length - 1]._id,
       },
       onError(err) {
         CheckError(err);
       },
       updateQuery: (pv, { fetchMoreResult }) => {
-        if (fetchMoreResult.getPendingEnrolledCourse.length === 0) {
-          setFetchedDone(true);
-          return pv;
-        }
-        if (fetchMoreResult.getPendingEnrolledCourse.length < fetchedLimit) {
+        if (!fetchMoreResult.getPendingEnrolledCourses.hasNextPage) {
           setFetchedDone(true);
         }
 
-        loadEnrolments(fetchMoreResult.getPendingEnrolledCourse);
+        loadEnrolments(
+          fetchMoreResult.getPendingEnrolledCourses.pendingEnrolledCourses
+        );
 
         return {
-          getPendingEnrolledCourse: [
-            ...pv.getPendingEnrolledCourse,
-            ...fetchMoreResult.getPendingEnrolledCourse,
-          ],
+          getPendingEnrolledCourses: {
+            __typename: "pendingEnrolledCourses",
+            pendingEnrolledCourses: [
+              ...pv.getPendingEnrolledCourses.pendingEnrolledCourses,
+              ...fetchMoreResult.getPendingEnrolledCourses
+                .pendingEnrolledCourses,
+            ],
+            hasNextPage: fetchMoreResult.getPendingEnrolledCourses.hasNextPage,
+          },
         };
       },
     });
@@ -131,18 +134,17 @@ export default () => {
     if (isApprove) {
       approveEnrolmentCallback({
         update() {
-          approveEnrolment(selectedEnrolment);
           SetVisible(false);
-          SetSelectedEnrolment({});
+          //refresh window to avoid error
+          window.location.reload();
         },
         variables: { id: selectedEnrolment._id },
       });
     } else {
       rejectEnrolmentCallback({
         update() {
-          rejectEnrolment(selectedEnrolment);
           SetVisible(false);
-          SetSelectedEnrolment({});
+          refetch();
         },
         variables: { id: selectedEnrolment._id },
       });
@@ -164,7 +166,9 @@ export default () => {
           <Content className="enrolments__content">
             <Card>
               <div>
-                {loading? "": enrolments.length !== 0 ? (
+                {loading ? (
+                  ""
+                ) : enrolments.length !== 0 ? (
                   <p>Please approve or reject the following enrolments</p>
                 ) : (
                   <p>No enrolments</p>
@@ -177,13 +181,11 @@ export default () => {
                   handleApproveRejectButton={handleApproveRejectButton}
                 />
               ))}
-              {enrolments &&
-                !fetchedDone &&
-                enrolments[enrolments.length - 1]?.hasNextPage && (
-                  <Button onClick={handleFetchMore} loading={loading}>
-                    Load More
-                  </Button>
-                )}
+              {enrolments.length > 0 && !fetchedDone && (
+                <Button onClick={handleFetchMore} loading={loading}>
+                  Load More
+                </Button>
+              )}
 
               {enrolments?.length !== 0 && fetchedDone && (
                 <div className="allLoadedCard">

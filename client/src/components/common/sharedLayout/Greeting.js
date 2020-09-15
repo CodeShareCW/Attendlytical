@@ -1,10 +1,10 @@
 import {
   BellOutlined,
   LoadingOutlined,
-  UnorderedListOutlined
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/react-hooks";
-import { Button, Layout, Typography } from "antd";
+import { Button, Layout, Typography, Badge, Avatar } from "antd";
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext, NotificationContext } from "../../../context";
@@ -46,11 +46,6 @@ export default () => {
     else return "Evening";
   };
 
-  const countNotifications = (c) => {
-    if (c !== 0)
-      return <small className="greeting__notificationCount">{c}</small>;
-  };
-
   return (
     <Header className="greeting__header">
       <Title className="greeting__title" level={4}>
@@ -62,7 +57,7 @@ export default () => {
             }}
           ></Button>
         </div>
-        {user ? ((
+        {user ? (
           user?.userLevel === 0 ? (
             <StudentDrawerMenu
               isCollapseMenuOpen={isCollapseMenuOpen}
@@ -74,7 +69,7 @@ export default () => {
               setIsCollapseMenuOpen={setIsCollapseMenuOpen}
             />
           )
-        )) : (
+        ) : (
           "error"
         )}
 
@@ -89,9 +84,9 @@ export default () => {
           title={`Notification (${uncheckedNotificationCount})`}
         >
           <div className="greeting__notification">
-            <BellOutlined className="greeting__notificationIcon" />
-            {loading && <LoadingOutlined />}
-            {countNotifications(uncheckedNotificationCount)}
+            <Badge count={uncheckedNotificationCount}>
+              <Avatar icon={<BellOutlined />} style={{backgroundColor:"orange"}}/>
+            </Badge>
           </div>
         </Link>
       </Title>

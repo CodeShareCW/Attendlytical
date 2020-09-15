@@ -27,12 +27,12 @@ export default (props) => {
     }
     getDescription();
 
-    return ()=>{
+    return () => {
       //clean effect because it will cause the mess from previous effect
-      setDescriptors(null)
-      setDetections(null)
-      setExpressions(null)
-    }
+      setDescriptors(null);
+      setDetections(null);
+      setExpressions(null);
+    };
   }, [props]);
 
   const EmojiProcessing = ({ exp }) => {
@@ -43,7 +43,9 @@ export default (props) => {
       emojiExpression.expression === "disgusted" ||
       emojiExpression.expression === "fearful"
     )
-      return <strong style={{fontSize: "50px"}}>{emojiExpression.emoji}</strong>;
+      return (
+        <strong style={{ fontSize: "50px" }}>{emojiExpression.emoji}</strong>
+      );
     return <FacebookEmoji type={emojiExpression.emoji} />;
   };
 
@@ -52,9 +54,7 @@ export default (props) => {
   let box = null;
 
   if (!!detections) {
-
-    console.log("Expression Length", expressions?.length)
-    console.log("Detection Lentght:", detections?.length)
+    props.setDetectionCount(detections?.length);
     box = detections.map((detection, i) => {
       const relativeBox = detection.relativeBox;
       const dimension = detection._imageDims;
@@ -67,36 +67,34 @@ export default (props) => {
       let _H =
         (relativeBox.height * imageHeight * dimension._height) /
         dimension._width;
-      return (
-        <div key={i}>
-          <div
-            style={{
-              position: "absolute",
-              border: "solid",
-              borderColor:
-                !!match && match[i] && match[i]._label !== "unknown"
-                  ? "rgba(0, 255, 0, 0.4)"
-                  : "rgba(125, 125, 125, 0.4)",
-              height: _H,
-              width: _W,
-              transform: `translate(${_X}px,${_Y}px)`,
-            }}
-          >
-            {!!match && match[i] && match[i]._label !== "unknown" ? (
+
+      if (props.mode === "Detection") {
+        return (
+          <div key={i}>
+            <div
+              style={{
+                position: "absolute",
+                border: "solid",
+                borderColor: "rgba(53, 172, 232, 0.4)",
+                height: _H,
+                width: _W,
+                transform: `translate(${_X}px,${_Y}px)`,
+              }}
+            >
               <div
                 style={{
-                  backgroundColor: "rgba(0, 255, 0, 0.4)",
+                  backgroundColor: "rgba(53, 172, 232, 0.4)",
                   border: "solid",
                   width: _W,
                   marginTop: 0,
+                  textAlign: "center",
                   color: "#fff",
                   transform: `translate(-3px,${_H}px)`,
                 }}
               >
-                {match[i]._label}
+                <p>Got You!! You feel like </p>
                 <br />
-                {
-                  !!expressions&&expressions.length>0&&
+                {!!expressions && expressions.length > 0 && (
                   <EmojiProcessing
                     exp={Object.keys(expressions[i]).find(
                       (key) =>
@@ -108,27 +106,72 @@ export default (props) => {
                     width={_W}
                     height={_H}
                   />
-                }
+                )}
               </div>
-            ) : (
-              <div
-                style={{
-                  backgroundColor: "rgba(125, 125, 125, 0.4)",
-                  border: "solid",
-                  width: _W,
-                  marginTop: 0,
-                  color: "#fff",
-                  transform: `translate(-3px,${_H}px)`,
-                }}
-              >
-                unknown
-                <br />
-                
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-      );
+        );
+      } else
+        return (
+          <div key={i}>
+            <div
+              style={{
+                position: "absolute",
+                border: "solid",
+                borderColor:
+                  !!match && match[i] && match[i]._label !== "unknown"
+                    ? "rgba(0, 255, 0, 0.4)"
+                    : "rgba(125, 125, 125, 0.4)",
+                height: _H,
+                width: _W,
+                transform: `translate(${_X}px,${_Y}px)`,
+              }}
+            >
+              {!!match && match[i] && match[i]._label !== "unknown" ? (
+                <div
+                  style={{
+                    backgroundColor: "rgba(0, 255, 0, 0.4)",
+                    border: "solid",
+                    width: _W,
+                    marginTop: 0,
+                    color: "#fff",
+                    transform: `translate(-3px,${_H}px)`,
+                  }}
+                >
+                  {match[i]._label}
+                  <br />
+                  {!!expressions && expressions.length > 0 && (
+                    <EmojiProcessing
+                      exp={Object.keys(expressions[i]).find(
+                        (key) =>
+                          expressions[i][key] ===
+                          Object.values(expressions[i]).reduce((a, b) =>
+                            Math.max(a, b)
+                          )
+                      )}
+                      width={_W}
+                      height={_H}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    backgroundColor: "rgba(125, 125, 125, 0.4)",
+                    border: "solid",
+                    width: _W,
+                    marginTop: 0,
+                    color: "#fff",
+                    transform: `translate(-3px,${_H}px)`,
+                  }}
+                >
+                  unknown
+                  <br />
+                </div>
+              )}
+            </div>
+          </div>
+        );
     });
   }
 

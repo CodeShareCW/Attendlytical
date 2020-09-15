@@ -14,7 +14,6 @@ module.exports = gql`
     cardID: String!
     profilePictureURL: String
     profilePicturePublicID: String
-    notifications: [Notification!]
     createdAt: String
     lastLogin: String
     userLevel: Int!
@@ -28,6 +27,10 @@ module.exports = gql`
     courseOwner: Person!
     status: String!
     message: String!
+  }
+
+  type pendingEnrolledCourses{
+    pendingEnrolledCourses: [pendingEnrolledCourse!]
     hasNextPage: Boolean
   }
 
@@ -44,7 +47,7 @@ module.exports = gql`
   }
 
   type Courses{
-    courses: [Course]
+    courses: [Course!]
     hasNextPage: Boolean!
   }
 
@@ -56,6 +59,10 @@ module.exports = gql`
     checked: Boolean!
     createdAt: String!
     updatedAt: String!
+  }
+
+  type Notifications{
+    notifications: [Notification!]
     hasNextPage: Boolean
   }
 
@@ -77,11 +84,16 @@ module.exports = gql`
     data: String!
   }
 
-  type Photo {
+  type FacePhoto {
     _id: ID!
     creator: Person!
-    data: String!
-    faceDescriptor: [Float!]
+    photoURL: String!
+    faceDescriptor: String!
+  }
+
+  type FacePhotos {
+    facePhotos: [FacePhoto!]
+    hasNextPage: Boolean
   }
 
   """
@@ -127,22 +139,25 @@ module.exports = gql`
     getPeople: [Person]
     getPerson(personID: ID!): Person!
 
-    getCreatedCourses(cursor: String, limit: Int!): Courses
-    getEnrolledCourses(cursor: String, limit: Int!): Courses
+    getCreatedCourses(cursor: ID, limit: Int!): Courses
+    getEnrolledCourses(cursor: ID, limit: Int!): Courses
     
     getCreatedCoursesCount: Int!
     getEnrolledCoursesCount: Int!
     getCourse(courseID: ID!): Course!
 
-    getPendingEnrolledCourse(cursor: String, limit: Int!): [pendingEnrolledCourse]
+    getPendingEnrolledCourses(cursor: ID, limit: Int!): pendingEnrolledCourses
     getEnrolRequestCount: Int!
     getEnrolPendingCount: Int!
 
-    getWarning(courseID: ID!): Int!
+    getWarningCount(courseID: ID!): Int!
 
-    getNotifications(cursor: String, limit: Int!): [Notification]
+    getNotifications(cursor: ID, limit: Int!): Notifications
     getNotification(notificationID: ID!): Notification!
     getUncheckedNotificationsCount: Int!
+
+    getFacePhotosCount: Int!
+    getFacePhotos(cursor: ID, limit: Int!): FacePhotos
 
     getAttendance(attendanceID: ID!): Attendance!
     getAllAttendance: [Attendance!]
@@ -178,14 +193,14 @@ module.exports = gql`
     warnParticipant(participantID: ID!, courseID: String!): String!
     obtainStudentWarning(participantID: ID!, courseID: String!): Int!
 
-    enrolCourse(courseID: ID!): Course!
-    withdrawCourse(courseID: ID!): Course!
+    enrolCourse(courseID: ID!): pendingEnrolledCourse!
+    withdrawCourse(courseID: ID!): String
 
     createAttendance(attendanceInput: attendanceInput!): Attendance!
     deleteAttendance(attendanceID: ID!): String
 
-    addPhoto(faceDescriptor: [Float!], data: String!): Photo!
-    deletePhoto(facePhotoID: ID!): String
+    addFacePhoto(photoData: String!, faceDescriptor: String!): FacePhoto!
+    deleteFacePhoto(photoID: ID!): String
 
     addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
 

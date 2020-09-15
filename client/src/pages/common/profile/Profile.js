@@ -41,6 +41,7 @@ export default () => {
       setPreviewSource(reader.result);
     };
   };
+  
   return (
     <div className="addCourse">
       <Layout className=" layout">

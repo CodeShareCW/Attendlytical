@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/react-hooks";
 import { Menu } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { FpsView } from "react-fps";
 import { Link } from "react-router-dom";
 import { EnrolmentContext, NavbarContext } from "../../context";
@@ -19,23 +19,22 @@ export default () => {
   const path = pathname === "/" ? "home" : pathname.substr(1);
 
   const {
-    initialCountDone,
     enrolCount,
-    setEnrolCount,
-    setInitialCountDone,
+    getEnrolCount,
   } = useContext(EnrolmentContext);
   const { collapsed } = useContext(NavbarContext);
 
-  const enrolRequestCount = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
-    onCompleted(data) {
-      if (!initialCountDone) setEnrolCount(data.getEnrolRequestCount);
-
-      setInitialCountDone(true);
-    },
+  const {data} = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      getEnrolCount(data.getEnrolRequestCount);
+    }
+  }, [data]);
 
   return (
     <Menu theme="dark" mode="vertical" defaultSelectedKeys={[path]}>

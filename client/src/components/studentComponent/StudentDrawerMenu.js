@@ -3,38 +3,34 @@ import {
   HistoryOutlined,
   HomeOutlined,
   PictureOutlined,
-  PlusCircleOutlined
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/react-hooks";
 import { Drawer } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { EnrolmentContext } from "../../context";
 import { CheckError } from "../../ErrorHandling";
-import { FETCH_ENROLREQUEST_COUNT_QUERY } from "../../graphql/query";
-
+import { FETCH_ENROLPENDING_COUNT_QUERY } from "../../graphql/query";
 
 export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
   const pathname = window.location.pathname;
   const path = pathname === "/" ? "home" : pathname.substr(1);
 
   const {
-    initialCountDone,
     enrolCount,
-    setEnrolCount,
-    setInitialCountDone,
+    getEnrolCount,
   } = useContext(EnrolmentContext);
-
-  const enrolRequestCount = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
-    onCompleted(data) {
-      if (!initialCountDone) setEnrolCount(data.getEnrolRequestCount);
-
-      setInitialCountDone(true);
-    },
+  const { data } = useQuery(FETCH_ENROLPENDING_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      getEnrolCount(data.getEnrolPendingCount);
+    }
+  }, [data]);
 
   return (
     <Drawer
@@ -53,15 +49,10 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
         </Link>
       </p>
       <p>
-        <Link to={"/enrolcourse"}>
-          <PlusCircleOutlined />
-          &nbsp; Enrol Course
-        </Link>
-      </p>
-      <p>
         <Link to={"/enrolpending"}>
           <ClockCircleOutlined />
-          &nbsp; Enrol Pending (0)
+          &nbsp; Enrol Pending (
+          {enrolCount})
         </Link>
       </p>
       <p>

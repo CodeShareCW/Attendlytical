@@ -1,7 +1,7 @@
 const { UserInputError } = require("apollo-server");
 const Notification = require("../../models/notification.model");
 const Person = require("../../models/person.model");
-const { NotificationgqlParser } = require("./merge");
+const { NotificationgqlParser, NotificationsgqlParser } = require("./merge");
 
 const checkAuth = require("../../util/check-auth");
 
@@ -14,13 +14,13 @@ module.exports = {
         let searchedNotifications;
         if (!cursor) {
           searchedNotifications = await Notification.find({
-            receiver: user.id,
+            receiver: user._id,
           })
             .limit(limit)
             .sort({ _id: -1 });
         } else {
           searchedNotifications = await Notification.find({
-            receiver: user.id,
+            receiver: user._id,
             _id: { $lt: cursor },
           })
             .limit(limit)
@@ -36,14 +36,12 @@ module.exports = {
           })
         }
 
-        let hasNextPage;
+        let hasNextPage=true;
 
         if (searchedNotifications.length < limit) hasNextPage = false;
-        else hasNextPage = true;
+        
+        return NotificationsgqlParser(searchedNotifications, hasNextPage)
 
-        return searchedNotifications.map((n) => {
-          return NotificationgqlParser(n, hasNextPage);
-        });
       } catch (err) {
         throw err;
       }
@@ -61,7 +59,7 @@ module.exports = {
           throw new UserInputError("Notification do not exist");
         }
 
-        if (searchedNotification.receiver != user.id) {
+        if (searchedNotification.receiver != user._id) {
           errors.general = "Receiver is not the current user";
           throw new UserInputError("Receiver is not the current user");
         }
@@ -77,7 +75,7 @@ module.exports = {
       try {
         const uncheckedNotifications = await Notification.find(
           {
-            receiver: user.id,
+            receiver: user._id,
             checked: false,
           },
           ["id"]
@@ -95,7 +93,7 @@ module.exports = {
       let notification;
       for (i = 0; i < 50; i++) {
         notification = new Notification({
-          receiver: currUser.id,
+          receiver: currUser._id,
           title: i + " test",
           content: i + " test",
           status: "pending",
@@ -123,7 +121,7 @@ module.exports = {
           throw new UserInputError("Notification do not exist");
         }
 
-        if (searchedNotification.receiver != user.id) {
+        if (searchedNotification.receiver != user._id) {
           errors.general = "Receiver is not the current user";
           throw new UserInputError("Receiver is not the current user");
         }

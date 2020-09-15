@@ -1,13 +1,17 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Button, Card, Modal, Space, Spin } from "antd";
-import React, { useContext, useState } from "react";
-import { Course } from "../../../components/common/course";
+import React, { useContext, useEffect, useState } from "react";
+import Course from "../../../components/common/course/Course";
 import { AuthContext, CourseContext } from "../../../context";
 import { CheckError } from "../../../ErrorHandling";
 import { FETCH_COURSE_LIMIT } from "../../../globalData";
 import { DELETE_COURSE_MUTATION } from "../../../graphql/mutation";
-import { FETCH_CREATEDCOURSES_COUNT_QUERY, FETCH_CREATEDCOURSES_QUERY } from "../../../graphql/query";
+import {
+  FETCH_CREATEDCOURSES_COUNT_QUERY,
+  FETCH_CREATEDCOURSES_QUERY,
+} from "../../../graphql/query";
+import { LoadingSpin } from "../../../utils/LoadingSpin";
 import "./LecturerDashboard.css";
 
 export default (props) => {
@@ -15,13 +19,10 @@ export default (props) => {
   const {
     courses,
     fetchedDone,
-    isInitialAccess,
-    setIsInitialAccess,
     setFetchedDone,
     loadCourses,
-    deleteCourse,
   } = useContext(CourseContext);
-  const [fetchedLimit] = useState(FETCH_COURSE_LIMIT);
+
   const [visible, SetVisible] = useState(false);
   const [selectedCourse, SetSelectedCourse] = useState({});
 
@@ -31,21 +32,14 @@ export default (props) => {
     },
   });
 
-  const { loading, networkStatus, fetchMore } = useQuery(
+  const { data, loading, networkStatus, fetchMore } = useQuery(
     FETCH_CREATEDCOURSES_QUERY,
     {
-      onCompleted: (data) => {
-        totalCoursesQuery.refetch();
-        if (!isInitialAccess) {
-          loadCourses(data.getCreatedCourses.courses);
-          setIsInitialAccess(true)
-        }
-      },
       onError(err) {
         CheckError(err);
       },
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_COURSE_LIMIT,
       },
       notifyOnNetworkStatusChange: true,
     }
@@ -57,9 +51,7 @@ export default (props) => {
       update() {
         //TODO: handle remove item
         SetVisible(false);
-        deleteCourse(selectedCourse._id);
-        //Refresh total course count
-        totalCoursesQuery.refetch();
+        window.location.reload();
       },
       onError(err) {
         CheckError(err);
@@ -69,6 +61,14 @@ export default (props) => {
       },
     }
   );
+
+  useEffect(() => {
+    loadCourses(data?.getCreatedCourses.courses || []);
+
+    if (data && !data.getCreatedCourses.hasNextPage) {
+      setFetchedDone(true);
+    }
+  }, [data]);
 
   const handleAccess = (course) => {
     props.history.push(`/course/${course.shortID}`);
@@ -89,22 +89,15 @@ export default (props) => {
   const HandleFetchMore = () => {
     fetchMore({
       variables: {
-        limit: fetchedLimit,
+        limit: FETCH_COURSE_LIMIT,
         cursor: courses[courses.length - 1]._id,
       },
       onError(err) {
         CheckError(err);
       },
       updateQuery: (pv, { fetchMoreResult }) => {
-        if (!fetchMoreResult.getCreatedCourses.hasNextPage) {
-          setFetchedDone(true);
-          return pv;
-        }
-
-        loadCourses(fetchMoreResult.getCreatedCourses.courses);
-
         return {
-          getEnrolledCourses: {
+          getCreatedCourses: {
             __typename: "Courses",
             courses: [
               ...pv.getCreatedCourses.courses,
@@ -141,13 +134,7 @@ export default (props) => {
               />
             ))}
 
-          {loading ? (
-            <div className="lecturerDashboard__loading__container">
-              <div className="lecturerDashboard__loading">
-                <Spin size="large" tip="Loading..." />
-              </div>
-            </div>
-          ) : null}
+          <LoadingSpin loading={loading} />
 
           {!loading && courses && !fetchedDone && (
             <Button onClick={HandleFetchMore} loading={networkStatus === 3}>

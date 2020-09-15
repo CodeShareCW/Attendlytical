@@ -1,6 +1,5 @@
 const Person = require("../../models/person.model");
 const Course = require("../../models/course.model");
-const Notification = require("../../models/notification.model");
 const Attendance = require("../../models/attendance.model");
 
 const person = async (personID) => {
@@ -35,9 +34,9 @@ const course = async (courseID) => {
   }
 };
 
-const courses = async (coursesData) => {
+const courses = async (courseList) => {
   try {
-    return coursesData.map((r) => {
+    return courseList.map((r) => {
       return CoursegqlParser(r);
     });
   } catch (err) {
@@ -45,10 +44,9 @@ const courses = async (coursesData) => {
   }
 };
 
-const notifications = async (notificationID) => {
+const notifications = async (notificationList) => {
   try {
-    const results = await Notification.find({ _id: { $in: notificationID } });
-    return results.map((r) => {
+    return notificationList.map((r) => {
       return NotificationgqlParser(r);
     });
   } catch (err) {
@@ -72,9 +70,6 @@ const PersongqlParser = (person, token) => {
     ...person._doc,
     createdAt: new Date(person._doc.createdAt).toISOString(),
     lastLogin: new Date(person._doc.lastLogin).toISOString(),
-    enrolledCourses: courses.bind(this, person._doc.enrolledCourses),
-    createdCourses: courses.bind(this, person._doc.createdCourses),
-    notifications: notifications.bind(this, person._doc.notification),
     token,
   };
 };
@@ -90,15 +85,15 @@ const CoursegqlParser = (course, hasNextPage) => {
   };
 };
 
-const CoursesgqlParser=(coursesData, hasNextPage)=>{
+const CoursesgqlParser=(coursesList, hasNextPage)=>{
   
   return {
-   courses: courses.bind(this, coursesData),
+   courses: courses.bind(this, coursesList),
    hasNextPage
   }
 }
 
-const PendingEnrolledCoursegqlParser = (enrolment, hasNextPage) => {
+const PendingEnrolledCoursegqlParser = (enrolment) => {
   return {
     ...enrolment._doc,
     createdAt: new Date(enrolment._doc.createdAt).toISOString(),
@@ -106,6 +101,12 @@ const PendingEnrolledCoursegqlParser = (enrolment, hasNextPage) => {
     student: person.bind(this, enrolment._doc.student),
     course: course.bind(this, enrolment._doc.course),
     courseOwner: person.bind(this, enrolment._doc.courseOwner),
+  };
+};
+
+const PendingEnrolledCoursesgqlParser = (enrolments, hasNextPage) => {
+  return {
+    pendingEnrolledCourses: enrolments.map(e=>PendingEnrolledCoursegqlParser(e)),
     hasNextPage
   };
 };
@@ -116,6 +117,13 @@ const NotificationgqlParser = (notification, hasNextPage) => {
     createdAt: new Date(notification._doc.createdAt).toISOString(),
     updatedAt: new Date(notification._doc.updatedAt).toISOString(),
     receiver: person.bind(this, notification._doc.receiver),
+    hasNextPage
+  };
+};
+
+const NotificationsgqlParser = (notificationList, hasNextPage) => {
+  return {
+    notifications: notifications.bind(this, notificationList),
     hasNextPage
   };
 };
@@ -132,13 +140,19 @@ const AttendancegqlParser = (attendance) => {
 };
 
 const FacePhotogqlParser = (photo) => {
-  console.log(photo);
   return {
     ...photo._doc,
     creator: person.bind(this, photo._doc.creator),
-    faceDescriptor: photo._doc.faceDescriptor.map(p=>p.toISOString())
   };
 };
+
+const FacePhotosgqlParser = (photoList, hasNextPage) => {
+  return {
+    facePhotos: photoList.map(photo=>FacePhotogqlParser(photo)),
+    hasNextPage
+  };
+};
+
 
 const GroupPhotogqlParser = (gPhoto) => {
   console.log(gPhoto);
@@ -157,11 +171,13 @@ module.exports = {
   notifications,
   CoursegqlParser,
   CoursesgqlParser,
-
   PendingEnrolledCoursegqlParser,
+  PendingEnrolledCoursesgqlParser,
   PersongqlParser,
   NotificationgqlParser,
+  NotificationsgqlParser,
   AttendancegqlParser,
   FacePhotogqlParser,
+  FacePhotosgqlParser,
   GroupPhotogqlParser
 };

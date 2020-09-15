@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import { useQuery } from "@apollo/react-hooks";
 import { Drawer } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { EnrolmentContext } from "../../context";
 import { CheckError } from "../../ErrorHandling";
@@ -18,22 +18,21 @@ export default ({isCollapseMenuOpen, setIsCollapseMenuOpen}) => {
   const path = pathname === "/" ? "home" : pathname.substr(1);
 
   const {
-    initialCountDone,
     enrolCount,
-    setEnrolCount,
-    setInitialCountDone,
+    getEnrolCount,
   } = useContext(EnrolmentContext);
 
-  const enrolRequestCount = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
-    onCompleted(data) {
-      if (!initialCountDone) setEnrolCount(data.getEnrolRequestCount);
-
-      setInitialCountDone(true);
-    },
+  const {data} = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      getEnrolCount(data.getEnrolRequestCount);
+    }
+  }, [data]);
 
   return (
     <Drawer title="Menu" className="drawerMenu" visible={isCollapseMenuOpen} placement="top" onClose={()=>{setIsCollapseMenuOpen(false)}}>

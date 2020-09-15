@@ -28,9 +28,6 @@ const personSchema=new Schema({
         type: String,
         required: true
     },
-    notifications: {
-        type: [Schema.Types.ObjectId]
-    },
     userLevel: {
         type: Number,
         required: true

@@ -5,13 +5,18 @@ const notificationResolvers=require('./notification.resolver')
 const attendanceResolvers=require('./attendance.resolver')
 const groupPhotoResolvers=require('./groupPhoto.resolver')
 const facePhotoResolvers=require('./facePhoto.resolver')
+const warningResolvers=require('./warning.resolver')
+
 module.exports={
     Query: {
         ...personResolvers.Query,
         ...courseResolvers.Query,
         ...courseEnrolmentResolvers.Query,
         ...notificationResolvers.Query,
-        ...attendanceResolvers.Query
+        ...attendanceResolvers.Query,
+        ...groupPhotoResolvers.Query,
+        ...facePhotoResolvers.Query,
+        ...warningResolvers.Query,
     },
     Mutation: {
         ...personResolvers.Mutation,
@@ -20,6 +25,7 @@ module.exports={
         ...notificationResolvers.Mutation,
         ...attendanceResolvers.Mutation,
         ...groupPhotoResolvers.Mutation,
-        ...facePhotoResolvers.Mutation
+        ...facePhotoResolvers.Mutation,
+        ...warningResolvers.Mutation
     }
 }

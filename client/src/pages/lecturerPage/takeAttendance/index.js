@@ -227,7 +227,6 @@ export default (props) => {
                       <div style={{ marginRight: "50px" }}>
                         <LoadingOutlined
                           style={{ fontSize: "32px" }}
-                          size="32"
                         />
                       </div>
                     }

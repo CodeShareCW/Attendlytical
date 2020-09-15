@@ -8,6 +8,8 @@ const {
   WarnStudent,
   KickStudent,
   DeleteCourse,
+  WithdrawCourse,
+  DeletePendingCourse
 } = require("./mailTemplate");
 
 //global mail type naming
@@ -61,8 +63,24 @@ const getEmailData = (to, firstName, template, payload) => {
       data = {
         from: "Face In <faceinattendanceapp@gmail.com>",
         to,
-        subject: `A course was deleted by course owner`,
+        subject: `Course ID: ${payload.course.shortID} - A course was deleted by course owner`,
         html: DeleteCourse(firstName, payload),
+      };
+      break;
+    case MAIL_TEMPLATE_TYPE.DeletePendingCourse:
+      data = {
+        from: "Face In <faceinattendanceapp@gmail.com>",
+        to,
+        subject: `Course ID: ${payload.course.shortID} - A course was deleted by course owner`,
+        html: DeletePendingCourse(firstName, payload),
+      };
+      break;
+    case MAIL_TEMPLATE_TYPE.WithdrawCourse:
+      data = {
+        from: "Face In <faceinattendanceapp@gmail.com>",
+        to,
+        subject: `Course ID: ${payload.course.shortID} - A student had withdrawn from your course`,
+        html: WithdrawCourse(firstName, payload),
       };
       break;
     default:

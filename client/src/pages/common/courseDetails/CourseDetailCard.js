@@ -1,11 +1,21 @@
+import { useQuery } from "@apollo/react-hooks";
 import { Button, Card, Col, Row } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../../context";
+import { CheckError } from "../../../ErrorHandling";
+import { GET_WARNING_COUNT_QUERY } from "../../../graphql/query";
 
 export default ({ data, participants }) => {
   const { user } = useContext(AuthContext);
-
+  const warningCountQuery=useQuery(GET_WARNING_COUNT_QUERY,{
+    onError(err){
+      CheckError(err);
+    },
+    variables:{
+      courseID: data.getCourse._id
+    }
+  },{notifyOnNetworkStatusChange: true})
   return (
     <Row className="courseDetails__row">
       <Col>
@@ -37,7 +47,29 @@ export default ({ data, participants }) => {
               <br />
             </>
           )}
-
+          {user.userLevel === 0 && (
+            <Card
+              style={{
+                backgroundColor: "#ccc",
+                textAlign: "left",
+                color: "#000",
+              }}
+            >
+              <p>
+                <strong>Your attendance rate in this course is </strong>
+                <span style={{ fontSize: "22px", color: "red" }}>100%</span>
+                <strong>.</strong>
+              </p>
+              <p>
+                <strong>You are warned by </strong>
+                <span style={{ fontSize: "22px", color: "red" }}>
+                  {warningCountQuery.data?.getWarningCount||0}
+                </span>
+                <strong> times.</strong>
+              </p>
+            </Card>
+          )}
+          <br />
           <Link to={`/course/${data.getCourse.shortID}/history`}>
             View Attendance History
           </Link>

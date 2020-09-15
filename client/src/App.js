@@ -5,6 +5,7 @@ import {
   AuthProvider,
   CourseProvider,
   EnrolmentProvider,
+  FacePhotoProvider,
   NavbarProvider,
   NotificationProvider,
 } from "./context";
@@ -19,9 +20,14 @@ import {
   SignUp,
 } from "./pages/common";
 import { AddCourse, EnrolRequest, TakeAttendance } from "./pages/lecturerPage";
+import { EnrolPending, FaceGallery } from "./pages/studentPage";
+import {
+  AuthRoute,
+  LecturerRoute,
+  ProtectedRoute,
+  StudentRoute,
+} from "./routes";
 import Testing from "./Testing";
-import AuthRoute from "./utils/AuthRoute";
-import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
   return (
@@ -30,40 +36,56 @@ function App() {
         <NotificationProvider>
           <CourseProvider>
             <EnrolmentProvider>
-              <Router>
-                <Switch>
-                  <ProtectedRoute exact path="/" component={MainMenu} />
-                  <ProtectedRoute exact path="/signin" component={SignIn} />
-                  <ProtectedRoute exact path="/signup" component={SignUp} />
+              <FacePhotoProvider>
+                <Router>
+                  <Switch>
+                    <ProtectedRoute exact path="/" component={MainMenu} />
+                    <ProtectedRoute exact path="/signin" component={SignIn} />
+                    <ProtectedRoute exact path="/signup" component={SignUp} />
 
-                  <AuthRoute exact path="/dashboard" component={Dashboard} />
-                  <AuthRoute exact path="/profile" component={Profile} />
-                  <AuthRoute
-                    exact
-                    path="/notification"
-                    component={Notifications}
-                  />
-                  <AuthRoute
-                    exact
-                    path="/course/:id"
-                    component={CourseDetails}
-                  />
-                  <AuthRoute exact path="/addcourse" component={AddCourse} />
-                  <AuthRoute exact path="/testing" component={Testing} />
-                  <AuthRoute
-                    exact
-                    path="/course/:id/takeattendance"
-                    component={TakeAttendance}
-                  />
-                  <AuthRoute
-                    exact
-                    path="/enrolrequest"
-                    component={EnrolRequest}
-                  />
+                    <AuthRoute exact path="/dashboard" component={Dashboard} />
+                    <AuthRoute exact path="/profile" component={Profile} />
+                    <AuthRoute
+                      exact
+                      path="/notification"
+                      component={Notifications}
+                    />
+                    <AuthRoute
+                      exact
+                      path="/course/:id"
+                      component={CourseDetails}
+                    />
+                    <LecturerRoute
+                      exact
+                      path="/addcourse"
+                      component={AddCourse}
+                    />
+                    <AuthRoute exact path="/testing" component={Testing} />
+                    <LecturerRoute
+                      exact
+                      path="/course/:id/takeattendance"
+                      component={TakeAttendance}
+                    />
+                    <LecturerRoute
+                      exact
+                      path="/enrolrequest"
+                      component={EnrolRequest}
+                    />
+                    <StudentRoute
+                      exact
+                      path="/enrolpending"
+                      component={EnrolPending}
+                    />
+                    <StudentRoute
+                      exact
+                      path="/facegallery"
+                      component={FaceGallery}
+                    />
 
-                  <AuthRoute component={NoFound} />
-                </Switch>
-              </Router>
+                    <AuthRoute component={NoFound} />
+                  </Switch>
+                </Router>
+              </FacePhotoProvider>
             </EnrolmentProvider>
           </CourseProvider>
         </NotificationProvider>

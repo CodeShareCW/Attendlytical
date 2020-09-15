@@ -7,7 +7,7 @@ export const FETCH_CREATEDCOURSES_COUNT_QUERY = gql`
 `;
 
 export const FETCH_CREATEDCOURSES_QUERY = gql`
-  query getCreatedCourses($cursor: String, $limit: Int!) {
+  query getCreatedCourses($cursor: ID, $limit: Int!) {
     getCreatedCourses(cursor: $cursor, limit: $limit) {
       courses {
         _id
@@ -20,6 +20,13 @@ export const FETCH_CREATEDCOURSES_QUERY = gql`
         code
         session
         createdAt
+        enrolledStudents {
+          _id
+          firstName
+          lastName
+          profilePictureURL
+          cardID
+        }
       }
       hasNextPage
     }
