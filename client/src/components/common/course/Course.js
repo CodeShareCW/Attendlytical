@@ -1,15 +1,18 @@
-import { ArrowRightOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Button, Card, Space } from "antd";
-import moment from "moment";
-import React from "react";
-import "./Course.css";
+import { ArrowRightOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Card, Space } from 'antd';
+import moment from 'moment';
+import React, { useContext } from 'react';
+import './Course.css';
 
-export default ({ user, course, handleAccess, handleDelete }) => {
+import { AuthContext } from '../../../context';
+
+export default ({ course, handleAccess, handleDelete }) => {
+  const { user } = useContext(AuthContext);
   return (
     <Card
-      className="course"
+      className='course'
       key={course._id}
-      title={"ID: " + course.shortID}
+      title={'ID: ' + course.shortID}
       extra={
         <Space>
           <Button onClick={() => handleAccess(course)}>
@@ -17,7 +20,7 @@ export default ({ user, course, handleAccess, handleDelete }) => {
           </Button>
 
           <Button
-            className="course__deleteBtn"
+            className='course__deleteBtn'
             onClick={() => handleDelete(course)}
           >
             <DeleteOutlined />
@@ -36,16 +39,16 @@ export default ({ user, course, handleAccess, handleDelete }) => {
       </p>
       {user.userLevel === 0 && (
         <p>
-          <strong>Course Owner</strong>:{" "}
-          {course.creator.firstName + " " + course.creator.lastName}
+          <strong>Course Owner</strong>:{' '}
+          {course.creator.firstName + ' ' + course.creator.lastName}
         </p>
       )}
       <p>
-        <strong>Created At</strong>:{" "}
-        {moment(course.createdAt).format("LLL") +
-          " (" +
+        <strong>Created At</strong>:{' '}
+        {moment(course.createdAt).format('LLL') +
+          ' (' +
           moment(course.createdAt).fromNow(true) +
-          " ago)"}
+          ' ago)'}
       </p>
     </Card>
   );

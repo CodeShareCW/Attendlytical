@@ -1,21 +1,23 @@
-import { FileImageOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Avatar, Button, Card, Layout, Modal, message } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import { FileImageOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { Avatar, Button, Card, Layout, message, Modal } from 'antd';
+import moment from 'moment';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { FacePhotoContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_FACE_PHOTOS_LIMIT } from "../../../globalData";
-import { DELETE_FACE_PHOTO_MUTATION } from "../../../graphql/mutation";
-import { FETCH_FACE_PHOTOS_QUERY } from "../../../graphql/query";
-import { LoadingSpin } from "../../../utils/LoadingSpin";
-import AddFacePhoto from "./addFacePhoto";
-
+} from '../../../components/common/sharedLayout';
+import { FacePhotoContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_FACE_PHOTOS_LIMIT } from '../../../globalData';
+import { DELETE_FACE_PHOTO_MUTATION } from '../../../graphql/mutation';
+import { FETCH_FACE_PHOTOS_QUERY } from '../../../graphql/query';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
+import AddFacePhoto from './addFacePhoto';
+import { EmojiProcessing } from '../../../utils/EmojiProcessing';
+import { ROBOT_ICON_URL } from '../../../assets';
 const { Content } = Layout;
 export default () => {
   const {
@@ -87,39 +89,57 @@ export default () => {
 
   const handleFetchMore = () => {};
   return (
-    <Layout className="enrolments layout">
+    <Layout className='enrolments layout'>
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb
-          titleList={[{ name: "Face Gallery", link: "/facegallery" }]}
+          titleList={[{ name: 'Face Gallery', link: '/facegallery' }]}
         />
 
-        <Content className="enrolments__content">
+        <Content className='enrolments__content'>
           <Card>
             <AddFacePhoto refetch={refetch} />
             <Card title={<strong>Your Gallery</strong>}>
               {loading && <LoadingSpin loading={loading} />}
               {facePhotos.map((photo, index) => (
                 <Card key={photo._id}>
-                  <Avatar
-                    shape="square"
-                    size={120}
-                    src={photo.photoURL}
-                    icon={<FileImageOutlined />}
-                    alt={"Face Photo: " + index}
-                  />
+                  <Card>
+                    <Avatar
+                      shape='square'
+                      size={120}
+                      src={photo.photoURL}
+                      icon={<FileImageOutlined />}
+                      alt={'Face Photo: ' + index}
+                    />
+                    <br /> <br />
+                    <div>
+                      <img
+                        src={ROBOT_ICON_URL.link}
+                        style={{
+                          width: ROBOT_ICON_URL.width,
+                          height: ROBOT_ICON_URL.height,
+                        }}
+                      />
+                      <span style={{ color: 'darkblue', fontWeight: 900 }}>
+                        : Feel like you are{' '}
+                      </span>
+                      <span>
+                        <EmojiProcessing exp={photo.expression} size='sm' />
+                      </span>
+                    </div>
+                  </Card>
                   &nbsp;
                   <strong>Face Descriptor: </strong>
                   <Button onClick={() => handleDescriptorVisible(photo._id)}>
-                    Show
+                    {!isDescriptorVisible[photo._id] ? 'Show' : 'Hide'}
                   </Button>
                   {isDescriptorVisible[photo._id] && (
                     <p
                       style={{
-                        wordBreak: "break-all",
-                        marginBottom: "10px",
-                        backgroundColor: "lightblue",
+                        wordBreak: 'break-all',
+                        marginBottom: '10px',
+                        backgroundColor: 'lightblue',
                       }}
                     >
                       {photo.faceDescriptor}
@@ -127,13 +147,22 @@ export default () => {
                   )}
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "flex-end",
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'flex-end',
+                    }}
+                  >
+                    <p>Uploaded at: {moment(photo.createdAt).format('LLL')}</p>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'flex-end',
                     }}
                   >
                     <Button
-                      type="danger"
+                      type='danger'
                       onClick={() => {
                         setIsDeleteModalVisible(true);
                         setSelectedPhoto(photo);
@@ -151,7 +180,7 @@ export default () => {
               )}
 
               {!loading && facePhotos.length !== 0 && fetchedDone && (
-                <div className="allLoadedCard">
+                <div className='allLoadedCard'>
                   <h3>All Face Photo Loaded</h3>
                 </div>
               )}
@@ -171,10 +200,10 @@ export default () => {
               disabled: deleteFacePhotoStatus.loading,
             }}
             cancelButtonProps={{ disabled: deleteFacePhotoStatus.loading }}
-            okText="Delete"
+            okText='Delete'
           >
             <Avatar
-              shape="square"
+              shape='square'
               src={selectedPhoto?.photoURL}
               size={200}
               icon={<FileImageOutlined />}

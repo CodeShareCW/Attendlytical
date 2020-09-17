@@ -1,29 +1,28 @@
-import { LoadingOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Card, Modal, Space, Spin } from "antd";
-import React, { useContext, useEffect, useState } from "react";
-import Course from "../../../components/common/course/Course";
-import { AuthContext, CourseContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_COURSE_LIMIT } from "../../../globalData";
-import { DELETE_COURSE_MUTATION } from "../../../graphql/mutation";
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { Card, Space } from 'antd';
+import React, { useContext, useEffect, useState } from 'react';
+import Course from '../../../components/common/course/Course';
+import Modal from '../../../components/common/customModal';
+import { CourseContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_COURSE_LIMIT, modalItems } from '../../../globalData';
+import { DELETE_COURSE_MUTATION } from '../../../graphql/mutation';
 import {
   FETCH_CREATEDCOURSES_COUNT_QUERY,
   FETCH_CREATEDCOURSES_QUERY,
-} from "../../../graphql/query";
-import { LoadingSpin } from "../../../utils/LoadingSpin";
-import "./LecturerDashboard.css";
+} from '../../../graphql/query';
+import { FetchChecker } from '../../../utils/FetchChecker';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
 
 export default (props) => {
-  const { user } = useContext(AuthContext);
-  const {
-    courses,
-    fetchedDone,
-    setFetchedDone,
-    loadCourses,
-  } = useContext(CourseContext);
+  const { courses, fetchedDone, setFetchedDone, loadCourses } = useContext(
+    CourseContext
+  );
 
+  //modal visible boolean
   const [visible, SetVisible] = useState(false);
+
+  //get total courses count query
   const [selectedCourse, SetSelectedCourse] = useState({});
 
   const totalCoursesQuery = useQuery(FETCH_CREATEDCOURSES_COUNT_QUERY, {
@@ -32,7 +31,7 @@ export default (props) => {
     },
   });
 
-  const { data, loading, networkStatus, fetchMore } = useQuery(
+  const { data, loading, refetch, fetchMore } = useQuery(
     FETCH_CREATEDCOURSES_QUERY,
     {
       onError(err) {
@@ -45,13 +44,13 @@ export default (props) => {
     }
   );
 
-  const [deleteCourseForGQL, deleteCourseStatus] = useMutation(
+  const [deleteCourseCallback, deleteCourseStatus] = useMutation(
     DELETE_COURSE_MUTATION,
     {
       update() {
-        //TODO: handle remove item
         SetVisible(false);
-        window.location.reload();
+        refetch();
+        totalCoursesQuery.refetch();
       },
       onError(err) {
         CheckError(err);
@@ -79,14 +78,14 @@ export default (props) => {
     SetVisible(true);
   };
   const handleOk = (e) => {
-    deleteCourseForGQL();
+    deleteCourseCallback();
   };
 
   const handleCancel = (e) => {
     SetVisible(false);
   };
 
-  const HandleFetchMore = () => {
+  const handleFetchMore = () => {
     fetchMore({
       variables: {
         limit: FETCH_COURSE_LIMIT,
@@ -98,7 +97,7 @@ export default (props) => {
       updateQuery: (pv, { fetchMoreResult }) => {
         return {
           getCreatedCourses: {
-            __typename: "Courses",
+            __typename: 'Courses',
             courses: [
               ...pv.getCreatedCourses.courses,
               ...fetchMoreResult.getCreatedCourses.courses,
@@ -111,95 +110,46 @@ export default (props) => {
   };
 
   return (
-    <div id="lecturerDashboard">
-      <Card className="lecturerDashboard__card">
-        <Space direction="vertical" className="lecturerDashboard__space">
-          <h1>
-            Total Created Course:{" "}
-            {totalCoursesQuery.loading ? (
-              <LoadingOutlined />
-            ) : (
-              totalCoursesQuery.data?.getCreatedCoursesCount
-            )}
-          </h1>
-          <br />
-          {courses &&
-            courses.map((course) => (
-              <Course
-                key={course._id}
-                user={user}
-                course={course}
-                handleAccess={handleAccess}
-                handleDelete={handleDelete}
-              />
-            ))}
+    <Card>
+      <Space direction='vertical' className='width100'>
+        <h1>
+          Total Created Course:{' '}
+          {totalCoursesQuery.data?.getCreatedCoursesCount || 0}
+        </h1>
 
-          <LoadingSpin loading={loading} />
+        {courses.map((course) => (
+          <Course
+            key={course._id}
+            course={course}
+            handleAccess={handleAccess}
+            handleDelete={handleDelete}
+          />
+        ))}
 
-          {!loading && courses && !fetchedDone && (
-            <Button onClick={HandleFetchMore} loading={networkStatus === 3}>
-              Load More
-            </Button>
-          )}
+        <LoadingSpin loading={loading} />
 
-          {!loading && courses?.length !== 0 && fetchedDone && (
-            <div className="allLoadedCard">
-              <h3>All Courses Loaded</h3>
-            </div>
-          )}
+        {/*give text of fetch result*/}
+        <FetchChecker
+          loading={loading}
+          payload={courses}
+          fetchedDone={fetchedDone}
+          allLoadedMessage='All Courses Loaded'
+          noItemMessage='No Course Created...'
+          handleFetchMore={handleFetchMore}
+        />
 
-          {courses && (
-            <Modal
-              className="lecturerDashboard__modal"
-              title="Delete Course"
-              visible={visible}
-              onOk={handleOk}
-              onCancel={handleCancel}
-              okButtonProps={{ disabled: deleteCourseStatus.loading }}
-              cancelButtonProps={{ disabled: deleteCourseStatus.loading }}
-              okText="Delete"
-            >
-              {!deleteCourseStatus.loading ? (
-                <div className="lecturerDashboard__deleteConfirm">
-                  <p>Are you sure to delete the following course?</p>
-                  <p>
-                    <strong>Course ID</strong>: {selectedCourse.shortID}
-                  </p>
-                  <p>
-                    <strong>Particular</strong>:{" "}
-                    {selectedCourse.code +
-                      "-" +
-                      selectedCourse.name +
-                      " (" +
-                      selectedCourse.session +
-                      ")"}
-                  </p>
-                </div>
-              ) : (
-                <Spin
-                  className="lecturerDashboard__deleteLoading"
-                  tip="Deleting..."
-                >
-                  <p>Are you sure to delete the following course?</p>
-                  <p>
-                    <strong>Course ID</strong>: {selectedCourse.shortID}
-                  </p>
-                  <p>
-                    <strong>Particular</strong>:{" "}
-                    {selectedCourse.code +
-                      "-" +
-                      selectedCourse.name +
-                      " (" +
-                      selectedCourse.session +
-                      ")"}
-                  </p>
-                </Spin>
-              )}
-            </Modal>
-          )}
-          {!loading && courses?.length === 0 && <h1>No course created...</h1>}
-        </Space>
-      </Card>
-    </div>
+        {/*modal backdrop*/}
+        <Modal
+          title='Delete Course'
+          action={modalItems.course.action.delete}
+          itemType={modalItems.course.name}
+          visible={visible}
+          loading={deleteCourseStatus.loading}
+          handleOk={handleOk}
+          handleCancel={handleCancel}
+          payload={selectedCourse}
+        />
+      </Space>
+    </Card>
   );
 };

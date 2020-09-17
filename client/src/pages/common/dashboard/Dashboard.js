@@ -1,15 +1,15 @@
-import { Layout } from "antd";
-import React, { useContext } from "react";
+import { Layout } from 'antd';
+import React, { useContext } from 'react';
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { AuthContext } from "../../../context";
-import { LecturerDashboard } from "../../lecturerPage";
-import { StudentDashboard } from "../../studentPage";
-import "./Dashboard.css";
+} from '../../../components/common/sharedLayout';
+import { AuthContext } from '../../../context';
+import { LecturerDashboard } from '../../lecturerPage';
+import { StudentDashboard } from '../../studentPage';
+import './Dashboard.css';
 
 const { Content } = Layout;
 
@@ -24,16 +24,14 @@ const WhichDashboard = ({ user, ...props }) => {
 
 export default (props) => {
   const { user } = useContext(AuthContext);
-  const titleList = [{ name: "Home", link: "/dashboard" }];
+  const titleList = [{ name: 'Home', link: '/dashboard' }];
   return (
-    <Layout className="dashboard layout">
+    <Layout className='dashboard layout'>
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb titleList={titleList} />
-        <Content>
-          <WhichDashboard user={user} {...props} />
-        </Content>
+        <WhichDashboard user={user} {...props} />
         <Footer />
       </Layout>
     </Layout>

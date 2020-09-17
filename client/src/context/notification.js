@@ -1,5 +1,5 @@
-import React, { createContext, useReducer } from "react";
-import { actionTypes } from "../globalData";
+import React, { createContext, useReducer } from 'react';
+import { actionTypes } from '../globalData';
 
 const initialState = {
   notifications: [],
@@ -23,7 +23,7 @@ function notificationReducer(state, action) {
         ...state,
         pressedNotification: action.done,
       };
-      
+
     case actionTypes.LOAD_NOTIFICATIONS_ACTION:
       return {
         ...state,
@@ -42,7 +42,6 @@ function notificationReducer(state, action) {
 
 function NotificationProvider(props) {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
-
 
   function setFetchedDone(done) {
     dispatch({ type: actionTypes.FETCH_DONE_ACTION, done });
@@ -63,7 +62,6 @@ function NotificationProvider(props) {
     dispatch({ type: actionTypes.LOAD_NOTIFICATIONS_ACTION, notifications });
   }
 
-
   return (
     <NotificationContext.Provider
       value={{
@@ -82,4 +80,3 @@ function NotificationProvider(props) {
 }
 
 export { NotificationContext, NotificationProvider };
-

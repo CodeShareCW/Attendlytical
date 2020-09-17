@@ -1,40 +1,46 @@
-import { LoadingOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Card, Modal, Space, Spin, message } from "antd";
-import React, { useContext, useState, useEffect } from "react";
-import Course from "../../../components/common/course/Course";
-import { AuthContext, CourseContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_COURSE_LIMIT } from "../../../globalData";
-import { WITHDRAW_COURSE_MUTATION } from "../../../graphql/mutation";
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { Card, message, notification, Space } from 'antd';
+import React, { useContext, useEffect, useState } from 'react';
+import { EnrolCourse } from '../';
+import Course from '../../../components/common/course/Course';
+import Modal from '../../../components/common/customModal';
+import { CourseContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_COURSE_LIMIT, modalItems } from '../../../globalData';
+import { WITHDRAW_COURSE_MUTATION } from '../../../graphql/mutation';
 import {
   FETCH_ENROLLEDCOURSES_COUNT_QUERY,
   FETCH_ENROLLEDCOURSES_QUERY,
   FETCH_FACE_PHOTOS_COUNT_QUERY,
-} from "../../../graphql/query";
-import { LoadingSpin } from "../../../utils/LoadingSpin";
-import "./StudentDashboard.css";
-import { notification } from "antd";
-
-import { EnrolCourse } from "../";
+} from '../../../graphql/query';
+import { FetchChecker } from '../../../utils/FetchChecker';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
 
 export default (props) => {
-  const [isNotifiedAddPhoto, setIsNotifiedAddPhoto] = useState(false);
-  const { user } = useContext(AuthContext);
   const { courses, fetchedDone, setFetchedDone, loadCourses } = useContext(
     CourseContext
   );
-
   const [selectedCourse, SetSelectedCourse] = useState({});
+
+  //modal visible boolean
   const [visible, SetVisible] = useState(false);
 
+  //get total courses count query
   const totalCoursesQuery = useQuery(FETCH_ENROLLEDCOURSES_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
   });
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(
+  //get uploaded photos query
+  const facePhotosCountQuery = useQuery(FETCH_FACE_PHOTOS_COUNT_QUERY, {
+    onError(err) {
+      CheckError(err);
+    },
+  });
+
+  //get list of couse query
+  const { data, loading, refetch, fetchMore } = useQuery(
     FETCH_ENROLLEDCOURSES_QUERY,
     {
       onError(err) {
@@ -47,6 +53,7 @@ export default (props) => {
     }
   );
 
+  //withdrawCourse mutation
   const [withdrawCourseCallback, withdrawCourseStatus] = useMutation(
     WITHDRAW_COURSE_MUTATION,
     {
@@ -55,8 +62,8 @@ export default (props) => {
       },
       update() {
         SetVisible(false);
-
-        window.location.reload();
+        refetch();
+        totalCoursesQuery.refetch();
       },
       onError(err) {
         CheckError(err);
@@ -67,26 +74,24 @@ export default (props) => {
     }
   );
 
-  const facePhotosCountQuery = useQuery(FETCH_FACE_PHOTOS_COUNT_QUERY, {
-    onError(err) {
-      CheckError(err);
-    },
-  });
-
+  //check amount of uploaded photo to notify student
   useEffect(() => {
     if (facePhotosCountQuery.data)
-      if (
-        !isNotifiedAddPhoto &&
-        facePhotosCountQuery.data.getFacePhotosCount < 2
-      ) {
-        notification["info"]({
-          message: <strong>Please add your face photograph for at least 2<br/><br/></strong>,
+      if (facePhotosCountQuery.data.getFacePhotosCount < 2) {
+        notification['info']({
+          message: (
+            <strong>
+              Please add your face photograph for at least 2<br />
+              <br />
+            </strong>
+          ),
           description: `Number of face photograph uploaded: ${facePhotosCountQuery.data.getFacePhotosCount}`,
         });
-        facePhotosCountQuery.refetch();
-        setIsNotifiedAddPhoto(true);
       }
-  }, [facePhotosCountQuery.data]);
+    facePhotosCountQuery.refetch();
+  }, [facePhotosCountQuery]);
+
+  //load courses as long as data is fetched
   useEffect(() => {
     if (data) {
       loadCourses(data.getEnrolledCourses.courses);
@@ -97,24 +102,29 @@ export default (props) => {
     }
   }, [data]);
 
+  //-> icon is pressed, navigate to course detail page
   const handleAccess = (course) => {
     props.history.push(`/course/${course.shortID}`);
   };
 
+  //delete icon pressed, show modal
   const handleDelete = (course) => {
     SetSelectedCourse(course);
     SetVisible(true);
   };
 
+  //modal open
   const handleOk = (e) => {
     withdrawCourseCallback();
   };
 
+  //modal close
   const handleCancel = (e) => {
     SetVisible(false);
   };
 
-  const HandleFetchMore = () => {
+  //fetch more button being pressed
+  const handleFetchMore = () => {
     fetchMore({
       variables: {
         limit: FETCH_COURSE_LIMIT,
@@ -126,7 +136,7 @@ export default (props) => {
       updateQuery: (pv, { fetchMoreResult }) => {
         return {
           getEnrolledCourses: {
-            __typename: "Courses",
+            __typename: 'Courses',
             courses: [
               ...pv.getEnrolledCourses.courses,
               ...fetchMoreResult.getEnrolledCourses.courses,
@@ -139,116 +149,49 @@ export default (props) => {
   };
 
   return (
-    <Card className="studentDashboard__card">
+    <Card>
       <EnrolCourse />
-      <Space direction="vertical" className="studentDashboard__space">
+      <Space direction='vertical' className='width100'>
         <h1>
-          Total Enrolled Course:{" "}
+          Total Enrolled Course:
           {totalCoursesQuery.data?.getEnrolledCoursesCount || 0}
         </h1>
-        <br />
-        {courses &&
-          courses.map((course) => {
-            return (
-              <Course
-                user={user}
-                key={course._id}
-                course={course}
-                handleAccess={handleAccess}
-                handleDelete={handleDelete}
-              />
-            );
-          })}
-        {courses && (
-          <Modal
-            title="Withdraw Course"
-            visible={visible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            okText="Delete"
-          >
-            <p>Are you sure to withdraw the following course?</p>
-            <p>
-              <strong>Course ID</strong>: {selectedCourse._id}
-            </p>
-            <p>
-              <strong>Particular</strong>:{" "}
-              {selectedCourse.code +
-                "-" +
-                selectedCourse.name +
-                " (" +
-                selectedCourse.session +
-                ")"}
-            </p>
-          </Modal>
-        )}
+
+        {/*give list of course*/}
+        {courses.map((course) => {
+          return (
+            <Course
+              key={course._id}
+              course={course}
+              handleAccess={handleAccess}
+              handleDelete={handleDelete}
+            />
+          );
+        })}
 
         <LoadingSpin loading={loading} />
 
-        {!loading && courses.length > 0 && !fetchedDone && (
-          <Button onClick={HandleFetchMore} disabled={networkStatus === 3}>
-            Load More
-            {networkStatus === 3 ? <LoadingOutlined /> : null}
-          </Button>
-        )}
+        {/*give text of fetch result*/}
+        <FetchChecker
+          loading={loading}
+          payload={courses}
+          fetchedDone={fetchedDone}
+          allLoadedMessage='All Courses Loaded'
+          noItemMessage='No Course Enrolled...'
+          handleFetchMore={handleFetchMore}
+        />
 
-        {!loading && courses?.length !== 0 && fetchedDone && (
-          <div className="studentDashboard__allLoadedCard">
-            <h3>All Courses Loaded</h3>
-          </div>
-        )}
-
-        {courses && (
-          <Modal
-            className="studentDashboard__modal"
-            title="Withdraw Course"
-            visible={visible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            okButtonProps={{ disabled: withdrawCourseStatus.loading }}
-            cancelButtonProps={{ disabled: withdrawCourseStatus.loading }}
-            okText="Withdraw"
-          >
-            {!withdrawCourseStatus.loading ? (
-              <div className="studentDashboard__withdrawConfirm">
-                <p>Are you sure to withdraw the following course?</p>
-                <p>
-                  <strong>Course ID</strong>: {selectedCourse.shortID}
-                </p>
-                <p>
-                  <strong>Particular</strong>:{" "}
-                  {selectedCourse.code +
-                    "-" +
-                    selectedCourse.name +
-                    " (" +
-                    selectedCourse.session +
-                    ")"}
-                </p>
-              </div>
-            ) : (
-              <Spin
-                className="studentDashboard__withdrawLoading"
-                tip="Withdrawing..."
-              >
-                <p>Are you sure to withdraw the following course?</p>
-                <p>
-                  <strong>Course ID</strong>: {selectedCourse.shortID}
-                </p>
-                <p>
-                  <strong>Particular</strong>:{" "}
-                  {selectedCourse.code +
-                    "-" +
-                    selectedCourse.name +
-                    " (" +
-                    selectedCourse.session +
-                    ")"}
-                </p>
-              </Spin>
-            )}
-          </Modal>
-        )}
-
-        {!loading && courses?.length === 0 && <h1>No course enrolled...</h1>}
+        {/*modal backdrop*/}
+        <Modal
+          title='Withdraw Course'
+          action={modalItems.course.action.withdraw}
+          itemType={modalItems.course.name}
+          visible={visible}
+          loading={withdrawCourseStatus.loading}
+          handleOk={handleOk}
+          handleCancel={handleCancel}
+          payload={selectedCourse}
+        />
       </Space>
     </Card>
   );

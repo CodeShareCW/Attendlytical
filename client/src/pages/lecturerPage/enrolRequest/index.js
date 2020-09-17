@@ -1,22 +1,24 @@
-import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Card, Layout, message, Modal, Spin } from "antd";
-import React, { useContext, useState, useEffect } from "react";
+import { useMutation, useQuery } from '@apollo/react-hooks';
+import { Button, Card, Layout, message } from 'antd';
+import React, { useContext, useEffect, useState } from 'react';
+import Modal from '../../../components/common/customModal';
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { CourseContext, EnrolmentContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_ENROLMENT_LIMIT } from "../../../globalData";
+} from '../../../components/common/sharedLayout';
+import { EnrolmentContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_ENROLMENT_LIMIT, modalItems } from '../../../globalData';
 import {
   APPROVE_ENROLMENT_MUTATION,
   REJECT_ENROLMENT_MUTATION,
-} from "../../../graphql/mutation";
-import { FETCH_ENROLREQUEST_QUERY } from "../../../graphql/query";
-import Enrolment from "./Enrolment";
-import "./EnrolRequest.css";
+} from '../../../graphql/mutation';
+import { FETCH_ENROLREQUEST_QUERY } from '../../../graphql/query';
+import { FetchChecker } from '../../../utils/FetchChecker';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
+import Enrolment from './Enrolment';
 
 const { Content } = Layout;
 
@@ -27,13 +29,13 @@ export default () => {
     enrolments,
     fetchedDone,
     loadEnrolments,
-    setFetchedDone
+    setFetchedDone,
   } = useContext(EnrolmentContext);
   const [visible, SetVisible] = useState(false);
   const [selectedEnrolment, SetSelectedEnrolment] = useState({});
   const [isApprove, SetIsApprove] = useState(false);
 
-  const { data, loading, fetchMore, networkStatus, refetch } = useQuery(
+  const { data, loading, fetchMore, refetch } = useQuery(
     FETCH_ENROLREQUEST_QUERY,
     {
       onError(err) {
@@ -96,13 +98,9 @@ export default () => {
           setFetchedDone(true);
         }
 
-        loadEnrolments(
-          fetchMoreResult.getPendingEnrolledCourses.pendingEnrolledCourses
-        );
-
         return {
           getPendingEnrolledCourses: {
-            __typename: "pendingEnrolledCourses",
+            __typename: 'pendingEnrolledCourses',
             pendingEnrolledCourses: [
               ...pv.getPendingEnrolledCourses.pendingEnrolledCourses,
               ...fetchMoreResult.getPendingEnrolledCourses
@@ -118,19 +116,18 @@ export default () => {
   const handleApproveRejectButton = (enrolment, pressed) => {
     SetVisible(true);
     SetSelectedEnrolment(enrolment);
-    if (pressed === "approved") {
+    if (pressed === 'approved') {
       SetIsApprove(true);
-    } else if (pressed === "rejected") {
+    } else if (pressed === 'rejected') {
       SetIsApprove(false);
     }
   };
 
   const handleCancel = () => {
     SetVisible(false);
-    SetSelectedEnrolment({});
   };
 
-  const handleConfirm = () => {
+  const handleOk = () => {
     if (isApprove) {
       approveEnrolmentCallback({
         update() {
@@ -152,156 +149,65 @@ export default () => {
   };
 
   return (
-    <div className="enrolments">
-      <Layout className="enrolments layout">
-        <Navbar />
+    <Layout className='layout'>
+      <Navbar />
+      <Layout>
+        <Greeting />
+        <PageTitleBreadcrumb
+          titleList={[{ name: 'Enrol Request', link: '/enrolrequest' }]}
+        />
 
-        <Layout>
-          <Greeting />
-          <PageTitleBreadcrumb
-            titleList={[{ name: "Enrol Request", link: "/enrolrequest" }]}
-          />
-          {loading && <Spin tip="Loading..." />}
+        <Content>
+          <Card>
+            {enrolments.length !== 0 && (
+              <p>Please approve or reject the following enrolments</p>
+            )}
+            {enrolments.map((enrolment) => (
+              <Enrolment
+                key={enrolment._id}
+                enrolment={enrolment}
+                handleApproveRejectButton={handleApproveRejectButton}
+              />
+            ))}
 
-          <Content className="enrolments__content">
-            <Card>
-              <div>
-                {loading ? (
-                  ""
-                ) : enrolments.length !== 0 ? (
-                  <p>Please approve or reject the following enrolments</p>
-                ) : (
-                  <p>No enrolments</p>
-                )}
-              </div>
-              {enrolments.map((enrolment) => (
-                <Enrolment
-                  key={enrolment._id}
-                  enrolment={enrolment}
-                  handleApproveRejectButton={handleApproveRejectButton}
-                />
-              ))}
-              {enrolments.length > 0 && !fetchedDone && (
-                <Button onClick={handleFetchMore} loading={loading}>
-                  Load More
-                </Button>
-              )}
+            <LoadingSpin loading={loading} />
 
-              {enrolments?.length !== 0 && fetchedDone && (
-                <div className="allLoadedCard">
-                  <h3>All Enrolment Loaded</h3>
-                </div>
-              )}
-            </Card>
-          </Content>
-          {enrolments && (
+            {/*give text of fetch result*/}
+            <FetchChecker
+              loading={loading}
+              payload={enrolments}
+              fetchedDone={fetchedDone}
+              allLoadedMessage='All Enrolment Request Loaded'
+              noItemMessage='No Enrolment Request...'
+              handleFetchMore={handleFetchMore}
+            />
+
+            {/*modal backdrop*/}
             <Modal
-              className="lecturerDashboard__modal"
-              title="Delete Course"
+              title={
+                isApprove
+                  ? modalItems.enrolment.action.approve + ' Enrolment'
+                  : modalItems.enrolment.action.reject + ' Enrolment'
+              }
+              action={
+                isApprove
+                  ? modalItems.enrolment.action.approve
+                  : modalItems.enrolment.action.reject
+              }
+              itemType={modalItems.enrolment.name}
               visible={visible}
-              onOk={handleConfirm}
-              onCancel={handleCancel}
-              okButtonProps={{
-                disabled:
-                  approveEnrolmentStatus.loading ||
-                  rejectEnrolmentStatus.loading,
-              }}
-              cancelButtonProps={{
-                disabled:
-                  approveEnrolmentStatus.loading ||
-                  rejectEnrolmentStatus.loading,
-              }}
-              okText={isApprove ? "Approve" : "Reject"}
-            >
-              {!approveEnrolmentStatus.loading &&
-              !rejectEnrolmentStatus.loading ? (
-                <div className="enrolment__confirm">
-                  <p>
-                    Are you sure to{" "}
-                    {isApprove ? (
-                      <span
-                        style={{
-                          color: "green",
-                          fontWeight: 900,
-                          fontSize: "20px",
-                        }}
-                      >
-                        "approve"
-                      </span>
-                    ) : (
-                      <span
-                        style={{
-                          color: "red",
-                          fontWeight: 900,
-                          fontSize: "20px",
-                        }}
-                      >
-                        "reject"
-                      </span>
-                    )}{" "}
-                    the following enrolment?
-                  </p>
-                  <strong>Student: </strong>
-                  {selectedEnrolment.student?.firstName}{" "}
-                  {selectedEnrolment.student?.lastName} (
-                  {selectedEnrolment.student?.cardID})
-                  <br />
-                  <br />
-                  <strong>
-                    Course (ID: {selectedEnrolment.course?.shortID}):{" "}
-                  </strong>
-                  {selectedEnrolment.course?.code}{" "}
-                  {selectedEnrolment.course?.name} (
-                  {selectedEnrolment.course?.session})
-                </div>
-              ) : (
-                <Spin tip="Loading...">
-                  <div className="enrolment__confirm">
-                    <p>
-                      Are you sure to{" "}
-                      {isApprove ? (
-                        <span
-                          style={{
-                            color: "green",
-                            fontWeight: 900,
-                            fontSize: "20px",
-                          }}
-                        >
-                          "approve"
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            color: "red",
-                            fontWeight: 900,
-                            fontSize: "20px",
-                          }}
-                        >
-                          "reject"
-                        </span>
-                      )}{" "}
-                      the following enrolment?
-                    </p>
-                    <strong>Student: </strong>
-                    {selectedEnrolment.student?.firstName}{" "}
-                    {selectedEnrolment.student?.lastName} (
-                    {selectedEnrolment.student?.cardID})
-                    <br />
-                    <br />
-                    <strong>
-                      Course (ID: {selectedEnrolment.course?.shortID}):{" "}
-                    </strong>
-                    {selectedEnrolment.course?.code}{" "}
-                    {selectedEnrolment.course?.name} (
-                    {selectedEnrolment.course?.session})
-                  </div>
-                </Spin>
-              )}
-            </Modal>
-          )}
-          <Footer />
-        </Layout>
+              loading={
+                approveEnrolmentStatus.loading || rejectEnrolmentStatus.loading
+              }
+              handleOk={handleOk}
+              handleCancel={handleCancel}
+              payload={selectedEnrolment}
+            />
+          </Card>
+        </Content>
+
+        <Footer />
       </Layout>
-    </div>
+    </Layout>
   );
 };

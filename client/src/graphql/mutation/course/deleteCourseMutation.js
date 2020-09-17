@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const DELETE_COURSE_MUTATION = gql`
   mutation deleteCourse($id: ID!) {

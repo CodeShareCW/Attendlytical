@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const ADD_COURSE_MUTATION = gql`
   mutation createCourse($code: String!, $name: String!, $session: String!) {

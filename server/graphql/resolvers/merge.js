@@ -143,6 +143,8 @@ const FacePhotogqlParser = (photo) => {
   return {
     ...photo._doc,
     creator: person.bind(this, photo._doc.creator),
+    createdAt: new Date(photo._doc.createdAt).toISOString(),
+    updatedAt: new Date(photo._doc.updatedAt).toISOString(),
   };
 };
 

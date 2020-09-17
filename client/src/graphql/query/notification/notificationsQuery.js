@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const FETCH_UNCHECKED_NOTIFICATIONS_QUERY = gql`
   query getUncheckedNotificationsCount {

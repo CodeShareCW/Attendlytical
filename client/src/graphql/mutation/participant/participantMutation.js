@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const KICK_PARTICIPANT_MUTATION = gql`
   mutation kickParticipant($participantID: ID!, $courseID: String!) {

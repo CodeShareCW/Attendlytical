@@ -1,3 +1,3 @@
-import ProfileNavbar from "./ProfileNavbar";
+import ProfileNavbar from './ProfileNavbar';
 
 export { ProfileNavbar };

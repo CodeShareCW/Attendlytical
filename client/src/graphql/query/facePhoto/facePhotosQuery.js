@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const FETCH_FACE_PHOTOS_COUNT_QUERY = gql`
   query getFacePhotosCount {
@@ -13,9 +13,10 @@ export const FETCH_FACE_PHOTOS_QUERY = gql`
         _id
         faceDescriptor
         photoURL
+        expression
+        createdAt
       }
       hasNextPage
     }
   }
 `;
-

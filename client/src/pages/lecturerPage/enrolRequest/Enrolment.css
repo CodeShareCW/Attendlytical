@@ -7,12 +7,10 @@
     border-radius: 10px !important;
 }
 
-
 .enrolment__card__item span, .enrolment__card__item a{
     color: rgb(89, 133, 255);
     font-weight: bold;
 }
-
 
 .enrolmentDetails__buttons{
     display: flex;

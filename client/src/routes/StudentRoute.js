@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
-import { Route, Redirect } from "react-router-dom";
+import React, { useContext } from 'react';
+import { Route, Redirect } from 'react-router-dom';
 
-import { AuthContext } from "../context/auth";
+import { AuthContext } from '../context/auth';
 
 function StudentRoute({ component: Component, ...rest }) {
   const { user } = useContext(AuthContext);
@@ -12,7 +12,7 @@ function StudentRoute({ component: Component, ...rest }) {
         user && user.userLevel === 0 ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/" />
+          <Redirect to='/' />
         )
       }
     />

@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const FETCH_ENROLREQUEST_COUNT_QUERY = gql`
   query getEnrolRequestCount {

@@ -89,6 +89,9 @@ module.exports = gql`
     creator: Person!
     photoURL: String!
     faceDescriptor: String!
+    expression: String!
+    createdAt: String
+    updatedAt: String
   }
 
   type FacePhotos {
@@ -199,8 +202,9 @@ module.exports = gql`
     createAttendance(attendanceInput: attendanceInput!): Attendance!
     deleteAttendance(attendanceID: ID!): String
 
-    addFacePhoto(photoData: String!, faceDescriptor: String!): FacePhoto!
+    addFacePhoto(photoData: String!, faceDescriptor: String!, expression: String): FacePhoto!
     deleteFacePhoto(photoID: ID!): String
+    retrieveStudentFacePhoto(studentID: ID!): [FacePhoto!]
 
     addGroupPhoto(attendanceID: ID!, data: String!): GroupPhoto!
 

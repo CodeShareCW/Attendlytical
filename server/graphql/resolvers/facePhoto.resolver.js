@@ -54,7 +54,7 @@ module.exports = {
     },
   },
   Mutation: {
-    async addFacePhoto(_, { photoData, faceDescriptor }, context) {
+    async addFacePhoto(_, { photoData, faceDescriptor, expression }, context) {
       const currUser = checkAuth(context);
       let errors = {};
 
@@ -75,6 +75,7 @@ module.exports = {
           photoURL: uploadedResponse.secure_url,
           photoPublicID: uploadedResponse.public_id,
           faceDescriptor,
+          expression
         });
 
         await facePhoto.save();
@@ -92,6 +93,19 @@ module.exports = {
         await cloudinary.uploader.destroy(targetPhoto.photoPublicID);
         await FacePhoto.deleteOne(targetPhoto);
         return "Delete Success";
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    async retrieveStudentFacePhoto(_, { studentID }, context) {
+      const currUser = checkAuth(context);
+      let errors = {};
+
+      try {
+        const photos = await FacePhoto.find({ creator: studentID });
+
+        return photos.map((photo) => FacePhotogqlParser(photo));
       } catch (err) {
         throw err;
       }

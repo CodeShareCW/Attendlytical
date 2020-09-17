@@ -1,12 +1,10 @@
-import React, { createContext, useReducer } from "react";
-import { actionTypes } from "../globalData";
+import React, { createContext, useReducer } from 'react';
+import { actionTypes } from '../globalData';
 
 const initialState = {
   facePhotos: [],
-  newFacePhotos: [],
-  removeFacePhotos: [],
   fetchedDone: false,
-  initialState: false,
+  notifyAddPhoto: false,
 };
 
 const FacePhotoContext = createContext({});
@@ -19,15 +17,17 @@ function facePhotoReducer(state, action) {
         fetchedDone: action.done,
       };
     case actionTypes.LOAD_FACE_PHOTOS_ACTION:
-      var updatedFacePhotos = [
-        ...state.newFacePhotos,
-        ...action.facePhotos,
-      ].filter((facePhoto) => !state.removeFacePhotos.includes(facePhoto));
-
+      var updatedFacePhotos = [...action.facePhotos];
+      if (updatedFacePhotos.length < 2)
+        return {
+          ...state,
+          facePhotos: updatedFacePhotos,
+          notifyAddPhoto: true,
+        };
       return {
         ...state,
         facePhotos: updatedFacePhotos,
-        initialState: true,
+        notifyAddPhoto: false,
       };
 
     default:
@@ -51,7 +51,7 @@ function FacePhotoProvider(props) {
       value={{
         facePhotos: state.facePhotos,
         fetchedDone: state.fetchedDone,
-
+        notifyAddPhoto: state.notifyAddPhoto,
         loadFacePhotos,
         setFetchedDone,
       }}

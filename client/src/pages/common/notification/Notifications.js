@@ -1,18 +1,18 @@
-import { useQuery } from "@apollo/react-hooks";
-import { Button, Card, Layout, Spin } from "antd";
-import React, { useContext, useState, useEffect } from "react";
-import Notification from "../../../components/common/notification/Notification";
+import { useQuery } from '@apollo/react-hooks';
+import { Button, Card, Layout, Spin } from 'antd';
+import React, { useContext, useState, useEffect } from 'react';
+import Notification from '../../../components/common/notification/Notification';
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { NotificationContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_NOTIFICATION_LIMIT } from "../../../globalData";
-import { FETCH_NOTIFICATIONS_QUERY } from "../../../graphql/query";
-import "./Notifications.css";
+} from '../../../components/common/sharedLayout';
+import { NotificationContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_NOTIFICATION_LIMIT } from '../../../globalData';
+import { FETCH_NOTIFICATIONS_QUERY } from '../../../graphql/query';
+import './Notifications.css';
 
 const { Content } = Layout;
 
@@ -25,7 +25,6 @@ export default () => {
     uncheckedNotificationCount,
     setUncheckedNotificationCount,
   } = useContext(NotificationContext);
-
 
   const { data, loading, fetchMore, networkStatus } = useQuery(
     FETCH_NOTIFICATIONS_QUERY,
@@ -47,7 +46,7 @@ export default () => {
       let count = 0;
       data.getNotifications.notifications.map((n) => {
         if (!n.checked) count++;
-        setTimeout(()=>n.checked=true, 2000);
+        setTimeout(() => (n.checked = true), 2000);
       });
 
       if (uncheckedNotificationCount >= count)
@@ -82,7 +81,7 @@ export default () => {
           setUncheckedNotificationCount(uncheckedNotificationCount - count);
         return {
           getNotifications: {
-            __typename: "Notifications",
+            __typename: 'Notifications',
             notifications: [
               ...pv.getNotifications.notifications,
               ...fetchMoreResult.getNotifications.notifications,
@@ -95,17 +94,17 @@ export default () => {
   };
 
   return (
-    <div className="notifications">
-      <Layout className="notifications layout">
+    <div className='notifications'>
+      <Layout className='notifications layout'>
         <Navbar />
 
         <Layout>
           <Greeting />
           <PageTitleBreadcrumb
-            titleList={[{ name: "Notification", link: "/notification" }]}
+            titleList={[{ name: 'Notification', link: '/notification' }]}
           />
-          <Content className="notifications__content">
-            <Card className="notifications__card">
+          <Content className='notifications__content'>
+            <Card className='notifications__card'>
               {notifications &&
                 notifications.map((notification) => (
                   <Notification
@@ -114,9 +113,9 @@ export default () => {
                   />
                 ))}
               {loading && (
-                <div className="notifications__loading__container">
-                  <div className="notifications__loading">
-                    <Spin size="large" tip="Loading..." />
+                <div className='notifications__loading__container'>
+                  <div className='notifications__loading'>
+                    <Spin size='large' tip='Loading...' />
                   </div>
                 </div>
               )}
@@ -126,7 +125,7 @@ export default () => {
                 </Button>
               )}
               {notifications.length !== 0 && fetchedDone && (
-                <div className="allLoadedCard">
+                <div className='allLoadedCard'>
                   <h3>All Notifications Loaded</h3>
                 </div>
               )}

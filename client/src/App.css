@@ -7,6 +7,10 @@
   min-height: 100vh !important;
 }
 
+.width100{
+  width: 100%;
+}
+
 .alert{
   color: red;
   text-align: "center"!important;

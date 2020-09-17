@@ -1,5 +1,5 @@
-import React, { createContext, useReducer } from "react";
-import { actionTypes } from "../globalData";
+import React, { createContext, useReducer } from 'react';
+import { actionTypes } from '../globalData';
 
 const initialState = {
   courses: [],

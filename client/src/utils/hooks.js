@@ -1,4 +1,3 @@
-  
 import { useState } from 'react';
 
 export const useForm = (callback, initialState = {}) => {
@@ -6,7 +5,7 @@ export const useForm = (callback, initialState = {}) => {
 
   const onChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
-};
+  };
 
   const onSubmit = (event) => {
     //event.preventDefault();
@@ -16,6 +15,6 @@ export const useForm = (callback, initialState = {}) => {
   return {
     onChange,
     onSubmit,
-    values
+    values,
   };
 };

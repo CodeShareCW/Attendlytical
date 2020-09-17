@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const APPROVE_ENROLMENT_MUTATION = gql`
   mutation approveEnrolment($id: ID!) {

@@ -1,5 +1,5 @@
-import { LoadingOutlined, UserOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
   Avatar,
   Button,
@@ -13,25 +13,25 @@ import {
   Space,
   Spin,
   Table,
-} from "antd";
-import React, { useContext, useState } from "react";
-import CourseDetailCard from "./CourseDetailCard";
+} from 'antd';
+import React, { useContext, useState } from 'react';
+import CourseDetailCard from './CourseDetailCard';
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from "../../../components/common/sharedLayout";
-import { AuthContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
+} from '../../../components/common/sharedLayout';
+import { AuthContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
 import {
   KICK_PARTICIPANT_MUTATION,
   OBTAIN_STUDENT_WARNING_MUTATION,
   WARN_PARTICIPANT_MUTATION,
-} from "../../../graphql/mutation";
-import { FETCH_CREATEDCOURSE_QUERY } from "../../../graphql/query";
-import { LoadingSpin } from "../../../utils/LoadingSpin";
-import "./CourseDetails.css";
+} from '../../../graphql/mutation';
+import { FETCH_COURSE_QUERY } from '../../../graphql/query';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
+import './CourseDetails.css';
 
 const { Content } = Layout;
 
@@ -39,68 +39,68 @@ export default (props) => {
   const stud_columns = [
     {
       title: <strong>Avatar</strong>,
-      dataIndex: "profilePictureURL",
-      key: "profilePictureURL",
+      dataIndex: 'profilePictureURL',
+      key: 'profilePictureURL',
       render: (imgURL) => (
         <Avatar src={imgURL} size={50} icon={<UserOutlined />} />
       ),
     },
     {
       title: <strong>First Name</strong>,
-      dataIndex: "firstName",
-      key: "firstName",
+      dataIndex: 'firstName',
+      key: 'firstName',
       render: (text) => (
-        <a style={{ justifyContent: "center", textAlign: "center" }}>{text}</a>
+        <a style={{ justifyContent: 'center', textAlign: 'center' }}>{text}</a>
       ),
     },
     {
       title: <strong>Last Name</strong>,
-      dataIndex: "lastName",
-      key: "lastName",
+      dataIndex: 'lastName',
+      key: 'lastName',
     },
     {
       title: <strong>Matric Number</strong>,
-      dataIndex: "matricNumber",
-      key: "matricNumber",
+      dataIndex: 'matricNumber',
+      key: 'matricNumber',
     },
   ];
 
   const lect_columns = [
     {
       title: <strong>Avatar</strong>,
-      dataIndex: "profilePictureURL",
-      key: "profilePictureURL",
+      dataIndex: 'profilePictureURL',
+      key: 'profilePictureURL',
       render: (imgURL) => (
         <Avatar src={imgURL} size={50} icon={<UserOutlined />} />
       ),
     },
     {
       title: <strong>First Name</strong>,
-      dataIndex: "firstName",
-      key: "firstName",
+      dataIndex: 'firstName',
+      key: 'firstName',
       render: (text) => (
-        <a style={{ justifyContent: "center", textAlign: "center" }}>{text}</a>
+        <a style={{ justifyContent: 'center', textAlign: 'center' }}>{text}</a>
       ),
     },
     {
       title: <strong>Last Name</strong>,
-      dataIndex: "lastName",
-      key: "lastName",
+      dataIndex: 'lastName',
+      key: 'lastName',
     },
     {
       title: <strong>Matric Number</strong>,
-      dataIndex: "matricNumber",
-      key: "matricNumber",
+      dataIndex: 'matricNumber',
+      key: 'matricNumber',
     },
     {
       title: <strong>Attendance Rate</strong>,
-      dataIndex: "attendanceRate",
-      key: "attendanceRate",
+      dataIndex: 'attendanceRate',
+      key: 'attendanceRate',
     },
     {
       title: <strong>Warning Count</strong>,
-      dataIndex: "warningCount",
-      key: "warningCount",
+      dataIndex: 'warningCount',
+      key: 'warningCount',
       render: (text) => (
         <div>
           {obtainStudentWarningStatus.loading && <LoadingOutlined />}
@@ -110,31 +110,33 @@ export default (props) => {
     },
     {
       title: <strong>Action</strong>,
-      key: "action",
+      key: 'action',
       render: (index) => (
-        <Space size="middle">
+        <Space size='middle'>
           <Button
             danger
-            className="courseDetails__warnBtn"
+            className='courseDetails__warnBtn'
             onClick={() => {
               handleWarnParticipant(index.key, props.match.params.id);
               setSelectedParticipant(index);
             }}
             loading={
-              index.key === selectedParticipant.key && warnParticipantStatus.loading
+              index.key === selectedParticipant.key &&
+              warnParticipantStatus.loading
             }
           >
             Warn
           </Button>
           <Button
             danger
-            className="courseDetails__kickBtn"
+            className='courseDetails__kickBtn'
             onClick={() => {
               setIsVisible(true);
               setSelectedParticipant(index);
             }}
             loading={
-              index.key === selectedParticipant.key && kickParticipantStatus.loading
+              index.key === selectedParticipant.key &&
+              kickParticipantStatus.loading
             }
           >
             Kick
@@ -153,7 +155,7 @@ export default (props) => {
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { loading, data, refetch } = useQuery(FETCH_CREATEDCOURSE_QUERY, {
+  const { loading, data, refetch } = useQuery(FETCH_COURSE_QUERY, {
     onCompleted: (data) => {
       data.getCourse.enrolledStudents.map((item) => {
         isFetchingParticipants(true);
@@ -163,10 +165,9 @@ export default (props) => {
             isFetchingParticipants(false);
 
             setParticipants((prevState) => {
-
               if (item._id === user._id) {
-                item.firstName = "You";
-                item.lastName = "You";
+                item.firstName = 'You';
+                item.lastName = 'You';
               }
               const newParticipant = {
                 key: item._id,
@@ -262,7 +263,7 @@ export default (props) => {
   };
 
   const titleList = [
-    { name: "Home", link: "/dashboard" },
+    { name: 'Home', link: '/dashboard' },
     {
       name: `Course: ${props.match.params.id}`,
       link: `/course/${props.match.params.id}`,
@@ -273,13 +274,13 @@ export default (props) => {
     !isFetch && (
       <Table
         columns={user.userLevel === 0 ? stud_columns : lect_columns}
-        style={{ textAlign: "center" }}
+        style={{ textAlign: 'center' }}
         dataSource={participants}
       />
     );
 
   return (
-    <Layout className="courseDetails layout">
+    <Layout className='courseDetails layout'>
       <Navbar />
 
       <Layout>
@@ -289,18 +290,18 @@ export default (props) => {
         />
         <PageTitleBreadcrumb titleList={titleList} />
         <Content>
-          <Card className="courseDetails__card">
+          <Card className='courseDetails__card'>
             <LoadingSpin loading={loading} />
             {data && (
-              <div className="courseDetails__container">
+              <div className='courseDetails__container'>
                 <CourseDetailCard data={data} participants={participants} />
                 <Divider
-                  orientation="left"
-                  style={{ color: "#333", fontWeight: "normal" }}
+                  orientation='left'
+                  style={{ color: '#333', fontWeight: 'normal' }}
                 >
                   Participants
                 </Divider>
-                <Row className="courseDetails__row">
+                <Row className='courseDetails__row'>
                   <Col>
                     <LoadingSpin loading={fetchingParticipants} />
                   </Col>
@@ -323,19 +324,19 @@ export default (props) => {
             }}
             okButtonProps={{ disabled: kickParticipantStatus.loading }}
             cancelButtonProps={{ disabled: kickParticipantStatus.loading }}
-            okText="Kick"
+            okText='Kick'
           >
             {!kickParticipantStatus.loading ? (
               <div>
                 <p>Are you sure to kick the following student?</p>
                 <p>
-                  <strong>Particular</strong>:{" "}
+                  <strong>Particular</strong>:{' '}
                   {selectedParticipant.firstName +
-                    "-" +
+                    '-' +
                     selectedParticipant.lastName +
-                    " (" +
+                    ' (' +
                     selectedParticipant.matricNumber +
-                    ")"}
+                    ')'}
                 </p>
               </div>
             ) : (
@@ -343,13 +344,13 @@ export default (props) => {
                 <div>
                   <p>Are you sure to kick the following student?</p>
                   <p>
-                    <strong>Particular</strong>:{" "}
+                    <strong>Particular</strong>:{' '}
                     {selectedParticipant.firstName +
-                      "-" +
+                      '-' +
                       selectedParticipant.lastName +
-                      " (" +
+                      ' (' +
                       selectedParticipant.matricNumber +
-                      ")"}
+                      ')'}
                   </p>
                 </div>
               </Spin>

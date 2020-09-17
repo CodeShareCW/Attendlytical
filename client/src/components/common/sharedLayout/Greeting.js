@@ -2,18 +2,18 @@ import {
   BellOutlined,
   LoadingOutlined,
   UnorderedListOutlined,
-} from "@ant-design/icons";
-import { useQuery } from "@apollo/react-hooks";
-import { Button, Layout, Typography, Badge, Avatar } from "antd";
-import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
-import { AuthContext, NotificationContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { FETCH_UNCHECKED_NOTIFICATIONS_QUERY } from "../../../graphql/query";
-import { LecturerDrawerMenu } from "../../lecturerComponent";
-import { StudentDrawerMenu } from "../../studentComponent";
-import { ProfileNavbar } from "../profileNavbar";
-import "./Greeting.css";
+} from '@ant-design/icons';
+import { useQuery } from '@apollo/react-hooks';
+import { Button, Layout, Typography, Badge, Avatar } from 'antd';
+import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthContext, NotificationContext } from '../../../context';
+import { CheckError } from '../../../ErrorHandling';
+import { FETCH_UNCHECKED_NOTIFICATIONS_QUERY } from '../../../graphql/query';
+import { LecturerDrawerMenu } from '../../lecturerComponent';
+import { StudentDrawerMenu } from '../../studentComponent';
+import { ProfileNavbar } from '../profileNavbar';
+import './Greeting.css';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -41,15 +41,15 @@ export default () => {
 
   const greetMode = () => {
     let h = new Date().getHours();
-    if (h >= 0 && h < 12) return "Morning";
-    else if (h >= 12 && h <= 18) return "Afternoon";
-    else return "Evening";
+    if (h >= 0 && h < 12) return 'Morning';
+    else if (h >= 12 && h <= 18) return 'Afternoon';
+    else return 'Evening';
   };
 
   return (
-    <Header className="greeting__header">
-      <Title className="greeting__title" level={4}>
-        <div className="siderNavbar__collapse">
+    <Header className='greeting__header'>
+      <Title className='greeting__title' level={4}>
+        <div className='siderNavbar__collapse'>
           <Button
             icon={<UnorderedListOutlined />}
             onClick={() => {
@@ -70,22 +70,25 @@ export default () => {
             />
           )
         ) : (
-          "error"
+          'error'
         )}
 
         <span>
           Good {greetMode()}, {user.firstName}
         </span>
-        <div className="greeting__profileNavbar">
+        <div className='greeting__profileNavbar'>
           <ProfileNavbar profilePictureURL={user.profilePictureURL} />
         </div>
         <Link
-          to="/notification"
+          to='/notification'
           title={`Notification (${uncheckedNotificationCount})`}
         >
-          <div className="greeting__notification">
+          <div className='greeting__notification'>
             <Badge count={uncheckedNotificationCount}>
-              <Avatar icon={<BellOutlined />} style={{backgroundColor:"orange"}}/>
+              <Avatar
+                icon={<BellOutlined />}
+                style={{ backgroundColor: 'orange' }}
+              />
             </Badge>
           </div>
         </Link>

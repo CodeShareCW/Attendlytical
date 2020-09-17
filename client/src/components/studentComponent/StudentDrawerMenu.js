@@ -3,23 +3,20 @@ import {
   HistoryOutlined,
   HomeOutlined,
   PictureOutlined,
-} from "@ant-design/icons";
-import { useQuery } from "@apollo/react-hooks";
-import { Drawer } from "antd";
-import React, { useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { EnrolmentContext } from "../../context";
-import { CheckError } from "../../ErrorHandling";
-import { FETCH_ENROLPENDING_COUNT_QUERY } from "../../graphql/query";
+} from '@ant-design/icons';
+import { useQuery } from '@apollo/react-hooks';
+import { Drawer } from 'antd';
+import React, { useContext, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { EnrolmentContext } from '../../context';
+import { CheckError } from '../../ErrorHandling';
+import { FETCH_ENROLPENDING_COUNT_QUERY } from '../../graphql/query';
 
 export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
   const pathname = window.location.pathname;
-  const path = pathname === "/" ? "home" : pathname.substr(1);
+  const path = pathname === '/' ? 'home' : pathname.substr(1);
 
-  const {
-    enrolCount,
-    getEnrolCount,
-  } = useContext(EnrolmentContext);
+  const { enrolCount, getEnrolCount } = useContext(EnrolmentContext);
   const { data } = useQuery(FETCH_ENROLPENDING_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
@@ -34,35 +31,34 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
 
   return (
     <Drawer
-      title="Menu"
-      className="drawerMenu"
+      title='Menu'
+      className='drawerMenu'
       visible={isCollapseMenuOpen}
-      placement="top"
+      placement='top'
       onClose={() => {
         setIsCollapseMenuOpen(false);
       }}
     >
       <p>
-        <Link to={"/dashboard"}>
+        <Link to={'/dashboard'}>
           <HomeOutlined />
           &nbsp; Home
         </Link>
       </p>
       <p>
-        <Link to={"/enrolpending"}>
+        <Link to={'/enrolpending'}>
           <ClockCircleOutlined />
-          &nbsp; Enrol Pending (
-          {enrolCount})
+          &nbsp; Enrol Pending ({enrolCount})
         </Link>
       </p>
       <p>
-        <Link to={"/facegallery"}>
+        <Link to={'/facegallery'}>
           <PictureOutlined />
           &nbsp; Face Gallery
         </Link>
       </p>
       <p>
-        <Link to={"/history"}>
+        <Link to={'/history'}>
           <HistoryOutlined />
           &nbsp; Attendance History
         </Link>

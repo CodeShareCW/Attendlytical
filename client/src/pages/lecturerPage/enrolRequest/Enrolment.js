@@ -1,12 +1,12 @@
-import { Button, Card, Row, Col } from "antd";
-import React from "react";
-import "./Enrolment.css";
+import { Button, Card, Row, Col } from 'antd';
+import React from 'react';
+import './Enrolment.css';
 
 export default ({ enrolment, handleApproveRejectButton }) => {
   return (
-    <Card className="enrolment__card">
+    <Card className='enrolment__card'>
       <Row>
-        <Col style={{width: "100%"}}>
+        <Col style={{ width: '100%' }}>
           <strong>
             <span>
               {enrolment.student.firstName} {enrolment.student.lastName} (
@@ -21,17 +21,17 @@ export default ({ enrolment, handleApproveRejectButton }) => {
             </span>
           </strong>
         </Col>
-        <Col style={{ width: "100%"}}>
-          <div className="enrolmentDetails__buttons">
+        <Col style={{ width: '100%' }}>
+          <div className='enrolmentDetails__buttons'>
             <Button
-              className="enrolmentDetails__status_acceptBtn"
-              onClick={() => handleApproveRejectButton(enrolment, "approved")}
+              className='enrolmentDetails__status_acceptBtn'
+              onClick={() => handleApproveRejectButton(enrolment, 'approved')}
             >
               Approve
             </Button>
             <Button
-              className="enrolmentDetails__status_rejectBtn"
-              onClick={() => handleApproveRejectButton(enrolment, "rejected")}
+              className='enrolmentDetails__status_rejectBtn'
+              onClick={() => handleApproveRejectButton(enrolment, 'rejected')}
             >
               Reject
             </Button>

@@ -1,6 +1,6 @@
-import React from "react";
-import { BrowserRouter as Router, Switch } from "react-router-dom";
-import "./App.css";
+import React from 'react';
+import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import './App.css';
 import {
   AuthProvider,
   CourseProvider,
@@ -8,7 +8,7 @@ import {
   FacePhotoProvider,
   NavbarProvider,
   NotificationProvider,
-} from "./context";
+} from './context';
 import {
   CourseDetails,
   Dashboard,
@@ -18,16 +18,16 @@ import {
   Profile,
   SignIn,
   SignUp,
-} from "./pages/common";
-import { AddCourse, EnrolRequest, TakeAttendance } from "./pages/lecturerPage";
-import { EnrolPending, FaceGallery } from "./pages/studentPage";
+} from './pages/common';
+import { AddCourse, EnrolRequest, TakeAttendance } from './pages/lecturerPage';
+import { EnrolPending, FaceGallery } from './pages/studentPage';
 import {
   AuthRoute,
   LecturerRoute,
   ProtectedRoute,
   StudentRoute,
-} from "./routes";
-import Testing from "./Testing";
+} from './routes';
+import Testing from './Testing';
 
 function App() {
   return (
@@ -39,46 +39,46 @@ function App() {
               <FacePhotoProvider>
                 <Router>
                   <Switch>
-                    <ProtectedRoute exact path="/" component={MainMenu} />
-                    <ProtectedRoute exact path="/signin" component={SignIn} />
-                    <ProtectedRoute exact path="/signup" component={SignUp} />
+                    <ProtectedRoute exact path='/' component={MainMenu} />
+                    <ProtectedRoute exact path='/signin' component={SignIn} />
+                    <ProtectedRoute exact path='/signup' component={SignUp} />
 
-                    <AuthRoute exact path="/dashboard" component={Dashboard} />
-                    <AuthRoute exact path="/profile" component={Profile} />
+                    <AuthRoute exact path='/dashboard' component={Dashboard} />
+                    <AuthRoute exact path='/profile' component={Profile} />
                     <AuthRoute
                       exact
-                      path="/notification"
+                      path='/notification'
                       component={Notifications}
                     />
                     <AuthRoute
                       exact
-                      path="/course/:id"
+                      path='/course/:id'
                       component={CourseDetails}
                     />
                     <LecturerRoute
                       exact
-                      path="/addcourse"
+                      path='/addcourse'
                       component={AddCourse}
                     />
-                    <AuthRoute exact path="/testing" component={Testing} />
+                    <AuthRoute exact path='/testing' component={Testing} />
                     <LecturerRoute
                       exact
-                      path="/course/:id/takeattendance"
+                      path='/course/:id/takeattendance'
                       component={TakeAttendance}
                     />
                     <LecturerRoute
                       exact
-                      path="/enrolrequest"
+                      path='/enrolrequest'
                       component={EnrolRequest}
                     />
                     <StudentRoute
                       exact
-                      path="/enrolpending"
+                      path='/enrolpending'
                       component={EnrolPending}
                     />
                     <StudentRoute
                       exact
-                      path="/facegallery"
+                      path='/facegallery'
                       component={FaceGallery}
                     />
 

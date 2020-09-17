@@ -1,7 +1,7 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
-export const DELETE_FACE_PHOTO_MUTATION=gql`
-    mutation deleteFacePhoto($photoID: ID!){
-        deleteFacePhoto (photoID: $photoID)
-    }
-`
+export const DELETE_FACE_PHOTO_MUTATION = gql`
+  mutation deleteFacePhoto($photoID: ID!) {
+    deleteFacePhoto(photoID: $photoID)
+  }
+`;

@@ -1,5 +1,5 @@
-import React, { createContext, useReducer } from "react";
-import { actionTypes } from "../globalData";
+import React, { createContext, useReducer } from 'react';
+import { actionTypes } from '../globalData';
 
 const initialState = {
   enrolments: [],
@@ -43,10 +43,12 @@ function enrolmentReducer(state, action) {
       };
 
     case actionTypes.ENROL_COURSE_ACTION:
-      return {
-        ...state,
-        newEnrolments: [action.enrolment, ...state.newEnrolments],
-      };
+      if (state.enrolments.length > 0)
+        return {
+          ...state,
+          newEnrolments: [action.enrolment, ...state.newEnrolments],
+        };
+      return { ...state };
     default:
       return state;
   }

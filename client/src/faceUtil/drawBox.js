@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import FacebookEmoji from "react-facebook-emoji";
-import { EmojiExpressionsType } from "../globalData";
-
+import { EmojiProcessing } from "../utils/EmojiProcessing";
+import {ROBOT_ICON_URL} from "../assets";
 export default (props) => {
   const [descriptors, setDescriptors] = useState(null);
   const [detections, setDetections] = useState(null);
@@ -22,8 +21,6 @@ export default (props) => {
           setMatch(match);
         }
       }
-
-      console.log(descriptors, detections);
     }
     getDescription();
 
@@ -34,20 +31,6 @@ export default (props) => {
       setExpressions(null);
     };
   }, [props]);
-
-  const EmojiProcessing = ({ exp }) => {
-    const emojiExpression = EmojiExpressionsType.find(
-      (type) => type.expression === exp
-    );
-    if (
-      emojiExpression.expression === "disgusted" ||
-      emojiExpression.expression === "fearful"
-    )
-      return (
-        <strong style={{ fontSize: "50px" }}>{emojiExpression.emoji}</strong>
-      );
-    return <FacebookEmoji type={emojiExpression.emoji} />;
-  };
 
   const { imageWidth, imageHeight, boxColor } = props;
 
@@ -92,8 +75,11 @@ export default (props) => {
                   transform: `translate(-3px,${_H}px)`,
                 }}
               >
-                <p>Got You!! You feel like </p>
-                <br />
+                <img
+                  src={ROBOT_ICON_URL.link}
+                  style={{ width: ROBOT_ICON_URL.width, height: ROBOT_ICON_URL.height }}
+                />
+                : Feel like you are
                 {!!expressions && expressions.length > 0 && (
                   <EmojiProcessing
                     exp={Object.keys(expressions[i]).find(
@@ -103,8 +89,7 @@ export default (props) => {
                           Math.max(a, b)
                         )
                     )}
-                    width={_W}
-                    height={_H}
+                    size="sm"
                   />
                 )}
               </div>

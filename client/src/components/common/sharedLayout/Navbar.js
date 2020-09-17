@@ -1,10 +1,10 @@
-import { Layout } from "antd";
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
-import { AuthContext, NavbarContext } from "../../../context";
-import { LecturerSiderNavbar } from "../../lecturerComponent";
-import { StudentSiderNavbar } from "../../studentComponent";
-import "./Navbar.css";
+import { Layout } from 'antd';
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthContext, NavbarContext } from '../../../context';
+import { LecturerSiderNavbar } from '../../lecturerComponent';
+import { StudentSiderNavbar } from '../../studentComponent';
+import './Navbar.css';
 
 const { Sider } = Layout;
 
@@ -15,12 +15,12 @@ export default () => {
   return (
     <>
       <Sider
-        className="siderNavbar"
+        className='siderNavbar'
         collapsible
         collapsed={collapsed}
         onCollapse={toggleCollapsed}
       >
-        <Link to="/testing" style={{ fontSize: "50px" }}>
+        <Link to='/testing' style={{ fontSize: '50px' }}>
           Testing
         </Link>
 

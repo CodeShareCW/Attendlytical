@@ -1,5 +1,5 @@
-import React, { createContext, useState } from "react";
-import { INITIAL_COLLAPSE } from "../globalData";
+import React, { createContext, useState } from 'react';
+import { INITIAL_COLLAPSE } from '../globalData';
 
 const NavbarContext = createContext();
 
@@ -13,4 +13,3 @@ const NavbarProvider = (props) => {
   );
 };
 export { NavbarContext, NavbarProvider };
-

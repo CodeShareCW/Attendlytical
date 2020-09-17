@@ -1,0 +1,75 @@
+import { Modal, Spin } from 'antd';
+import React from 'react';
+import { modalItems } from '../../../globalData';
+export default ({
+  title,
+  action,
+  itemType,
+  visible,
+  loading,
+  handleOk,
+  handleCancel,
+  payload,
+}) => {
+  const template = (type, payload) => {
+    switch (type) {
+      case modalItems.course.name:
+        return (
+          <>
+            <p>
+              <strong>Course ID</strong>: {payload.shortID}
+            </p>
+            <p>
+              <strong>Particular</strong>:{' '}
+              {payload.code + '-' + payload.name + ' (' + payload.session + ')'}
+            </p>
+          </>
+        );
+      case modalItems.enrolment.name:
+        return (
+          <>
+            <strong>Student: </strong>
+            {payload.student?.firstName} {payload.student?.lastName} (
+            {payload.student?.cardID})
+            <br />
+            <br />
+            <strong>Course (ID: {payload.course?.shortID}): </strong>
+            {payload.course?.code} {payload.course?.name} (
+            {payload.course?.session})
+          </>
+        );
+      default:
+        return;
+    }
+  };
+
+  return (
+    <Modal
+      title={title}
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      okButtonProps={{ disabled: loading }}
+      cancelButtonProps={{ disabled: loading }}
+      okText={action}
+    >
+      {!loading ? (
+        <div>
+          <p>
+            Are you sure to{' '}
+            <strong style={{ fontSize: '15px' }}>{action}</strong> the following{' '}
+            {itemType}?
+          </p>
+          {template(itemType, payload)}
+        </div>
+      ) : (
+        <Spin tip={action + 'ing...'}>
+          <p>
+            Are you sure to {action} the following {itemType}?
+          </p>
+          {template(itemType, payload)}
+        </Spin>
+      )}
+    </Modal>
+  );
+};

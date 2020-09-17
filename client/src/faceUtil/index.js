@@ -1,30 +1,33 @@
-import * as faceapi from "face-api.js";
+import * as faceapi from 'face-api.js';
 
 const maxDescriptorDistance = 0.5;
 
-export async function loadModels(setLoadingMessage, setLoadedModel,  setLoadingMessageError) {
-  const MODEL_URL = process.env.PUBLIC_URL + "/models";
+export async function loadModels(
+  setLoadingMessage,
+  setLoadedModel,
+  setLoadingMessageError
+) {
+  const MODEL_URL = process.env.PUBLIC_URL + '/models';
 
   try {
-    setLoadingMessage("Loading Face Detector");
+    setLoadingMessage('Loading Face Detector');
     await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
-    setLoadedModel(prevState=>[...prevState, "FD"]);
+    setLoadedModel((prevState) => [...prevState, 'FD']);
 
-    setLoadingMessage("Loading 68 Facial Landmark Detector");
+    setLoadingMessage('Loading 68 Facial Landmark Detector');
     await faceapi.loadFaceLandmarkTinyModel(MODEL_URL);
-    setLoadedModel(prevState=>[...prevState, "FLD"]);
+    setLoadedModel((prevState) => [...prevState, 'FLD']);
 
-    setLoadingMessage("Loading Feature Extractor");
+    setLoadingMessage('Loading Feature Extractor');
     await faceapi.loadFaceRecognitionModel(MODEL_URL);
-    setLoadedModel(prevState=>[...prevState, "FR"]);
+    setLoadedModel((prevState) => [...prevState, 'FR']);
 
-    setLoadingMessage("Loading Facial Expression Detector");
+    setLoadingMessage('Loading Facial Expression Detector');
     await faceapi.loadFaceExpressionModel(MODEL_URL);
-    setLoadedModel(prevState=>[...prevState, "FE"]);
-
+    setLoadedModel((prevState) => [...prevState, 'FE']);
   } catch (err) {
     setLoadingMessageError(
-      "Model loading failed. Please contact me about the bug: faceinattendanceapp@gmail.com"
+      'Model loading failed. Please contact me about the bug: faceinattendanceapp@gmail.com'
     );
   }
 }
@@ -48,7 +51,7 @@ export async function getFullFaceDescription(blob, inputSize = 512) {
     .withFaceLandmarks(useTinyModel)
     .withFaceExpressions()
     .withFaceDescriptors();
-  console.log("face", fullDesc)
+  console.log('face', fullDesc);
   return fullDesc;
 }
 
@@ -74,5 +77,17 @@ export async function createMatcher(faceProfile) {
 }
 
 export function isFaceDetectionModelLoaded() {
-  return !!faceapi.nets.tinyFaceDetector.params;
+  return !!faceapi.nets.ssdMobilenetv1.params;
+}
+
+export function isFeatureExtractionModelLoaded() {
+  return !!faceapi.nets.faceRecognitionNet.params;
+}
+
+export function isFacialLandmarkDetectionModelLoaded() {
+  return !!faceapi.nets.faceLandmark68TinyNet.params;
+}
+
+export function isFacialExpressionModelLoaded() {
+  return !!faceapi.nets.faceExpressionNet.params;
 }

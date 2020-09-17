@@ -1,5 +1,5 @@
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { useMutation } from "@apollo/react-hooks";
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { useMutation } from '@apollo/react-hooks';
 import {
   Button,
   Card,
@@ -10,20 +10,22 @@ import {
   Row,
   Select,
   Upload,
-} from "antd";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import Webcam from "react-webcam";
-import { CheckError } from "../../../ErrorHandling";
-import { getFullFaceDescription, loadModels } from "../../../faceUtil";
-import DrawBox from "../../../faceUtil/drawBox";
+} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import Webcam from 'react-webcam';
+import { ROBOT_ICON_URL } from '../../../assets';
+import { CheckError } from '../../../ErrorHandling';
+import { getFullFaceDescription, loadModels } from '../../../faceUtil';
+import DrawBox from '../../../faceUtil/drawBox';
 import {
   DEFAULT_UPLOAD_OPTION,
   DEFAULT_WEBCAM_RESOLUTION,
   inputSize,
   UPLOAD_OPTION,
   webcamResolutionType,
-} from "../../../globalData";
-import { ADD_FACE_PHOTO_MUTATION } from "../../../graphql/mutation";
+} from '../../../globalData';
+import { ADD_FACE_PHOTO_MUTATION } from '../../../graphql/mutation';
+import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
 const { Option } = Select;
 
@@ -36,14 +38,19 @@ function getBase64(file) {
   });
 }
 
-const UploadFromWebcam = () => {
+const UploadFromWebcam = ({ addFacePhotoCallback, refetch, loading }) => {
   const [camWidth, setCamWidth] = useState(DEFAULT_WEBCAM_RESOLUTION.width);
   const [camHeight, setCamHeight] = useState(DEFAULT_WEBCAM_RESOLUTION.height);
   const [inputDevices, setInputDevices] = useState([]);
   const [selectedWebcam, setSelectedWebcam] = useState();
 
   const [fullDesc, setFullDesc] = useState(null);
+  const [expression, setExpression] = useState('');
+
+  const [faceDescriptor, setFaceDescriptor] = useState([]);
+
   const [detectionCount, setDetectionCount] = useState(0);
+  const [previewImage, setPreviewImage] = useState('');
 
   const webcam = useRef();
 
@@ -62,7 +69,7 @@ const UploadFromWebcam = () => {
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(async (devices) => {
       let inputDevice = await devices.filter(
-        (device) => device.kind === "videoinput"
+        (device) => device.kind === 'videoinput'
       );
       setInputDevices({ ...inputDevices, inputDevice });
     });
@@ -71,12 +78,26 @@ const UploadFromWebcam = () => {
   useEffect(() => {
     function capture() {
       if (!!webcam.current) {
+        setPreviewImage(webcam.current.getScreenshot());
+
         getFullFaceDescription(webcam.current.getScreenshot(), inputSize)
           .then((data) => {
             setFullDesc(data);
+            data[0] &&
+              setExpression(
+                Object.keys(data[0]?.expressions).find(
+                  (key) =>
+                    data[0]?.expressions[key] ===
+                    Object.values(data[0]?.expressions).reduce((a, b) =>
+                      Math.max(a, b)
+                    )
+                )
+              );
+            setFaceDescriptor(data[0]?.descriptor);
           })
           .catch((err) => {
-            message.info("Getting frame...");
+            console.log(err);
+            message.info('Waiting for a second to get webcam frame...');
           });
       }
     }
@@ -88,12 +109,29 @@ const UploadFromWebcam = () => {
     return () => clearInterval(interval);
   });
 
+  const handleSubmit = () => {
+    addFacePhotoCallback({
+      update(_, data) {
+        refetch();
+        message.success('Add Face Photo Success!');
+      },
+      onError(err) {
+        CheckError(err);
+      },
+      variables: {
+        photoData: previewImage,
+        faceDescriptor: faceDescriptor.toString(),
+        expression: expression,
+      },
+    });
+  };
+
   return (
     <Card>
       <Form>
-        <Form.Item label="Webcam">
+        <Form.Item label='Webcam'>
           <Select
-            defaultValue="Select Webcam"
+            defaultValue='Select Webcam'
             style={{ width: 500 }}
             onChange={handleSelectWebcam}
           >
@@ -103,9 +141,8 @@ const UploadFromWebcam = () => {
               </Option>
             ))}
           </Select>
-          <span className="alert">Please select webcam</span>
         </Form.Item>
-        <Form.Item label="Webcam Size">
+        <Form.Item label='Webcam Size'>
           <Select
             defaultValue={DEFAULT_WEBCAM_RESOLUTION.label}
             style={{ width: 200 }}
@@ -119,67 +156,79 @@ const UploadFromWebcam = () => {
           </Select>
         </Form.Item>
       </Form>
-      {selectedWebcam && (
+
+      <>
         <Webcam
           ref={webcam}
           audio={false}
           width={camWidth}
           height={camHeight}
-          screenshotFormat="image/jpeg"
+          screenshotFormat='image/jpeg'
           videoConstraints={{
             deviceId: selectedWebcam,
           }}
         />
-      )}
+        <DrawBox
+          fullDesc={fullDesc}
+          imageHeight={camHeight}
+          imageWidth={camWidth}
+          boxColor={'blue'}
+          mode='Detection'
+          setDetectionCount={setDetectionCount}
+        />
+      </>
 
-      <DrawBox
-        fullDesc={fullDesc}
-        imageHeight={camHeight}
-        imageWidth={camWidth}
-        boxColor={"blue"}
-        mode="Detection"
-        setDetectionCount={setDetectionCount}
-      />
-
-      {!selectedWebcam && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          Select the available webcam to open
-        </div>
-      )}
-      {selectedWebcam && (
+      {previewImage && (
         <div>
-          <p>
-            Number of detection: {detectionCount}{" "}
-            {detectionCount > 1 && (
-              <span className="alert">Cannot more than 2</span>
-            )}
-          </p>
-          Face Descriptors:{" "}
-          {detectionCount === 0
-            ? "Empty"
-            : fullDesc.map((desc, index) => (
-                <div
-                  key={index}
-                  style={{
-                    wordBreak: "break-all",
-                    marginBottom: "10px",
-                    backgroundColor: "lightblue",
-                  }}
-                >
-                  <strong style={{ fontSize: "20px", color: "red" }}>
-                    {index}:{" "}
-                  </strong>
-                  {desc.descriptor.toString()}
-                </div>
-              ))}
+          <h3>Previous Capture: </h3>
+          <img
+            src={previewImage}
+            alt='Capture'
+            style={{ width: '200px', height: '200px' }}
+          />
+          <div style={{ marginTop: '10px' }}>
+            <Button
+              type='primary'
+              onClick={handleSubmit}
+              disabled={
+                loading ||
+                detectionCount !== 1 ||
+                (faceDescriptor && faceDescriptor.length !== 128)
+              }
+              loading={loading}
+            >
+              Save
+            </Button>
+          </div>
         </div>
       )}
+
+      <div>
+        <p>
+          Number of detection: {detectionCount}{' '}
+          {detectionCount > 1 && (
+            <span className='alert'>Cannot more than 2</span>
+          )}
+        </p>
+        Face Descriptors:{' '}
+        {detectionCount === 0
+          ? 'Empty'
+          : fullDesc.map((desc, index) => (
+              <div
+                key={index}
+                style={{
+                  wordBreak: 'break-all',
+                  marginBottom: '10px',
+                  backgroundColor: 'lightblue',
+                }}
+              >
+                <strong style={{ fontSize: '20px', color: 'red' }}>
+                  Face #{index}:{' '}
+                </strong>
+                {desc.descriptor.toString()}
+              </div>
+            ))}
+      </div>
     </Card>
   );
 };
@@ -188,8 +237,9 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [fullDesc, setFullDesc] = useState([]);
   const [faceDescriptor, setFaceDescriptor] = useState([]);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
+  const [expression, setExpression] = useState('');
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
   const [isRunningFaceDetector, setIsRunningFaceDetector] = useState(false);
   const [detectionCount, setDetectionCount] = useState(0);
 
@@ -199,7 +249,7 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
   const handlePreview = async (file) => {
     setPreviewVisible(true);
     setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
+      file.name || file.url.substring(file.url.lastIndexOf('/') + 1)
     );
   };
 
@@ -223,6 +273,15 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
           setFullDesc(data);
           setDetectionCount(data.length);
           setFaceDescriptor(data[0]?.descriptor);
+          setExpression(
+            Object.keys(data[0]?.expressions).find(
+              (key) =>
+                data[0]?.expressions[key] ===
+                Object.values(data[0]?.expressions).reduce((a, b) =>
+                  Math.max(a, b)
+                )
+            )
+          );
           setIsRunningFaceDetector(false);
         });
       }
@@ -234,7 +293,7 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
       addFacePhotoCallback({
         update(_, data) {
           refetch();
-          message.success("Add Face Photo Success!");
+          message.success('Add Face Photo Success!');
         },
         onError(err) {
           CheckError(err);
@@ -242,21 +301,22 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
         variables: {
           photoData: previewImage,
           faceDescriptor: faceDescriptor.toString(),
+          expression: expression,
         },
       });
   };
   console.log(faceDescriptor);
   return (
     <>
-      <Row style={{ display: "flex", alignItems: "center" }}>
+      <Row style={{ display: 'flex', alignItems: 'center' }}>
         <Col>
           <Upload
             beforeUpload={() => false}
             multiple={false}
-            listType="picture-card"
+            listType='picture-card'
             onPreview={handlePreview}
             onChange={handleChange}
-            accept="image/x-png,image/gif,image/jpeg"
+            accept='image/x-png,image/gif,image/jpeg'
           >
             {fileList.length >= 1 ? null : (
               <div>
@@ -267,9 +327,9 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
           </Upload>
         </Col>
         <Col>
-          {" "}
+          {' '}
           <Button
-            type="primary"
+            type='primary'
             loading={loading}
             disabled={
               previewImage.length === 0 ||
@@ -286,13 +346,28 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
       <Row>
         <div>
           {detectionCount > 1 && (
-            <span className="alert">Only single face allowed</span>
+            <span className='alert'>Only single face allowed</span>
           )}
           {detectionCount === 0 && (
-            <span className="alert">No face detected</span>
+            <span className='alert'>No face detected</span>
+          )}
+          {detectionCount === 1 && expression.length > 0 && (
+            <Card>
+              <img
+                src={ROBOT_ICON_URL.link}
+                style={{
+                  width: ROBOT_ICON_URL.width,
+                  height: ROBOT_ICON_URL.height,
+                }}
+              />
+              <span style={{ color: 'darkblue', fontWeight: 900 }}>
+                : Feel like you are{' '}
+              </span>
+              <EmojiProcessing exp={expression} size='sm' />
+            </Card>
           )}
           <p>
-            Number of detection:{" "}
+            Number of detection:{' '}
             {isRunningFaceDetector ? (
               <>
                 Detecting face... <LoadingOutlined />
@@ -301,24 +376,29 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
               detectionCount
             )}
           </p>
-          Face Descriptor:{" "}
+          Face Descriptor:{' '}
+          {detectionCount === 0 && !isRunningFaceDetector && <span>Empty</span>}
           {isRunningFaceDetector && (
             <>
               Generating 128 measurements... <LoadingOutlined />
             </>
           )}
-          {detectionCount !== 1 && !isRunningFaceDetector && <span>Empty</span>}
-          {detectionCount === 1 && (
+          <br />
+          {fullDesc.map((desc, index) => (
             <div
+              key={index}
               style={{
-                wordBreak: "break-all",
-                marginBottom: "10px",
-                backgroundColor: "lightblue",
+                wordBreak: 'break-all',
+                marginBottom: '10px',
+                backgroundColor: 'lightblue',
               }}
             >
-              {faceDescriptor && faceDescriptor.toString()}
+              <p style={{ color: 'red', fontSize: '20px', fontWeight: 900 }}>
+                Face #{index + 1}:{' '}
+              </p>{' '}
+              {desc.descriptor.toString()}
             </div>
-          )}
+          ))}
         </div>
       </Row>
 
@@ -328,7 +408,7 @@ const UploadFromDisk = ({ addFacePhotoCallback, refetch, loading }) => {
         footer={null}
         onCancel={handleCancel}
       >
-        <img alt="example" style={{ width: "100%" }} src={previewImage} />
+        <img alt='example' style={{ width: '100%' }} src={previewImage} />
       </Modal>
     </>
   );
@@ -340,9 +420,9 @@ export default ({ addFacePhoto, refetch }) => {
   );
 
   const [isAllModelLoaded, setIsAllModelLoaded] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [loadedModel, setLoadedModel] = useState([]);
-  const [loadingMessageError, setLoadingMessageError] = useState("");
+  const [loadingMessageError, setLoadingMessageError] = useState('');
 
   const [addFacePhotoCallback, { loading }] = useMutation(
     ADD_FACE_PHOTO_MUTATION,
@@ -371,39 +451,39 @@ export default ({ addFacePhoto, refetch }) => {
 
   return (
     <Card>
-      <Card title="Model Load">
+      <Card title='Model Load'>
         <ModelLoadStatus
           isAllModelLoaded={isAllModelLoaded}
           loadedModel={loadedModel}
           loadingMessageError={loadingMessageError}
-          type="FD"
+          type='FD'
         />
         <ModelLoadStatus
           isAllModelLoaded={isAllModelLoaded}
           loadedModel={loadedModel}
           loadingMessageError={loadingMessageError}
-          type="FLD"
+          type='FLD'
         />
         <ModelLoadStatus
           isAllModelLoaded={isAllModelLoaded}
           loadedModel={loadedModel}
           loadingMessageError={loadingMessageError}
-          type="FR"
+          type='FR'
         />
         <ModelLoadStatus
           isAllModelLoaded={isAllModelLoaded}
           loadedModel={loadedModel}
           loadingMessageError={loadingMessageError}
-          type="FE"
+          type='FE'
         />
       </Card>
       <br />
       {isAllModelLoaded && loadingMessageError.length === 0 && (
         <div>
-          {" "}
+          {' '}
           <Row>
             <Form>
-              <Form.Item label="Upload Option">
+              <Form.Item label='Upload Option'>
                 <Select
                   defaultValue={DEFAULT_UPLOAD_OPTION}
                   style={{ width: 200 }}
@@ -425,7 +505,7 @@ export default ({ addFacePhoto, refetch }) => {
           </Row>
           <Row>
             <Col>
-              {selectedUploadOption === DEFAULT_UPLOAD_OPTION ? (
+              {selectedUploadOption === 'From Disk' ? (
                 <UploadFromDisk
                   addFacePhotoCallback={addFacePhotoCallback}
                   refetch={refetch}
@@ -454,33 +534,33 @@ const ModelLoadStatus = ({
 }) => {
   const modelType = () => {
     switch (type) {
-      case "FD":
-        return "Face Detector";
-      case "FLD":
-        return "Facial Landmark Detector";
-      case "FR":
-        return "Feature Extractor";
-      case "FE":
-        return "Facial Expression Detector";
+      case 'FD':
+        return 'Face Detector';
+      case 'FLD':
+        return 'Facial Landmark Detector';
+      case 'FR':
+        return 'Feature Extractor';
+      case 'FE':
+        return 'Facial Expression Detector';
     }
   };
   return (
     <Row>
-      <Col style={{ marginRight: "10px" }}>{modelType()}:</Col>
-      <Col style={{ marginRight: "10px" }}>
+      <Col style={{ marginRight: '10px' }}>{modelType()}:</Col>
+      <Col style={{ marginRight: '10px' }}>
         <strong>
           {!isAllModelLoaded ? (
             <strong>Loading</strong>
           ) : loadedModel.find((item) => item === type) ? (
             <strong>Loaded</strong>
           ) : (
-            <strong style={{ color: "red" }}>{loadingMessageError}</strong>
+            <strong style={{ color: 'red' }}>{loadingMessageError}</strong>
           )}
         </strong>
       </Col>
       <Col>
         {!isAllModelLoaded && (
-          <LoadingOutlined style={{ fontSize: "18px", color: "red" }} />
+          <LoadingOutlined style={{ fontSize: '18px', color: 'red' }} />
         )}
       </Col>
     </Row>
