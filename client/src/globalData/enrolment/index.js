@@ -1,1 +1,0 @@
-export const FETCH_ENROLMENT_LIMIT = 10;

@@ -1,75 +1,105 @@
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, List } from 'antd';
 import React, { useEffect, useState } from 'react';
-import FacebookEmoji from 'react-facebook-emoji';
+import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
-export default ({ data, absentees, setAttendees, setAbsentees }) => {
+export default ({ participants, absentees, setAbsentees }) => {
   const [isPhotoVisible, setIsPhotoVisible] = useState({});
 
-  const handleDoubleClick = (item) => {
-    const test = absentees.find((absentee) => absentee === item);
-    if (test) {
-      setAttendees((prevState) => [...prevState, item]);
-      setAbsentees((prevState) =>
-        prevState.filter((absentee) => absentee !== item)
-      );
-    } else {
-      setAbsentees((prevState) => [...prevState, item]);
-      setAttendees((prevState) =>
-        prevState.filter((attendee) => attendee !== item)
-      );
+  /*const handleDoubleClick = (item) => {
+    if (absentees.some(absentee=>absentee.student._id!=item.student._id)){
+    setAbsentees((prevState) =>
+      prevState.filter((absentee) => absentee !== item)
+    );
     }
-  };
+    else
+    setAbsentees(prevState=>[item, ...prevState])
+
+    console.log("target", item)
+    console.log("absentees",absentees)
+  };*/
 
   useEffect(() => {
-    absentees.map((absentee) => {
-      setIsPhotoVisible({ ...isPhotoVisible, [absentee._id]: false });
+    absentees.map((absentees) => {
+      setIsPhotoVisible({ ...isPhotoVisible, [absentees.student._id]: false });
     });
   }, []);
 
   const handleShowPhoto = (id) => {
     setIsPhotoVisible({ ...isPhotoVisible, [id]: !isPhotoVisible[id] });
   };
+
+
   return (
     <List
       pagination={{
         pageSize: 20,
       }}
       itemLayout='horizontal'
-      dataSource={data}
+      dataSource={absentees}
       renderItem={(item) => (
-        <List.Item style={{ display: 'flex', justifyContent: 'center' }}>
+        <List.Item
+          key={item.student._id}
+          style={{ display: 'flex', justifyContent: 'center' }}
+        >
           <List.Item.Meta
             avatar={
-              <Avatar src={item.profilePictureURL} icon={<UserOutlined />} />
+              <Avatar src={item.student.profilePictureURL} icon={<UserOutlined />} />
             }
             title={
-              <span
-                style={{ cursor: 'pointer' }}
-                onDoubleClick={() => handleDoubleClick(item)}
-              >
-                {item.firstName} {item.lastName} ({item.cardID}){'  '}
+              <span style={{ cursor: 'pointer' }}>
+                {item.student.firstName} {item.student.lastName} (
+                {item.student.cardID}){'  '}
               </span>
             }
             description={
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div>
                   <span>Mood Today: </span>
-                  <FacebookEmoji type='yay' size='xs' />
+                  {item.expression ? (
+                    <EmojiProcessing exp={item.expression} size='xs' />
+                  ) : (
+                    '-'
+                  )}
                 </div>
 
                 <div>
-                  Number of sample photo: {item.facePhotos?.length || 0}
+                  Number of sample photo:{' '}
+                  {item.facePhotos?.length === 0 ? (
+                    <span
+                      style={{
+                        color: 'red',
+                        fontWeight: 900,
+                        fontSize: '20px',
+                      }}
+                    >
+                      0
+                    </span>
+                  ) : (
+                    item.facePhotos?.length || (
+                      <span
+                        style={{
+                          color: 'red',
+                          fontWeight: 900,
+                          fontSize: '20px',
+                        }}
+                      >
+                        0
+                      </span>
+                    )
+                  )}
                 </div>
 
-                {item.facePhotos?.length > 0 && (
+                {item.photoPrivacy?.public && item.facePhotos?.length > 0 && (
                   <>
                     <div>
-                      <Button onClick={() => handleShowPhoto(item._id)}>
-                        Toggle Show Photo
+                      <Button onClick={() => handleShowPhoto(item.student._id)}>
+                        {!isPhotoVisible[item.student._id]
+                          ? 'Show Photo'
+                          : 'Hide Photo'}
                       </Button>
                     </div>
-                    {isPhotoVisible[item._id] && (
+                    {isPhotoVisible[item.student._id] && (
                       <div
                         style={{
                           display: 'flex',
@@ -83,8 +113,8 @@ export default ({ data, absentees, setAttendees, setAbsentees }) => {
                             <img
                               src={photo.photoURL}
                               style={{
-                                width: '50px',
-                                height: '50px',
+                                width: '100px',
+                                height: '100px',
                                 margin: '10px',
                               }}
                             />

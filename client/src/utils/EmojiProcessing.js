@@ -13,19 +13,19 @@ export const EmojiProcessing = ({ exp, size }) => {
       case 'xxs':
         return '5px';
       case 'xs':
-        return '10px';
-      case 'sm':
         return '20px';
+      case 'sm':
+        return '30px';
       case 'md':
-        return '50px';
+        return '40px';
       case 'lg':
-        return '80px';
+        return '50px';
       case 'xl':
-        return '120px';
+        return '60px';
       case 'xxl':
-        return '200px';
+        return '70px';
       case 'xxxl':
-        return '400px';
+        return '100px';
     }
   };
 

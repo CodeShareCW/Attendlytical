@@ -32,3 +32,15 @@ export const FETCH_CREATEDCOURSES_QUERY = gql`
     }
   }
 `;
+
+export const FETCH_ALL_CREATEDCOURSES_QUERY = gql`
+  query getAllCreatedCourses {
+    getAllCreatedCourses {
+      _id
+      shortID
+      name
+      code
+      session
+    }
+  }
+`;

@@ -1,4 +1,5 @@
-import { Modal, Spin } from 'antd';
+import { Modal, Spin, Avatar } from 'antd';
+import { FileImageOutlined } from '@ant-design/icons';
 import React from 'react';
 import { modalItems } from '../../../globalData';
 export default ({
@@ -36,6 +37,29 @@ export default ({
             <strong>Course (ID: {payload.course?.shortID}): </strong>
             {payload.course?.code} {payload.course?.name} (
             {payload.course?.session})
+          </>
+        );
+      case modalItems.facePhoto.name:
+        return (
+          <>
+            <Avatar
+              shape='square'
+              src={payload?.photoURL}
+              size={200}
+              icon={<FileImageOutlined />}
+            />
+          </>
+        );
+      case modalItems.attendance.name:
+        console.log(payload)
+        return (
+          <>
+            <p><strong>Attendance ID: </strong>{payload.key}</p>
+            <br/>
+            <p><strong>Course: </strong>{payload.course}</p>
+            <p><strong>Date: </strong>{payload.date}</p>
+            <p><strong>Time: </strong>{payload.time}</p>
+            <p><strong>Stats: </strong>{payload.stats}</p>
           </>
         );
       default:

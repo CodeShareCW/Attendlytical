@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Course from '../../../components/common/course/Course';
 import Modal from '../../../components/common/customModal';
 import { CourseContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_COURSE_LIMIT, modalItems } from '../../../globalData';
 import { DELETE_COURSE_MUTATION } from '../../../graphql/mutation';
 import {
@@ -26,6 +26,9 @@ export default (props) => {
   const [selectedCourse, SetSelectedCourse] = useState({});
 
   const totalCoursesQuery = useQuery(FETCH_CREATEDCOURSES_COUNT_QUERY, {
+    onCompleted(data) {
+      totalCoursesQuery.refetch();
+    },
     onError(err) {
       CheckError(err);
     },
@@ -64,8 +67,9 @@ export default (props) => {
   useEffect(() => {
     loadCourses(data?.getCreatedCourses.courses || []);
 
-    if (data && !data.getCreatedCourses.hasNextPage) {
-      setFetchedDone(true);
+    if (data) {
+      if (!data.getCreatedCourses.hasNextPage) setFetchedDone(true);
+      else setFetchedDone(false);
     }
   }, [data]);
 

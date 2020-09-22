@@ -1,11 +1,16 @@
 import { Card } from 'antd';
 import React from 'react';
-
-export default ({loadedModel}) => (
-  <Card style={{opacity: 0.8}}>
+import {
+  isFaceDetectionModelLoaded,
+  isFacialExpressionModelLoaded,
+  isFeatureExtractionModelLoaded,
+  isFacialLandmarkDetectionModelLoaded,
+} from '../faceUtil';
+export default () => (
+  <Card style={{ opacity: 0.8 }}>
     <p>
       Face Detector:{' '}
-      {loadedModel.find((item) => item === 'FD') ? (
+      {isFaceDetectionModelLoaded() ? (
         <strong>Loaded</strong>
       ) : (
         <strong>Not loaded</strong>
@@ -13,7 +18,7 @@ export default ({loadedModel}) => (
     </p>
     <p>
       Facial Landmark Detector:{' '}
-      {loadedModel.find((item) => item === 'FLD') ? (
+      {isFacialLandmarkDetectionModelLoaded() ? (
         <strong>Loaded</strong>
       ) : (
         <strong>Not loaded</strong>
@@ -21,7 +26,7 @@ export default ({loadedModel}) => (
     </p>
     <p>
       Feature Extractor:{' '}
-      {loadedModel.find((item) => item === 'FR') ? (
+      {isFeatureExtractionModelLoaded() ? (
         <strong>Loaded</strong>
       ) : (
         <strong>Not loaded</strong>
@@ -29,7 +34,7 @@ export default ({loadedModel}) => (
     </p>
     <p>
       Facial Expression Detector:{' '}
-      {loadedModel.find((item) => item === 'FE') ? (
+      {isFacialExpressionModelLoaded() ? (
         <strong>Loaded</strong>
       ) : (
         <strong>Not loaded</strong>

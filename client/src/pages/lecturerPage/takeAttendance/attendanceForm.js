@@ -7,18 +7,18 @@ import {
 } from '../../../globalData';
 import './TakeAttendance.css';
 
-
 const { Option } = Select;
 
-export default ({inputDevices, handleSelectWebcam, handleWebcamResolution}) => {
+export default ({inputDevices, handleDateChange, handleTimeChange, handleSelectWebcam, handleWebcamResolution}) => {
+
   return (
     <Form>
       <Form.Item label='Date'>
-        <DatePicker defaultValue={moment()} format='YYYY/MM/DD' />
+        <DatePicker defaultValue={moment()} format='YYYY/MM/DD' onChange={handleDateChange} />
       </Form.Item>
       <Form.Item label='Time'>
         {' '}
-        <TimePicker defaultValue={moment()} format='HH:mm' />
+        <TimePicker defaultValue={moment()} format='HH:mm' onChange={handleTimeChange} />
       </Form.Item>
 
       <Form.Item label='Webcam'>

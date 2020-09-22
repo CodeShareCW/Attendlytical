@@ -1,7 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { EmojiProcessing } from "../utils/EmojiProcessing";
-import {ROBOT_ICON_URL} from "../assets";
-export default (props) => {
+import React, { useEffect, useState } from 'react';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { EmojiProcessing } from '../utils/EmojiProcessing';
+import { ROBOT_ICON_URL } from '../assets';
+import './drawBox.css';
+export default ({
+  fullDesc,
+  faceMatcher,
+  participants,
+  imageWidth,
+  imageHeight,
+  setDetectionCount,
+  setAbsentees,
+  mode = 'Recognition',
+}) => {
   const [descriptors, setDescriptors] = useState(null);
   const [detections, setDetections] = useState(null);
   const [expressions, setExpressions] = useState(null);
@@ -9,7 +21,6 @@ export default (props) => {
 
   useEffect(() => {
     async function getDescription() {
-      const { fullDesc, faceMatcher } = props;
       if (!!fullDesc) {
         await setDescriptors(fullDesc.map((fd) => fd.descriptor));
         await setDetections(fullDesc.map((fd) => fd.detection));
@@ -18,68 +29,88 @@ export default (props) => {
           let match = await descriptors.map((descriptor) =>
             faceMatcher.findBestMatch(descriptor)
           );
+          const attendees = match.map((m, index) => {
+            const studentWhoAttend = participants.filter(
+              (profile) => profile.student._id == m._label
+            );
+
+            if (
+              !!studentWhoAttend &&
+              studentWhoAttend.length > 0 &&
+              !!expressions &&
+              expressions.length > 0
+            )
+              return Object.assign(studentWhoAttend[0], {
+                expression: Object.keys(expressions[index]).find(
+                  (key) =>
+                    expressions[index][key] ===
+                    Object.values(expressions[index]).reduce((a, b) =>
+                      Math.max(a, b)
+                    )
+                ),
+              });
+            return [];
+          });
+
           setMatch(match);
+          setAbsentees((prevAbsentees) =>
+            prevAbsentees.filter((absentee) => !attendees.includes(absentee))
+          );
         }
       }
     }
     getDescription();
 
     return () => {
-      //clean effect because it will cause the mess from previous effect
       setDescriptors(null);
       setDetections(null);
       setExpressions(null);
     };
-  }, [props]);
-
-  const { imageWidth, imageHeight, boxColor } = props;
+  }, [fullDesc, faceMatcher]);
 
   let box = null;
 
   if (!!detections) {
-    props.setDetectionCount(detections?.length);
+    setDetectionCount(detections?.length);
     box = detections.map((detection, i) => {
       const relativeBox = detection.relativeBox;
       const dimension = detection._imageDims;
       let _X = imageWidth * relativeBox._x;
       let _Y =
         (relativeBox._y * imageHeight * dimension._height) / dimension._width -
-        imageHeight +
-        100;
+        imageHeight +0.1*imageHeight;
       let _W = imageWidth * relativeBox.width;
       let _H =
         (relativeBox.height * imageHeight * dimension._height) /
         dimension._width;
 
-      if (props.mode === "Detection") {
+      //Detection mode
+      if (mode === 'Detection') {
         return (
           <div key={i}>
             <div
+              className='drawBox__detection-box'
               style={{
-                position: "absolute",
-                border: "solid",
-                borderColor: "rgba(53, 172, 232, 0.4)",
                 height: _H,
                 width: _W,
                 transform: `translate(${_X}px,${_Y}px)`,
               }}
             >
               <div
+                className='drawBox__detection-label'
                 style={{
-                  backgroundColor: "rgba(53, 172, 232, 0.4)",
-                  border: "solid",
                   width: _W,
-                  marginTop: 0,
-                  textAlign: "center",
-                  color: "#fff",
                   transform: `translate(-3px,${_H}px)`,
                 }}
               >
                 <img
                   src={ROBOT_ICON_URL.link}
-                  style={{ width: ROBOT_ICON_URL.width, height: ROBOT_ICON_URL.height }}
+                  style={{
+                    width: ROBOT_ICON_URL.width,
+                    height: ROBOT_ICON_URL.height,
+                  }}
                 />
-                : Feel like you are
+                : Feel like you are&nbsp;
                 {!!expressions && expressions.length > 0 && (
                   <EmojiProcessing
                     exp={Object.keys(expressions[i]).find(
@@ -89,65 +120,94 @@ export default (props) => {
                           Math.max(a, b)
                         )
                     )}
-                    size="sm"
+                    size='xs'
                   />
                 )}
               </div>
             </div>
           </div>
         );
-      } else
+      } //Recognition mode
+      else
         return (
           <div key={i}>
             <div
+              className={
+                !!match && match[i] && match[i]._label !== 'unknown'
+                  ? 'drawBox__recognition-knownBox'
+                  : 'drawBox__recognition-unknownBox'
+              }
               style={{
-                position: "absolute",
-                border: "solid",
-                borderColor:
-                  !!match && match[i] && match[i]._label !== "unknown"
-                    ? "rgba(0, 255, 0, 0.4)"
-                    : "rgba(125, 125, 125, 0.4)",
                 height: _H,
                 width: _W,
                 transform: `translate(${_X}px,${_Y}px)`,
               }}
             >
-              {!!match && match[i] && match[i]._label !== "unknown" ? (
+              {!!match && match[i] && match[i]._label !== 'unknown' ? (
+                <>
                 <div
-                  style={{
-                    backgroundColor: "rgba(0, 255, 0, 0.4)",
-                    border: "solid",
-                    width: _W,
-                    marginTop: 0,
-                    color: "#fff",
-                    transform: `translate(-3px,${_H}px)`,
-                  }}
-                >
-                  {match[i]._label}
-                  <br />
-                  {!!expressions && expressions.length > 0 && (
-                    <EmojiProcessing
-                      exp={Object.keys(expressions[i]).find(
-                        (key) =>
-                          expressions[i][key] ===
-                          Object.values(expressions[i]).reduce((a, b) =>
-                            Math.max(a, b)
-                          )
-                      )}
-                      width={_W}
-                      height={_H}
+                      style={{
+                        position: "absolute",
+                        color: 'green',
+                        fontWeight: 900,
+                        width: _W,
+                        backgroundColor: 'lightgreen',
+                      }}
+                    >
+                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < 0.5 thres`}
+                    </div>
+                  <div
+                    className='drawBox__recognition-knownLabel'
+                    style={{
+                      minWidth: 100,
+                      width: _W,
+                      transform: `translate(${_W}px,${-3}px)`,
+                    }}
+                  >
+                    {participants.map((profile) => (
+                      <div key={profile.student._id}>
+                        {profile.student._id == match[i]._label && (
+                          <>
+                            <Avatar
+                              src={profile.student.profilePictureURL}
+                              icon={<UserOutlined />}
+                            />
+                            &nbsp;
+                            {`${profile.student.firstName} (${profile.student.cardID})`}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    <br />
+                    <img
+                      src={ROBOT_ICON_URL.link}
+                      style={{
+                        width: ROBOT_ICON_URL.width,
+                        height: ROBOT_ICON_URL.height,
+                      }}
                     />
-                  )}
-                </div>
+                    : &nbsp;
+                    {!!expressions && expressions.length > 0 && (
+                      <EmojiProcessing
+                        exp={Object.keys(expressions[i]).find(
+                          (key) =>
+                            expressions[i][key] ===
+                            Object.values(expressions[i]).reduce((a, b) =>
+                              Math.max(a, b)
+                            )
+                        )}
+                        size='xs'
+                      />
+                    )}
+
+                  </div>
+                </>
               ) : (
                 <div
+                  className='drawBox__recognition-unknownLabel'
                   style={{
-                    backgroundColor: "rgba(125, 125, 125, 0.4)",
-                    border: "solid",
                     width: _W,
-                    marginTop: 0,
-                    color: "#fff",
-                    transform: `translate(-3px,${_H}px)`,
+                    transform: `translate(${_W}px,${-3}px)`,
                   }}
                 >
                   unknown

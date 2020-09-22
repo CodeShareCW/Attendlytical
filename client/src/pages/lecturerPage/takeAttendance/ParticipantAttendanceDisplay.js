@@ -1,9 +1,8 @@
 import { Card, Col, Row, Spin } from 'antd';
-import ListView from './ListView'
+import ListView from './ListView';
 import React from 'react';
 
-
-export default ({absentees, attendees,setAttendees, setAbsentees, loading}) => (
+export default ({ participants, absentees, setAbsentees, loading }) => (
   <Row>
     <Col span={12}>
       <Card>
@@ -18,13 +17,10 @@ export default ({absentees, attendees,setAttendees, setAbsentees, loading}) => (
           </p>
           {loading ? (
             <Spin tip='Fetching Absentees...' />
-          ) : absentees.length === 0 ? (
-            <p>No absentees</p>
           ) : (
             <ListView
-              data={absentees}
+              participants={participants}
               absentees={absentees}
-              setAttendees={setAttendees}
               setAbsentees={setAbsentees}
             />
           )}
@@ -40,20 +36,16 @@ export default ({absentees, attendees,setAttendees, setAbsentees, loading}) => (
               fontSize: '15px',
             }}
           >
-            Attendee: {attendees.length}
+            Attendee: {participants.length - absentees.length}
           </p>
-          {loading ? (
-            <Spin tip='Fetching Attendees...' />
-          ) : attendees.length === 0 ? (
-            <p>No attendees</p>
-          ) : (
-            <ListView
-              data={attendees}
-              absentees={absentees}
-              setAttendees={setAttendees}
-              setAbsentees={setAbsentees}
-            />
-          )}
+
+          <ListView
+            participants={participants}
+            absentees={participants.filter(
+              (participant) => !absentees.includes(participant)
+            )}
+            setAbsentees={setAbsentees}
+          />
         </>
       </Card>
     </Col>

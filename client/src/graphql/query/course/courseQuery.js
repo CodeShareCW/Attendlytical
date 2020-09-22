@@ -1,21 +1,29 @@
 import gql from 'graphql-tag';
 
 export const FETCH_COURSE_QUERY = gql`
-  query getCourse($id: ID!) {
-    getCourse(courseID: $id) {
-      _id
-      shortID
-      name
-      code
-      session
-      createdAt
-      enrolledStudents {
+  query getCourseAndParticipants($id: ID!) {
+    getCourseAndParticipants(courseID: $id) {
+      course {
         _id
-        firstName
-        lastName
-        profilePictureURL
-        cardID
+        shortID
+        name
+        code
+        session
+        createdAt
       }
+      participants {
+        info {
+          _id
+          firstName
+          lastName
+          profilePictureURL
+          cardID
+        }
+        warningCount
+        attendRate
+      }
+      attendanceCount
+
     }
   }
 `;

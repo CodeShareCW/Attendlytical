@@ -1,126 +1,233 @@
-const { UserInputError } = require("apollo-server");
+const { UserInputError } = require('apollo-server');
 
-const Attendance = require("../../models/attendance.model");
-const Course = require("../../models/course.model");
+const Attendance = require('../../models/attendance.model');
+const Course = require('../../models/course.model');
+const Expression = require('../../models/expression.model');
 
-const { AttendancegqlParser } = require("./merge");
+const { ExpressiongqlParser, CoursegqlParser, AttendancegqlParser } = require('./merge');
 
-const { validateAttendanceInput } = require("../../util/validators");
+const { validateAttendanceInput } = require('../../util/validators');
 
-const checkAuth = require("../../util/check-auth");
+const checkAuth = require('../../util/check-auth');
+const { cloudinary } = require('../../util/cloudinary');
 
 module.exports = {
   Query: {
+    async getAttendancesCount(_, __, context) {
+      const currUser = checkAuth(context);
+      try {
+        const attendances = await Attendance.find({ creator: currUser._id }, [
+          '_id',
+        ]);
+
+        return attendances.length;
+      } catch (err) {
+        throw err;
+      }
+    },
+    async getAttendancesCountInCourse(_, { courseID }, context) {
+      const currUser = checkAuth(context);
+      try {
+        const course = await Course.findOne({ shortID: courseID });
+        if (!course) {
+          throw new Error('Course do not exist', { errors });
+        }
+
+        if (
+          course.creator != currUser._id &&
+          !course.enrolledStudents.find((stud) => stud._id == currUser._id)
+        ) {
+          throw new Error(
+            'Access forbidden. You are not the course owner or join this course.'
+          );
+        }
+
+        const attendances = await Attendance.find(
+          { creator: currUser._id, course: course._id },
+          ['id']
+        );
+        return attendances.length;
+      } catch (err) {
+        throw err;
+      }
+    },
+
     async getAttendance(_, { attendanceID }, context) {
       const currUser = checkAuth(context);
-      let errors = {};
       try {
         const attendance = await Attendance.findById(attendanceID);
         if (!attendance) {
-          errors.general = "Attendance ID do not exist";
-          throw new UserInputError("Attendance ID do not exist", { errors });
+          throw new Error('Attendance do not exist', { errors });
         }
+
+        const course = await Course.findById(attendance.course);
+
+        if (course.creator != currUser._id) {
+          throw new Error('Access forbidden. You are not the course owner.');
+        }
+
+
         return AttendancegqlParser(attendance);
       } catch (err) {
-        errors.general = err.message;
-        throw new UserInputError(err.message, { errors });
+        throw err;
       }
     },
-    async getAllAttendance(_, __, context) {
+    async getAttendances(_, __, context) {
       const currUser = checkAuth(context);
-      let errors = {};
       try {
-        const createdAttendance_list = await Attendance.find({
-          creator: currUser.id,
-        }).sort({ createdAt: -1 });
-        return createdAttendance_list.map((attendance) =>
+        let attendanceList = [];
+        if (currUser.userLevel === 0) {
+          attendanceList = await Attendance.find({
+            participants: currUser._id,
+          }).sort({ _id: -1 });
+        } else if (currUser.userLevel === 1) {
+          attendanceList = await Attendance.find({
+            creator: currUser._id,
+          }).sort({ _id: -1 });
+        } else {
+          throw new Error('Something wrong');
+        }
+
+        return attendanceList.map((attendance) =>
           AttendancegqlParser(attendance)
         );
       } catch (err) {
-        errors.general = err.message;
-        throw new UserInputError(err.message, { errors });
+        throw err;
+      }
+    },
+    async getAttendancesInCourse(_, { courseID }, context) {
+      const currUser = checkAuth(context);
+      try {
+        const course = await Course.findOne({ shortID: courseID });
+
+        if (!course) {
+          throw new Error('Course do not exist', { errors });
+        }
+
+        if (
+          course.creator != currUser._id &&
+          !course.enrolledStudents.find((stud) => stud._id == currUser._id)
+        ) {
+          throw new Error(
+            'Access forbidden. You are not the course owner or join this course.'
+          );
+        }
+
+        let createdAttendance_list = [];
+        if (currUser.userLevel === 0) {
+          createdAttendance_list = await Attendance.find({
+            participants: currUser._id,
+            course: course._id,
+          }).sort({ _id: -1 });
+        } else if (currUser.userLevel === 1) {
+          createdAttendance_list = await Attendance.find({
+            creator: currUser._id,
+            course: course._id,
+          }).sort({ _id: -1 });
+        } else {
+          throw new Error('Something wrong');
+        }
+
+        return {
+          course: CoursegqlParser(course),
+          attendances: createdAttendance_list.map((attendance) =>
+            AttendancegqlParser(attendance)
+          ),
+        };
+      } catch (err) {
+        throw err;
       }
     },
   },
   Mutation: {
     async createAttendance(
       _,
-      { attendanceInput: { start, end, date, courseID, attendees, absentees} },
+      {
+        attendanceInput: {
+          date,
+          time,
+          courseID,
+          participants,
+          absentees,
+          attendees,
+        },
+      },
       context
     ) {
-
       const currUser = checkAuth(context);
-      const { valid, errors } = validateAttendanceInput(start, end, date);
+      const { valid, errors } = validateAttendanceInput(date, time);
       try {
         if (!valid) {
-          throw new UserInputError("Errors", { errors });
+          throw new UserInputError('Errors', { errors });
         }
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "The user is not a lecturer but want to create attendance!";
-          throw new UserInputError(
-            "The user is not a lecturer but want to create attendance!",
-            { errors }
-          );
-        }
-
-        const course = await Course.find({_id: courseID, creator: currUser.id});
-        if (course.length===0) {
-          errors.general = "Course do not exist or current user is not course owner";
-          throw new UserInputError("Course do not exist or current user is not course owner", { errors });
-        }
-        
         const attendance = new Attendance({
-          start,
-          end,
           date,
+          time,
           course: courseID,
-          creator: currUser.id,
+          creator: currUser._id,
+          participants,
+          absentees,
           attendees,
-          absentees
         });
 
-        //Because the course give the array, we need to put index
-        course[0].attendanceList.push(attendance);
-        await course[0].save();
         await attendance.save();
 
         return AttendancegqlParser(attendance);
       } catch (err) {
-        errors.general = err.message;
-        throw new UserInputError(err.message, { errors });
+        throw err;
       }
     },
+
+    async createExpression(_, {participantID, expression, attendanceID}, context){
+      const currUser = checkAuth(context);
+      try{
+        const attendance=await Attendance.findById(attendanceID)
+
+        if (!attendance)
+        throw new Error("Attendance do not found");
+
+        const exp=new Expression({
+          creator: participantID,
+          attendance: attendanceID,
+          expression
+        })
+
+        await exp.save();
+
+        return ExpressiongqlParser(exp);
+      }
+      catch(err){
+        throw err;
+      }
+    },
+
     async deleteAttendance(_, { attendanceID }, context) {
       const currUser = checkAuth(context);
       let errors = {};
       try {
-        if (!valid) {
-          throw new UserInputError("Errors", { errors });
-        }
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "The user is not a lecturer but want to delete attendance!";
-          throw new UserInputError(
-            "The user is not a lecturer but want to delete attendance!",
-            { errors }
-          );
-        }
-
         const attendance2Delete = await Attendance.findById(attendanceID);
 
         if (!attendance2Delete) {
-          errors.general = "Try to delete a non existing attendance";
-          throw new UserInputError("Try to delete a non existing attendance", {
+          errors.general = 'Try to delete a non existing attendance';
+          throw new UserInputError('Try to delete a non existing attendance', {
             errors,
           });
         }
+
+        // attendance2Delete.attendees.map(async (at) => {
+        //   const exp = await Expression.findOne({
+        //     creator: at._id,
+        //     attendance: attendance2Delete,
+        //   });
+        //   if (!exp) throw new Error('Something wrong!');
+        //   await Expression.deleteOne(exp);
+        // });
+
         await Attendance.deleteOne(attendance2Delete);
 
-        return "Delete Success";
+        return AttendancegqlParser(attendance2Delete);
       } catch (err) {
-        errors.general = err.message;
-        throw new UserInputError(err.message, { errors });
+        throw err;
       }
     },
   },

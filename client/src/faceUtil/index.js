@@ -4,7 +4,6 @@ const maxDescriptorDistance = 0.5;
 
 export async function loadModels(
   setLoadingMessage,
-  setLoadedModel,
   setLoadingMessageError
 ) {
   const MODEL_URL = process.env.PUBLIC_URL + '/models';
@@ -12,19 +11,15 @@ export async function loadModels(
   try {
     setLoadingMessage('Loading Face Detector');
     await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
-    setLoadedModel((prevState) => [...prevState, 'FD']);
 
     setLoadingMessage('Loading 68 Facial Landmark Detector');
     await faceapi.loadFaceLandmarkTinyModel(MODEL_URL);
-    setLoadedModel((prevState) => [...prevState, 'FLD']);
 
     setLoadingMessage('Loading Feature Extractor');
     await faceapi.loadFaceRecognitionModel(MODEL_URL);
-    setLoadedModel((prevState) => [...prevState, 'FR']);
 
     setLoadingMessage('Loading Facial Expression Detector');
-    await faceapi.loadFaceExpressionModel(MODEL_URL);
-    setLoadedModel((prevState) => [...prevState, 'FE']);
+    await faceapi.loadFaceExpressionModel(MODEL_URL)
   } catch (err) {
     setLoadingMessageError(
       'Model loading failed. Please contact me about the bug: faceinattendanceapp@gmail.com'
@@ -57,13 +52,12 @@ export async function getFullFaceDescription(blob, inputSize = 512) {
 
 export async function createMatcher(faceProfile) {
   // Create labeled descriptors of member from profile
-  let members = Object.keys(faceProfile);
-  let labeledDescriptors = members.map(
-    (member) =>
+  let labeledDescriptors = faceProfile.map(
+    (profile) =>
       new faceapi.LabeledFaceDescriptors(
-        faceProfile[member].name,
-        faceProfile[member].descriptors.map(
-          (descriptor) => new Float32Array(descriptor)
+        profile.student._id,
+        profile.facePhotos.map(
+          (photo) => new Float32Array(photo.faceDescriptor.match(/-?\d+(?:\.\d+)?/g).map(Number))
         )
       )
   );
@@ -73,6 +67,8 @@ export async function createMatcher(faceProfile) {
     labeledDescriptors,
     maxDescriptorDistance
   );
+
+  console.log(faceMatcher)
   return faceMatcher;
 }
 

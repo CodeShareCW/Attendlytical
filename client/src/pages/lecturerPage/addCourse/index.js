@@ -44,7 +44,7 @@ export default (props) => {
     <Layout className='layout'>
       <Navbar />
       <Layout>
-        <Greeting firstName={user.firstName} />
+        <Greeting />
         <PageTitleBreadcrumb
           titleList={[{ name: 'Add Course', link: '/addcourse' }]}
         />

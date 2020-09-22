@@ -1,36 +1,33 @@
-import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
   Avatar,
   Button,
   Card,
-  Col,
   Divider,
   Layout,
   message,
   Modal,
-  Row,
   Space,
   Spin,
-  Table,
+
+  Table, Tag
 } from 'antd';
-import React, { useContext, useState } from 'react';
-import CourseDetailCard from './CourseDetailCard';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Footer,
   Greeting,
   Navbar,
-  PageTitleBreadcrumb,
+  PageTitleBreadcrumb
 } from '../../../components/common/sharedLayout';
 import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import {
   KICK_PARTICIPANT_MUTATION,
-  OBTAIN_STUDENT_WARNING_MUTATION,
-  WARN_PARTICIPANT_MUTATION,
+  WARN_PARTICIPANT_MUTATION
 } from '../../../graphql/mutation';
 import { FETCH_COURSE_QUERY } from '../../../graphql/query';
-import { LoadingSpin } from '../../../utils/LoadingSpin';
+import CourseDetailCard from './CourseDetailCard';
 import './CourseDetails.css';
 
 const { Content } = Layout;
@@ -46,22 +43,17 @@ export default (props) => {
       ),
     },
     {
-      title: <strong>First Name</strong>,
-      dataIndex: 'firstName',
-      key: 'firstName',
-      render: (text) => (
-        <a style={{ justifyContent: 'center', textAlign: 'center' }}>{text}</a>
-      ),
-    },
-    {
-      title: <strong>Last Name</strong>,
-      dataIndex: 'lastName',
-      key: 'lastName',
-    },
-    {
       title: <strong>Matric Number</strong>,
-      dataIndex: 'matricNumber',
-      key: 'matricNumber',
+      dataIndex: 'cardID',
+      key: 'cardID',
+
+      align: 'center',
+    },
+    {
+      title: <strong>Name</strong>,
+      dataIndex: 'name',
+      key: 'name',
+      align: 'center',
     },
   ];
 
@@ -73,29 +65,34 @@ export default (props) => {
       render: (imgURL) => (
         <Avatar src={imgURL} size={50} icon={<UserOutlined />} />
       ),
-    },
-    {
-      title: <strong>First Name</strong>,
-      dataIndex: 'firstName',
-      key: 'firstName',
-      render: (text) => (
-        <a style={{ justifyContent: 'center', textAlign: 'center' }}>{text}</a>
-      ),
-    },
-    {
-      title: <strong>Last Name</strong>,
-      dataIndex: 'lastName',
-      key: 'lastName',
+      align: 'center',
     },
     {
       title: <strong>Matric Number</strong>,
-      dataIndex: 'matricNumber',
-      key: 'matricNumber',
+      dataIndex: 'cardID',
+      key: 'cardID',
+
+      align: 'center',
     },
     {
-      title: <strong>Attendance Rate</strong>,
-      dataIndex: 'attendanceRate',
-      key: 'attendanceRate',
+      title: <strong>Name</strong>,
+      dataIndex: 'name',
+      key: 'name',
+      align: 'center',
+    },
+    {
+      title: <strong>Attend Rate</strong>,
+      dataIndex: 'attendRate',
+      key: 'attendRate',
+      render: (text) =>
+        text !== null ? (
+          <Tag color={text === 0 ? '#f00' : text <= 80 ? '#f90' : '#0c8'}>
+            {text}%
+          </Tag>
+        ) : (
+          <Tag className='alert'>No attendance record yet</Tag>
+        ),
+      align: 'center',
     },
     {
       title: <strong>Warning Count</strong>,
@@ -103,10 +100,10 @@ export default (props) => {
       key: 'warningCount',
       render: (text) => (
         <div>
-          {obtainStudentWarningStatus.loading && <LoadingOutlined />}
           <p>{text}</p>
         </div>
       ),
+      align: 'center',
     },
     {
       title: <strong>Action</strong>,
@@ -143,6 +140,7 @@ export default (props) => {
           </Button>
         </Space>
       ),
+      align: 'center',
     },
   ];
 
@@ -150,48 +148,11 @@ export default (props) => {
 
   const [participants, setParticipants] = useState([]);
   const [selectedParticipant, setSelectedParticipant] = useState({});
-
-  const [fetchingParticipants, isFetchingParticipants] = useState(false);
+  const [attendanceCount, setAttendanceCount] = useState(0);
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const { loading, data, refetch } = useQuery(FETCH_COURSE_QUERY, {
-    onCompleted: (data) => {
-      data.getCourse.enrolledStudents.map((item) => {
-        isFetchingParticipants(true);
-        obtainStudentWarningCallback({
-          update(_, { data }) {
-            const warning = data.obtainStudentWarning;
-            isFetchingParticipants(false);
-
-            setParticipants((prevState) => {
-              if (item._id === user._id) {
-                item.firstName = 'You';
-                item.lastName = 'You';
-              }
-              const newParticipant = {
-                key: item._id,
-                firstName: item.firstName,
-                lastName: item.lastName,
-                profilePictureURL: item.profilePictureURL,
-                matricNumber: item.cardID,
-                warningCount: warning,
-              };
-
-              if (item._id === user._id) return [newParticipant, ...prevState];
-              return [...prevState, newParticipant];
-            });
-          },
-          onError(err) {
-            CheckError(err);
-          },
-          variables: {
-            participantID: item._id,
-            courseID: data.getCourse._id,
-          },
-        });
-      });
-    },
+  const { loading, data, error, refetch } = useQuery(FETCH_COURSE_QUERY, {
     onError(err) {
       CheckError(err);
     },
@@ -200,14 +161,13 @@ export default (props) => {
     },
   });
 
-  const [
-    obtainStudentWarningCallback,
-    obtainStudentWarningStatus,
-  ] = useMutation(OBTAIN_STUDENT_WARNING_MUTATION, {
-    onError(err) {
-      CheckError(err);
-    },
-  });
+  useEffect(() => {
+    if (data) {
+      setParticipants(data.getCourseAndParticipants.participants);
+      setAttendanceCount(data.getCourseAndParticipants.attendanceCount);
+      refetch();
+    }
+  }, [data]);
 
   const [kickParticipantCallback, kickParticipantStatus] = useMutation(
     KICK_PARTICIPANT_MUTATION,
@@ -270,19 +230,31 @@ export default (props) => {
     },
   ];
 
-  const TableDisplay = ({ isFetch }) =>
-    !isFetch && (
-      <Table
-        columns={user.userLevel === 0 ? stud_columns : lect_columns}
-        style={{ textAlign: 'center' }}
-        dataSource={participants}
-      />
-    );
+  const parsedParticipants = (participants) => {
+    return participants.map((par) => {
+      return {
+        key: par.info._id,
+        profilePictureURL: par.info.profilePictureURL,
+        name: par.info.firstName + ' ' + par.info.lastName,
+        cardID: par.info.cardID,
+        attendRate: par.attendRate,
+        warningCount: par.warningCount,
+      };
+    });
+  };
+
+  const TableDisplay = () => (
+    <Table
+      columns={user.userLevel === 0 ? stud_columns : lect_columns}
+      style={{ textAlign: 'center' }}
+      dataSource={parsedParticipants(participants)}
+      loading={loading}
+    />
+  );
 
   return (
     <Layout className='courseDetails layout'>
       <Navbar />
-
       <Layout>
         <Greeting
           firstName={user.firstName}
@@ -291,23 +263,23 @@ export default (props) => {
         <PageTitleBreadcrumb titleList={titleList} />
         <Content>
           <Card className='courseDetails__card'>
-            <LoadingSpin loading={loading} />
-            {data && (
+            {error && <ErrorComp err={error} />}
+            {!error && (
               <div className='courseDetails__container'>
-                <CourseDetailCard data={data} participants={participants} />
+                {data && (
+                  <CourseDetailCard
+                    course={data?.getCourseAndParticipants.course}
+                    attendanceCount={attendanceCount}
+                    participants={participants}
+                  />
+                )}
                 <Divider
                   orientation='left'
                   style={{ color: '#333', fontWeight: 'normal' }}
                 >
                   Participants
                 </Divider>
-                <Row className='courseDetails__row'>
-                  <Col>
-                    <LoadingSpin loading={fetchingParticipants} />
-                  </Col>
-                </Row>
-
-                <TableDisplay isFetch={fetchingParticipants} />
+                <TableDisplay />
               </div>
             )}
           </Card>

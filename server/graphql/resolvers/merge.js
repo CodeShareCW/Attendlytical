@@ -1,7 +1,8 @@
-const Person = require("../../models/person.model");
-const Course = require("../../models/course.model");
-const Attendance = require("../../models/attendance.model");
-
+const Person = require('../../models/person.model');
+const Course = require('../../models/course.model');
+const Warning = require('../../models/warning.model');
+const Attendance = require('../../models/attendance.model');
+const Expression = require('../../models/expression.model');
 const person = async (personID) => {
   try {
     const result = await Person.findById(personID);
@@ -14,11 +15,62 @@ const person = async (personID) => {
 
 const people = async (personID) => {
   try {
-    const results = await Person.find({ _id: { $in: personID } }).sort({firstName: 1});
+    const results = await Person.find({ _id: { $in: personID } }).sort({
+      cardID: 1,
+    });
     if (results)
       return results.map((r) => {
         return PersongqlParser(r);
       });
+  } catch (err) {
+    throw err;
+  }
+};
+
+const ParticipantsgqlParser = async (
+  participantIDList,
+  course,
+  attendanceID
+) => {
+  try {
+    let participants = await people(participantIDList);
+    let parsedParticipants = participants.map(async (stud) => {
+      let obj = {};
+
+      const warning = await Warning.findOne({
+        student: stud._id,
+        course: course._id,
+      });
+
+      const attendanceHistories = await Attendance.find({
+        participants: stud._id,
+        course: course._id,
+      });
+
+      const countAttend = attendanceHistories.reduce((prev, curr) => {
+        const isAttend = curr.attendees.includes(stud._id);
+
+        return isAttend ? prev + 1 : prev; //if got attend add 1 else remain
+      }, 0);
+
+      const info = await Person.findById(stud._id);
+
+      Object.assign(obj, { info: await PersongqlParser(info) });
+
+      Object.assign(obj, {
+        attendRate:
+          (await attendanceHistories.length) > 0
+            ? ((countAttend / attendanceHistories.length) * 100).toFixed(2)
+            : null,
+      });
+      Object.assign(obj, {
+        warningCount: (await warning) ? warning.count : 0,
+      });
+
+      return obj;
+    });
+
+    return parsedParticipants;
   } catch (err) {
     throw err;
   }
@@ -81,17 +133,16 @@ const CoursegqlParser = (course, hasNextPage) => {
     updatedAt: new Date(course._doc.updatedAt).toISOString(),
     creator: person.bind(this, course._doc.creator),
     enrolledStudents: people.bind(this, course._doc.enrolledStudents),
-    hasNextPage
+    hasNextPage,
   };
 };
 
-const CoursesgqlParser=(coursesList, hasNextPage)=>{
-  
+const CoursesgqlParser = (coursesList, hasNextPage) => {
   return {
-   courses: courses.bind(this, coursesList),
-   hasNextPage
-  }
-}
+    courses: courses.bind(this, coursesList),
+    hasNextPage,
+  };
+};
 
 const PendingEnrolledCoursegqlParser = (enrolment) => {
   return {
@@ -106,8 +157,10 @@ const PendingEnrolledCoursegqlParser = (enrolment) => {
 
 const PendingEnrolledCoursesgqlParser = (enrolments, hasNextPage) => {
   return {
-    pendingEnrolledCourses: enrolments.map(e=>PendingEnrolledCoursegqlParser(e)),
-    hasNextPage
+    pendingEnrolledCourses: enrolments.map((e) =>
+      PendingEnrolledCoursegqlParser(e)
+    ),
+    hasNextPage,
   };
 };
 
@@ -117,25 +170,52 @@ const NotificationgqlParser = (notification, hasNextPage) => {
     createdAt: new Date(notification._doc.createdAt).toISOString(),
     updatedAt: new Date(notification._doc.updatedAt).toISOString(),
     receiver: person.bind(this, notification._doc.receiver),
-    hasNextPage
+    hasNextPage,
   };
 };
 
 const NotificationsgqlParser = (notificationList, hasNextPage) => {
   return {
     notifications: notifications.bind(this, notificationList),
-    hasNextPage
+    hasNextPage,
   };
 };
 
-const AttendancegqlParser = (attendance) => {
-  console.log(attendance);
+const AttendancegqlParser = (attendanceData) => {
   return {
-    ...attendance._doc,
-    attendees: people.bind(this, attendance._doc.attendees),
-    absentees: people.bind(this, attendance._doc.absentees),
-    creator: person.bind(this, attendance._doc.creator),
-    course: course.bind(this, attendance._doc.course),
+    ...attendanceData._doc,
+    participants: ParticipantsgqlParser(
+      attendanceData._doc.participants,
+      attendanceData._doc.course,
+      attendanceData._id
+    ),
+    absentees: ParticipantsgqlParser(
+      attendanceData._doc.absentees,
+      attendanceData._doc.course,
+      attendanceData._id
+    ),
+    // attendees: expressionList.map((exp) => {
+    //   return {
+    //     person: PersongqlParser(exp.creator),
+    //     expression: exp.expression,
+    //     attendance: AttendancegqlParser(exp.attendance),
+    //   };
+    // }),
+    attendees: ParticipantsgqlParser(
+      attendanceData._doc.attendees,
+      attendanceData._doc.course,
+      attendanceData._id
+    ),
+    creator: person.bind(this, attendanceData._doc.creator),
+    course: course.bind(this, attendanceData._doc.course),
+  };
+};
+
+const ExpressiongqlParser = (expression) => {
+  return {
+    ...expression._doc,
+    attendance: AttendancegqlParser(expression._doc.attendance),
+    creator: PersongqlParser(expression._doc.creator),
   };
 };
 
@@ -150,20 +230,18 @@ const FacePhotogqlParser = (photo) => {
 
 const FacePhotosgqlParser = (photoList, hasNextPage) => {
   return {
-    facePhotos: photoList.map(photo=>FacePhotogqlParser(photo)),
-    hasNextPage
+    facePhotos: photoList.map((photo) => FacePhotogqlParser(photo)),
+    hasNextPage,
   };
 };
 
-
-const GroupPhotogqlParser = (gPhoto) => {
-  console.log(gPhoto);
+const PhotoPrivacygqlParser = (privacy) => {
+  console.log(privacy);
   return {
-    ...gPhoto._doc,
-    attendance: attendance.bind(this, gPhoto._doc.attendance),
+    ...privacy._doc,
+    creator: person.bind(this, privacy._doc.creator),
   };
 };
-
 
 module.exports = {
   person,
@@ -181,5 +259,7 @@ module.exports = {
   AttendancegqlParser,
   FacePhotogqlParser,
   FacePhotosgqlParser,
-  GroupPhotogqlParser
+  PhotoPrivacygqlParser,
+  ParticipantsgqlParser,
+  ExpressiongqlParser,
 };

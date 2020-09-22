@@ -9,7 +9,7 @@ import {
   PageTitleBreadcrumb,
 } from '../../../components/common/sharedLayout';
 import { NotificationContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_NOTIFICATION_LIMIT } from '../../../globalData';
 import { FETCH_NOTIFICATIONS_QUERY } from '../../../graphql/query';
 import './Notifications.css';
@@ -26,7 +26,7 @@ export default () => {
     setUncheckedNotificationCount,
   } = useContext(NotificationContext);
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(
+  const { data, loading, error, fetchMore, networkStatus } = useQuery(
     FETCH_NOTIFICATIONS_QUERY,
     {
       onError(err) {
@@ -52,9 +52,8 @@ export default () => {
       if (uncheckedNotificationCount >= count)
         setUncheckedNotificationCount(uncheckedNotificationCount - count);
 
-      if (!data.getNotifications.hasNextPage) {
-        setFetchedDone(true);
-      }
+      if (!data.getNotifications.hasNextPage) setFetchedDone(true);
+      else setFetchedDone(false);
     }
   }, [data]);
 
@@ -92,7 +91,6 @@ export default () => {
       },
     });
   };
-
   return (
     <div className='notifications'>
       <Layout className='notifications layout'>
@@ -104,35 +102,41 @@ export default () => {
             titleList={[{ name: 'Notification', link: '/notification' }]}
           />
           <Content className='notifications__content'>
-            <Card className='notifications__card'>
-              {notifications &&
-                notifications.map((notification) => (
-                  <Notification
-                    key={notification._id}
-                    notification={notification}
-                  />
-                ))}
-              {loading && (
-                <div className='notifications__loading__container'>
-                  <div className='notifications__loading'>
-                    <Spin size='large' tip='Loading...' />
+            {error && <ErrorComp err={error} />}
+            {data && (
+              <Card className='notifications__card'>
+                {notifications &&
+                  notifications.map((notification) => (
+                    <Notification
+                      key={notification._id}
+                      notification={notification}
+                    />
+                  ))}
+                {loading && (
+                  <div className='notifications__loading__container'>
+                    <div className='notifications__loading'>
+                      <Spin size='large' tip='Loading...' />
+                    </div>
                   </div>
-                </div>
-              )}
-              {notifications && notifications.length !== 0 && !fetchedDone && (
-                <Button onClick={handleFetchMore} loading={networkStatus === 3}>
-                  Load More Notification...
-                </Button>
-              )}
-              {notifications.length !== 0 && fetchedDone && (
-                <div className='allLoadedCard'>
-                  <h3>All Notifications Loaded</h3>
-                </div>
-              )}
-              {notifications && notifications.length === 0 && (
-                <p>No notifications...</p>
-              )}
-            </Card>
+                )}
+                {notifications && notifications.length !== 0 && !fetchedDone && (
+                  <Button
+                    onClick={handleFetchMore}
+                    loading={networkStatus === 3}
+                  >
+                    Load More Notification...
+                  </Button>
+                )}
+                {notifications.length !== 0 && fetchedDone && (
+                  <div className='allLoadedCard'>
+                    <h3>All Notifications Loaded</h3>
+                  </div>
+                )}
+                {notifications && notifications.length === 0 && (
+                  <p>No notifications...</p>
+                )}
+              </Card>
+            )}
           </Content>
           <Footer />
         </Layout>

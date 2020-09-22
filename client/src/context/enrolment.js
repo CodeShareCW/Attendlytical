@@ -7,6 +7,7 @@ const initialState = {
   initialCountDone: false,
   enrolCount: 0,
   fetchedDone: false,
+  initialAccess: true,
 };
 
 const EnrolmentContext = createContext({});
@@ -40,15 +41,16 @@ function enrolmentReducer(state, action) {
       return {
         ...state,
         enrolments: updatedEnrolments,
+        initialAccess: false,
       };
 
     case actionTypes.ENROL_COURSE_ACTION:
-      if (state.enrolments.length > 0)
-        return {
-          ...state,
-          newEnrolments: [action.enrolment, ...state.newEnrolments],
-        };
-      return { ...state };
+      if (state.initialAccess) return { ...state };
+      return {
+        ...state,
+        newEnrolments: [action.enrolment, ...state.newEnrolments],
+      };
+
     default:
       return state;
   }

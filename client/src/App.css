@@ -11,6 +11,10 @@
   width: 100%;
 }
 
+.height100{
+  height: 100vh;
+}
+
 .alert{
   color: red;
   text-align: "center"!important;

@@ -1,1 +1,0 @@
-export const FETCH_COURSE_LIMIT = 5;

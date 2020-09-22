@@ -1,5 +1,6 @@
 import {
   AliwangwangOutlined,
+  AuditOutlined,
   HistoryOutlined,
   HomeOutlined,
   PlusCircleOutlined,
@@ -56,6 +57,12 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
         <Link to={'/enrolrequest'}>
           <AliwangwangOutlined />
           &nbsp; Enrol Request ({enrolCount})
+        </Link>
+      </p>
+      <p>
+        <Link to={'/takeAttendance'}>
+          <AuditOutlined />
+          &nbsp; Take Attendance
         </Link>
       </p>
       <p>

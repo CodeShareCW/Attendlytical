@@ -20,3 +20,33 @@ export const FETCH_FACE_PHOTOS_QUERY = gql`
     }
   }
 `;
+
+export const FETCH_FACE_MATCHER_IN_COURSE_QUERY = gql`
+  query getFaceMatcherInCourse($courseID: String!) {
+    getFaceMatcherInCourse(courseID: $courseID) {
+      course {
+        _id
+        code
+        name
+        session
+        shortID
+      }
+      matcher {
+        student {
+          _id
+          firstName
+          lastName
+          cardID
+          profilePictureURL
+        }
+        facePhotos {
+          faceDescriptor
+          photoURL
+        }
+        photoPrivacy {
+          public
+        }
+      }
+    }
+  }
+`;

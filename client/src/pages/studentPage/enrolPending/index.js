@@ -37,8 +37,9 @@ export default () => {
     loadEnrolments(
       data?.getPendingEnrolledCourses.pendingEnrolledCourses || []
     );
-    if (data && !data.getPendingEnrolledCourses.hasNextPage) {
-      setFetchedDone(true);
+    if (data) {
+      if (!data.getPendingEnrolledCourses.hasNextPage) setFetchedDone(true);
+      else setFetchedDone(false);
     }
   }, [data]);
 

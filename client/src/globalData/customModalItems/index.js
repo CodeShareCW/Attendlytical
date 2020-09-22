@@ -8,4 +8,5 @@ export const modalItems = {
     action: { approve: 'Approve', reject: 'Reject' },
   },
   facePhoto: { name: 'photo', action: { delete: 'Delete' } },
+  attendance: { name: 'attendance', action: { delete: 'Delete' } },
 };

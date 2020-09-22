@@ -96,9 +96,8 @@ export default (props) => {
     if (data) {
       loadCourses(data.getEnrolledCourses.courses);
 
-      if (!data.getEnrolledCourses.hasNextPage) {
-        setFetchedDone(true);
-      }
+      if (!data.getEnrolledCourses.hasNextPage) setFetchedDone(true);
+      else setFetchedDone(false);
     }
   }, [data]);
 

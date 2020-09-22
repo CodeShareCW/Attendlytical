@@ -3,7 +3,6 @@ const courseResolvers=require('./course.resolver')
 const courseEnrolmentResolvers=require('./courseEnrolment.resolver')
 const notificationResolvers=require('./notification.resolver')
 const attendanceResolvers=require('./attendance.resolver')
-const groupPhotoResolvers=require('./groupPhoto.resolver')
 const facePhotoResolvers=require('./facePhoto.resolver')
 const warningResolvers=require('./warning.resolver')
 
@@ -14,7 +13,6 @@ module.exports={
         ...courseEnrolmentResolvers.Query,
         ...notificationResolvers.Query,
         ...attendanceResolvers.Query,
-        ...groupPhotoResolvers.Query,
         ...facePhotoResolvers.Query,
         ...warningResolvers.Query,
     },
@@ -24,7 +22,6 @@ module.exports={
         ...courseEnrolmentResolvers.Mutation,
         ...notificationResolvers.Mutation,
         ...attendanceResolvers.Mutation,
-        ...groupPhotoResolvers.Mutation,
         ...facePhotoResolvers.Mutation,
         ...warningResolvers.Mutation
     }

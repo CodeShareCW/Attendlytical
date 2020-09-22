@@ -1,0 +1,71 @@
+const matcher=[]
+participants.map(participant=>{
+    const label=`${participant.firstName} (${participant.cardID})`
+    const descriptors=participant.facePhotos.map(photo=>
+        photo.faceDescriptor
+    )
+
+    //if participant do not upload photo just ignore
+    if (descriptors.length>0)
+        matcher.push({label: label, descriptors: descriptors})
+})
+
+
+const [created, setCreated] = useState(false);
+  useEffect(() => {
+    async function matcher() {
+     
+      const profiles = [];        
+        participants.map((participant) => {
+          const label = `${participant.firstName} (${participant.cardID})`;
+          const descriptors = participant.facePhotos.map(
+            (photo) => photo.faceDescriptor
+          );
+
+          if (descriptors.length>0){
+
+          profiles.push({
+            name: label,
+            descriptors: descriptors.map((desc) =>
+              desc.match(/\d+(?:\.\d+)?/g).map(Number)
+            ),
+          });
+        }
+        
+        });
+        
+        console.log(profiles)
+        const profileList = await createMatcher(profiles);
+        setFaceMatcher(profileList);
+      
+    }
+     if (facePhotos.length === 13&&!created) {matcher(); setCreated(true)}
+
+  }, [facePhotos, created]);
+  console.log(faceMatcher);
+
+      async retrieveStudentFacePhoto(_, { studentID, courseID }, context) {
+      const currUser = checkAuth(context);
+      let errors = {};
+
+      try {
+        const course = await Course.findById(courseID);
+
+        let studentProfiles = [];
+        course.enrolledStudents.map(async (stud) => {
+          const photos = await FacePhoto.find({ creator: stud });
+          const student = await Person.findById(stud);
+
+          if (photos.length>0)
+          studentProfiles.push({
+            studentID: stud,
+            studentName: `${student.firstName} (${student.cardID})}`,
+            studentPhotos: photos,
+          });
+        });
+
+        return studentProfiles;
+      } catch (err) {
+        throw err;
+      }
+    },

@@ -52,8 +52,10 @@ export default () => {
     loadEnrolments(
       data?.getPendingEnrolledCourses.pendingEnrolledCourses || []
     );
-    if (data && !data.getPendingEnrolledCourses.hasNextPage)
-      setFetchedDone(true);
+    if (data) {
+      if (!data.getPendingEnrolledCourses.hasNextPage) setFetchedDone(true);
+      else setFetchedDone(false);
+    }
   }, [data]);
 
   const [approveEnrolmentCallback, approveEnrolmentStatus] = useMutation(
@@ -132,8 +134,7 @@ export default () => {
       approveEnrolmentCallback({
         update() {
           SetVisible(false);
-          //refresh window to avoid error
-          window.location.reload();
+          refetch();
         },
         variables: { id: selectedEnrolment._id },
       });

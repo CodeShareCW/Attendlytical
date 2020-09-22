@@ -1,48 +1,41 @@
-import { useQuery } from '@apollo/react-hooks';
-import { Button, Card, Col, Row } from 'antd';
-import React, { useContext, useState } from 'react';
+import { Button, Card, Col, Row, Tag } from 'antd';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
-import { GET_WARNING_COUNT_QUERY } from '../../../graphql/query';
 
-export default ({ data, participants }) => {
+export default ({ course, participants, attendanceCount }) => {
   const { user } = useContext(AuthContext);
-  const warningCountQuery = useQuery(
-    GET_WARNING_COUNT_QUERY,
-    {
-      onError(err) {
-        CheckError(err);
-      },
-      variables: {
-        courseID: data.getCourse._id,
-      },
-    },
-    { notifyOnNetworkStatusChange: true }
-  );
+
+  const attendRate = participants.find((par) => par.info._id === user._id)
+    ?.attendRate;
+  const warningCount = participants.find((par) => par.info._id === user._id)
+    ?.warningCount;
+
   return (
     <Row className='courseDetails__row'>
       <Col>
         <Card className='courseDetails__info'>
-          <p className='courseDetails__shortID'>
-            Unique ID: {data.getCourse.shortID}
+          <p className='courseDetails__shortID'>Unique ID: {course.shortID}</p>
+          <p>
+            <strong>Code:</strong> {course.code}
           </p>
           <p>
-            <strong>Code:</strong> {data.getCourse.code}
+            <strong>Name:</strong> {course.name}
           </p>
           <p>
-            <strong>Name:</strong> {data.getCourse.name}
-          </p>
-          <p>
-            <strong>Session:</strong> {data.getCourse.session}
+            <strong>Session:</strong> {course.session}
           </p>
           <p>
             <strong>Total Participants:</strong> {participants.length}
           </p>
+          <p>
+            <strong>Amount of Course Attendance Taken:</strong>{' '}
+            {attendanceCount}
+          </p>
           {user.userLevel === 1 && (
             <>
               <Button type='primary' className='courseDetails__takeAttendance'>
-                <Link to={`/course/${data.getCourse.shortID}/takeAttendance`}>
+                <Link to={`/course/${course.shortID}/takeAttendance`}>
                   Take Attendance
                 </Link>
               </Button>
@@ -51,6 +44,7 @@ export default ({ data, participants }) => {
               <br />
             </>
           )}
+          {console.log(participants.find((par) => par.info._id === user._id))}
           {user.userLevel === 0 && (
             <Card
               style={{
@@ -59,22 +53,36 @@ export default ({ data, participants }) => {
                 color: '#000',
               }}
             >
+              {console.log(attendRate)}
               <p>
                 <strong>Your attendance rate in this course is </strong>
-                <span style={{ fontSize: '22px', color: 'red' }}>100%</span>
-                <strong>.</strong>
+                <span>
+                  {!attendRate ? (
+                    <Tag className='alert'>No attendance record yet</Tag>
+                  ) : (
+                    <Tag
+                      color={
+                        attendRate === 0
+                          ? '#f00'
+                          : attendRate <= 80
+                          ? '#f90'
+                          : '#0c8'
+                      }
+                    >
+                      {attendRate} {attendRate<80? "< 80": null}%
+                    </Tag>
+                  )}
+                </span>
               </p>
               <p>
                 <strong>You are warned by </strong>
-                <span style={{ fontSize: '22px', color: 'red' }}>
-                  {warningCountQuery.data?.getWarningCount || 0}
-                </span>
-                <strong> times.</strong>
+                <Tag color='geekblue'>{warningCount || 0}</Tag>
+                <strong>times</strong>
               </p>
             </Card>
           )}
           <br />
-          <Link to={`/course/${data.getCourse.shortID}/history`}>
+          <Link to={`/course/${course.shortID}/history`}>
             View Attendance History
           </Link>
         </Card>

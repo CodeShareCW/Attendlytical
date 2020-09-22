@@ -5,6 +5,7 @@ const initialState = {
   courses: [],
   newCourses: [],
   fetchedDone: false,
+  initialAccess: true
 };
 
 const CourseContext = createContext({});
@@ -21,11 +22,12 @@ function courseReducer(state, action) {
       return {
         ...state,
         courses: [...state.newCourses, ...action.courses],
+        initialAccess: false
       };
 
     case actionTypes.ADD_COURSE_ACTION:
       //here we check whether the courses is not fully loaded, mean the course should be included in the fetch
-      if (state.courses.length === 0) {
+      if (state.initialAccess) {
         return {
           ...state,
         };

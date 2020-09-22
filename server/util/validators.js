@@ -74,16 +74,13 @@ module.exports.validateCourseInput = (code, name, session) => {
   };
 };
 
-module.exports.validateAttendanceInput = (start, end, date) => {
+module.exports.validateAttendanceInput = (date, time) => {
   const errors = {};
-  if (start.trim() === "") {
-    errors.start = "Start time must not be empty";
-  }
-  if (end.trim() === "") {
-    errors.end = "End time must not be empty";
-  }
   if (date.trim() === "") {
-    errors.name = "Date must not be empty";
+    errors.start = "Date must not be empty";
+  }
+  if (time.trim() === "") {
+    errors.end = "Time must not be empty";
   }
   return {
     errors,

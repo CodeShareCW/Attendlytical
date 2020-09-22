@@ -1,24 +1,26 @@
-const { UserInputError } = require("apollo-server");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { UserInputError } = require('apollo-server');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-const { cloudinary } = require("../../util/cloudinary");
+const { cloudinary } = require('../../util/cloudinary');
 
-const Person = require("../../models/person.model");
-const Course = require("../../models/course.model"); //TODO: Testing
-const Notification = require("../../models/notification.model");
-const { PersongqlParser } = require("./merge");
+const Person = require('../../models/person.model');
+const Course = require('../../models/course.model'); //TODO: Testing
+const Notification = require('../../models/notification.model');
+const PhotoPrivacy = require('../../models/photoPrivacy.model');
+
+const { PersongqlParser } = require('./merge');
 const {
   validateRegisterInput,
   validateLoginInput,
-} = require("../../util/validators");
+} = require('../../util/validators');
 
-const checkAuth = require("../../util/check-auth");
+const checkAuth = require('../../util/check-auth');
 
-const {sendEmail}=require("../../util/mail");
+const { sendEmail } = require('../../util/mail');
 
 //global mail type naming
-const {MAIL_TEMPLATE_TYPE} = require("../../globalData");
+const { MAIL_TEMPLATE_TYPE } = require('../../globalData');
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -35,7 +37,7 @@ function generateToken(person) {
     },
     SECRET_KEY,
     {
-      expiresIn: "8h",
+      expiresIn: '8h',
     }
   );
   return token;
@@ -59,7 +61,7 @@ module.exports = {
         if (person) {
           return PersongqlParser(person);
         } else {
-          throw new UserInputError("Person not exist");
+          throw new UserInputError('Person not exist');
         }
       } catch (err) {
         let errors = {};
@@ -72,14 +74,14 @@ module.exports = {
     async testingRegisterStudent(_, { courseID }) {
       try {
         for (i = 0; i < 10; i++) {
-          const password = "123";
+          const password = '123';
           const hashedPassword = await bcrypt.hash(password, 12);
 
           const newPerson = new Person({
-            firstName: "Student FN " + i,
-            lastName: "Student LN " + i,
-            email: "Student" + i + "@gmail.com",
-            cardID: "A17CS0022",
+            firstName: 'Student FN ' + i,
+            lastName: 'Student LN ' + i,
+            email: 'Student' + i + '@gmail.com',
+            cardID: 'A17CS0022',
             password: hashedPassword,
             userLevel: 0,
           });
@@ -89,7 +91,7 @@ module.exports = {
           course.enrolledStudents.push(newPerson._id);
           course.save();
         }
-        return "Create 50 student";
+        return 'Create 50 student';
       } catch (err) {
         throw err;
       }
@@ -120,15 +122,15 @@ module.exports = {
         );
 
         if (!valid) {
-          throw new UserInputError("Errors", { errors });
+          throw new UserInputError('Errors', { errors });
         }
 
         const existingPerson = await Person.findOne({
           email,
         });
         if (existingPerson) {
-          errors.email = "Email already taken";
-          throw new UserInputError("Email exists already", {
+          errors.email = 'Email already taken';
+          throw new UserInputError('Email exists already', {
             errors,
           });
         }
@@ -147,11 +149,15 @@ module.exports = {
         if (newPerson.userLevel === 0) {
           const notification = new Notification({
             receiver: newPerson.id,
-            title: "Welcome To Face In",
+            title: 'Welcome To Face In',
             content:
-              "Please remember to upload your face photograph for attendance verification",
+              'Please remember to upload your face photograph for attendance verification',
           });
           await notification.save();
+
+          //give a slot for photo privacy
+          const privacy = new PhotoPrivacy({ creator: newPerson._id });
+          await privacy.save();
         }
         const savedPerson = await newPerson.save();
 
@@ -168,20 +174,20 @@ module.exports = {
       try {
         const { valid, errors } = validateLoginInput(email, password);
 
-        if (!valid) throw new UserInputError("UserInputError", { errors });
+        if (!valid) throw new UserInputError('UserInputError', { errors });
 
         const person = await Person.findOne({ email: email });
         if (!person) {
-          errors.general = "Email does not exist";
-          throw new UserInputError("Email does not exist!", { errors });
+          errors.general = 'Email does not exist';
+          throw new UserInputError('Email does not exist!', { errors });
         }
         const isEqual = await bcrypt.compare(password, person.password);
         if (!isEqual) {
-          errors.general = "Password is incorrect";
-          throw new UserInputError("Password is incorrect!", { errors });
+          errors.general = 'Password is incorrect';
+          throw new UserInputError('Password is incorrect!', { errors });
         }
 
-        await Person.updateOne(person, {"$set": {lastLogin: Date.now()}})
+        await Person.updateOne(person, { $set: { lastLogin: Date.now() } });
 
         const token = generateToken(person);
         return PersongqlParser(person, token);
@@ -202,7 +208,7 @@ module.exports = {
         if (profilePicture) {
           const uploadedResponse = await cloudinary.uploader.upload(
             profilePicture,
-            { upload_preset: "facein_profilepicture" }
+            { upload_preset: 'facein_profilepicture' }
           );
 
           const oldPerson = await Person.findByIdAndUpdate(currUser._id, {
@@ -228,8 +234,8 @@ module.exports = {
         const updatedPerson = await Person.findById(currUser._id);
 
         if (!updatedPerson) {
-          errors.general = "User do not exist";
-          throw new UserInputError("User do not exist!", { errors });
+          errors.general = 'User do not exist';
+          throw new UserInputError('User do not exist!', { errors });
         }
 
         const token = generateToken(updatedPerson);

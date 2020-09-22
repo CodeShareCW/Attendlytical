@@ -1,7 +1,7 @@
 import { Typography } from 'antd';
 import React from 'react';
 import Webcam from 'react-webcam';
-import DrawBox from '../../../faceUtil/drawBox';
+import DrawBox from './drawBox';
 const { Title } = Typography;
 
 export default ({
@@ -11,8 +11,11 @@ export default ({
   selectedWebcam,
   detectionCount,
   setDetectionCount,
+  setAbsentees,
   fullDesc,
-  faceMatcher
+  faceMatcher,
+  participants,
+  mode
 }) => (
   <>
     <Webcam
@@ -29,11 +32,15 @@ export default ({
 
     <DrawBox
       setDetectionCount={setDetectionCount}
+      setAbsentees={setAbsentees}
       fullDesc={fullDesc}
       faceMatcher={faceMatcher}
+      participants={participants}
+      
       imageHeight={camHeight}
       imageWidth={camWidth}
       boxColor={'blue'}
+      mode={mode}
     />
   </>
 );

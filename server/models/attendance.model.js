@@ -10,11 +10,7 @@ const attendanceSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
-    start: {
-      type: String,
-      required: true,
-    },
-    end: {
+    time: {
       type: String,
       required: true,
     },
@@ -22,11 +18,7 @@ const attendanceSchema = new Schema(
       type: String,
       required: true,
     },
-    gPhoto: {
-      type: [Schema.Types.ObjectId],
-      ref: "GroupPhoto",
-    },
-    attendees: {
+    participants: {
       type: [Schema.Types.ObjectId],
       ref: "Person",
     },
@@ -34,6 +26,10 @@ const attendanceSchema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: "Person",
     },
+    attendees: {
+      type: [Schema.Types.ObjectId],
+      ref: "Person",
+    }
   },
   { timestamps: true }
 );

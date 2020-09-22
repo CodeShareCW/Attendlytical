@@ -1,9 +1,10 @@
+import { AttendanceContext, AttendanceProvider } from './attendance';
 import { AuthContext, AuthProvider } from './auth';
 import { CourseContext, CourseProvider } from './course';
 import { EnrolmentContext, EnrolmentProvider } from './enrolment';
+import { FacePhotoContext, FacePhotoProvider } from './facePhoto';
 import { NavbarContext, NavbarProvider } from './navbar';
 import { NotificationContext, NotificationProvider } from './notification';
-import { FacePhotoContext, FacePhotoProvider } from './facePhoto';
 export {
   AuthContext,
   AuthProvider,
@@ -17,4 +18,7 @@ export {
   NotificationProvider,
   FacePhotoContext,
   FacePhotoProvider,
+  AttendanceContext,
+  AttendanceProvider
 };
+

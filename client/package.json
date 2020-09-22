@@ -25,7 +25,9 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-waypoint": "^9.0.3",
-    "react-webcam": "^5.2.0"
+    "react-webcam": "^5.2.0",
+    "redux": "^4.0.5",
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "start": "react-scripts start",
