@@ -10,6 +10,7 @@ import {
   Divider,
   Layout,
   message,
+  Skeleton,
   Space,
   Table,
   Tag,
@@ -56,31 +57,47 @@ export default (props) => {
       title: <strong>Bil</strong>,
       dataIndex: 'bil',
       key: 'bil',
+      render: (text) => <Skeleton loading={loading}>{text}</Skeleton>,
     },
     {
       key: 'date',
       title: <strong>Date</strong>,
       dataIndex: 'date',
       align: 'center',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
     },
     {
       key: 'time',
       title: <strong>Time</strong>,
       dataIndex: 'time',
       align: 'center',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
     },
     {
       key: 'stats',
       title: <strong>Stats</strong>,
       dataIndex: 'stats',
       align: 'center',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
     },
     {
       title: <strong>{user.userLevel === 1 ? 'Action' : 'Status'}</strong>,
       dataIndex: user.userLevel === 1 ? 'action' : 'status',
       render: (_, record) =>
         user.userLevel === 1 ? (
-          <div>
+          <Skeleton loading={loading} active>
             <Button
               onClick={() => handleAccess(record)}
               style={{ margin: '10px' }}
@@ -101,11 +118,13 @@ export default (props) => {
               type='danger'
               icon={<DeleteFilled />}
             ></Button>
-          </div>
+          </Skeleton>
         ) : (
-          <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
-            {record.status}
-          </Tag>
+          <Skeleton active loading={loading}>
+            <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
+              {record.status}
+            </Tag>
+          </Skeleton>
         ),
       align: 'center',
     },
@@ -126,6 +145,7 @@ export default (props) => {
     FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
     {
       onCompleted(data) {
+        totalAttendancesCountInCourse.refetch();
         setTablePagination({
           ...tablePagination,
           total: data.getAttendancesCountInCourse,
@@ -142,6 +162,25 @@ export default (props) => {
   const { data, loading, error, refetch } = useQuery(
     FETCH_ATTENDANCES_IN_COURSE_QUERY,
     {
+      onCompleted(data) {
+        setTablePagination({
+          ...tablePagination,
+          total:
+            totalAttendancesCountInCourse.data?.getAttendancesCountInCourse,
+        });
+        if (
+          totalAttendancesCountInCourse.data?.getAttendancesCountInCourse -
+            (tablePagination.current-1) * tablePagination.pageSize <=
+          0
+        ) {
+          setTablePagination((prevState) => {
+            return {
+              ...prevState,
+              current: prevState.current - 1,
+            };
+          });
+        }
+      },
       onError(err) {
         CheckError(err);
       },
@@ -160,6 +199,7 @@ export default (props) => {
       onCompleted(data) {
         SetVisible(false);
         message.success('Delete Success');
+        totalAttendancesCountInCourse.refetch();
         refetch();
       },
       onError(err) {
@@ -198,7 +238,9 @@ export default (props) => {
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
-        bil: tablePagination.pageSize * (tablePagination.current-1) + index + 1,
+        bil:
+          !loading &&
+          tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
         date: moment(att.date).format('DD/MM/YYYY'),
         time: moment(att.time).format('HH:mm'),
         stats:

@@ -3,11 +3,20 @@ import {
   DeleteFilled,
   RedoOutlined,
 } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/react-hooks';
-import { Button, Card, Layout, Space, Table, message, Tag } from 'antd';
+import {
+  Button,
+  Card,
+  Layout,
+  message,
+  Skeleton,
+  Space,
+  Table,
+  Tag,
+} from 'antd';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Modal from '../../../components/common/customModal';
 import {
   Footer,
@@ -20,8 +29,8 @@ import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
 import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
 import {
-  FETCH_ATTENDANCES_QUERY,
   FETCH_ATTENDANCES_COUNT_QUERY,
+  FETCH_ATTENDANCES_QUERY,
 } from '../../../graphql/query';
 
 const { Content } = Layout;
@@ -48,17 +57,32 @@ export default (props) => {
       title: <strong>Bil</strong>,
       dataIndex: 'bil',
       key: 'bil',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
     },
     {
       key: 'date',
       title: <strong>Date</strong>,
       dataIndex: 'date',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
       align: 'center',
     },
     {
       key: 'time',
       title: <strong>Time</strong>,
       dataIndex: 'time',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
       align: 'center',
     },
     {
@@ -68,13 +92,20 @@ export default (props) => {
       align: 'center',
       width: '30%',
       render: (text, record) => (
-        <Link to={`/course/${record.courseID}/history`}>{text}</Link>
+        <Skeleton active loading={loading}>
+          <Link to={`/course/${record.courseID}/history`}>{text}</Link>
+        </Skeleton>
       ),
     },
     {
       key: 'stats',
       title: <strong>Stats</strong>,
       dataIndex: 'stats',
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
       align: 'center',
     },
     {
@@ -82,7 +113,7 @@ export default (props) => {
       dataIndex: user.userLevel === 1 ? 'action' : 'status',
       render: (_, record) =>
         user.userLevel === 1 ? (
-          <div>
+          <Skeleton active loading={loading}>
             <Button
               onClick={() => handleAccess(record)}
               style={{ margin: '10px' }}
@@ -103,11 +134,13 @@ export default (props) => {
               type='danger'
               icon={<DeleteFilled />}
             ></Button>
-          </div>
+          </Skeleton>
         ) : (
-          <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
-            {record.status}
-          </Tag>
+          <Skeleton active loading={loading}>
+            <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
+              {record.status}
+            </Tag>
+          </Skeleton>
         ),
       align: 'center',
     },
@@ -119,16 +152,20 @@ export default (props) => {
   //get total attendances count query
   const [selectedAttendance, setSelectedAttendance] = useState({});
 
-  const [tablePagination, setTablePagination]=useState({
+  const [tablePagination, setTablePagination] = useState({
     pageSize: FETCH_ATTENDANCE_LIMIT,
     current: 1,
-    total: 0
-  })
+    total: 0,
+  });
 
   const totalAttendancesCount = useQuery(FETCH_ATTENDANCES_COUNT_QUERY, {
     onCompleted(data) {
-      console.log(data)
-      setTablePagination({...tablePagination, total: data.getAttendancesCount})
+      console.log(data);
+      totalAttendancesCount.refetch();
+      setTablePagination({
+        ...tablePagination,
+        total: data.getAttendancesCount,
+      });
     },
     onError(err) {
       CheckError(err);
@@ -137,11 +174,29 @@ export default (props) => {
   });
 
   const { data, loading, error, refetch } = useQuery(FETCH_ATTENDANCES_QUERY, {
-    onCompleted(data) {},
+    onCompleted(data) {
+      setTablePagination({
+        ...tablePagination,
+        total: totalAttendancesCount.data?.getAttendancesCount,
+      });
+
+      if (
+        totalAttendancesCount.data?.getAttendancesCount -
+        (tablePagination.current-1) * tablePagination.pageSize <=
+        0
+      ) {
+        setTablePagination((prevState) => {
+          return {
+            ...prevState,
+            current: prevState.current - 1,
+          };
+        });
+      }
+    },
     onError(err) {
       CheckError(err);
     },
-    variables:{
+    variables: {
       currPage: tablePagination.current,
       pageSize: tablePagination.pageSize,
     },
@@ -155,6 +210,7 @@ export default (props) => {
         SetVisible(false);
         message.success('Delete Success');
         resetState();
+        totalAttendancesCount.refetch();
         refetch();
       },
       onError(err) {
@@ -194,7 +250,9 @@ export default (props) => {
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
-        bil: tablePagination.pageSize * (tablePagination.current-1) + index + 1,
+        bil:
+          !loading &&
+          tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
         date: moment(att.date).format('DD/MM/YYYY'),
         time: moment(att.time).format('HH:mm'),
         courseID: att.course.shortID,
@@ -222,14 +280,12 @@ export default (props) => {
     return parsedData;
   };
 
-  const handleTableChange=(value)=>{
-    if (tablePagination!=value){
-      console.log(
-        "Fetch More"
-      )
+  const handleTableChange = (value) => {
+    if (tablePagination != value) {
+      console.log('Fetch More');
     }
-    setTablePagination(value)
-  }
+    setTablePagination(value);
+  };
 
   return (
     <Layout className='layout'>
