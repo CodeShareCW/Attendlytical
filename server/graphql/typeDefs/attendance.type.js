@@ -40,8 +40,8 @@ module.exports = gql`
     getAttendancesCount: Int!
     getAttendancesCountInCourse(courseID: String!): Int!
     getAttendance(attendanceID: ID!): Attendance!
-    getAttendances: [Attendance!]
-    getAttendancesInCourse(courseID: String!): AttendancesInCourse!
+    getAttendances(currPage: Int!, pageSize: Int!): [Attendance!]
+    getAttendancesInCourse(courseID: String!, currPage: Int!, pageSize: Int!): AttendancesInCourse!
   }
   extend type Mutation {
     createAttendance(attendanceInput: attendanceInput!): Attendance!

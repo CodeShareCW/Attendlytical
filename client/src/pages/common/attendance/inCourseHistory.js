@@ -1,4 +1,8 @@
-import { ArrowRightOutlined, DeleteFilled, RedoOutlined } from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  DeleteFilled,
+  RedoOutlined,
+} from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
   Button,
@@ -20,11 +24,14 @@ import {
   Navbar,
   PageTitleBreadcrumb,
 } from '../../../components/common/sharedLayout';
-import { AttendanceContext, AuthContext } from '../../../context';
+import { AuthContext } from '../../../context';
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
-import { modalItems } from '../../../globalData';
+import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
 import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
-import { FETCH_ATTENDANCES_IN_COURSE_QUERY } from '../../../graphql/query';
+import {
+  FETCH_ATTENDANCES_IN_COURSE_QUERY,
+  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
+} from '../../../graphql/query';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -107,9 +114,31 @@ export default (props) => {
   //modal visible boolean
   const [visible, SetVisible] = useState(false);
 
+  const [tablePagination, setTablePagination] = useState({
+    pageSize: FETCH_ATTENDANCE_LIMIT,
+    current: 1,
+    total: 0,
+  });
+
   //get total attendances count query
   const [selectedAttendance, setSelectedAttendance] = useState({});
-
+  const totalAttendancesCountInCourse = useQuery(
+    FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
+    {
+      onCompleted(data) {
+        setTablePagination({
+          ...tablePagination,
+          total: data.getAttendancesCountInCourse,
+        });
+      },
+      variables: {
+        courseID: props.match.params.id,
+      },
+      onError(err) {
+        CheckError(err);
+      },
+    }
+  );
   const { data, loading, error, refetch } = useQuery(
     FETCH_ATTENDANCES_IN_COURSE_QUERY,
     {
@@ -118,6 +147,8 @@ export default (props) => {
       },
       variables: {
         courseID: props.match.params.id,
+        currPage: tablePagination.current,
+        pageSize: tablePagination.pageSize,
       },
       notifyOnNetworkStatusChange: true,
     }
@@ -167,7 +198,7 @@ export default (props) => {
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
-        bil: index + 1,
+        bil: tablePagination.pageSize * (tablePagination.current-1) + index + 1,
         date: moment(att.date).format('DD/MM/YYYY'),
         time: moment(att.time).format('HH:mm'),
         stats:
@@ -176,13 +207,19 @@ export default (props) => {
           (+att.absentees.length + +att.attendees.length),
       };
       if (user.userLevel === 0) {
-        const isAttend = att.attendees.find((stud) => stud.info._id === user._id);
+        const isAttend = att.attendees.find(
+          (stud) => stud.info._id === user._id
+        );
         Object.assign(tmp, { status: isAttend ? 'Attend' : 'Absent' });
       }
       parsedData.push(tmp);
     });
 
     return parsedData;
+  };
+
+  const handleTableChange = (value) => {
+    setTablePagination(value);
   };
 
   return (
@@ -214,8 +251,13 @@ export default (props) => {
                     {`${data.getAttendancesInCourse.course.code} ${data.getAttendancesInCourse.course.name} (${data.getAttendancesInCourse.course.session})`}
                   </Title>
                 )}
+                {console.log(totalAttendancesCountInCourse.data)}
                 <Divider />
-                <h1>Total Attendance: {attendances?.length || 0}</h1>
+                <h1>
+                  Total Attendance:{' '}
+                  {totalAttendancesCountInCourse.data
+                    ?.getAttendancesCountInCourse || 0}
+                </h1>
                 <Button
                   style={{ float: 'right' }}
                   icon={<RedoOutlined />}
@@ -227,8 +269,9 @@ export default (props) => {
                 </Button>
                 <Table
                   loading={loading}
-                  pagination={{ pageSize: 20 }}
+                  pagination={tablePagination}
                   dataSource={parseAttendanceData(attendances)}
+                  onChange={handleTableChange}
                   columns={columns}
                 />
 

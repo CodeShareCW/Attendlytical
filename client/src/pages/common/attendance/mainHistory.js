@@ -17,9 +17,12 @@ import {
 } from '../../../components/common/sharedLayout';
 import { AttendanceContext, AuthContext } from '../../../context';
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
-import { modalItems } from '../../../globalData';
+import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
 import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
-import { FETCH_ATTENDANCES_QUERY } from '../../../graphql/query';
+import {
+  FETCH_ATTENDANCES_QUERY,
+  FETCH_ATTENDANCES_COUNT_QUERY,
+} from '../../../graphql/query';
 
 const { Content } = Layout;
 
@@ -116,10 +119,31 @@ export default (props) => {
   //get total attendances count query
   const [selectedAttendance, setSelectedAttendance] = useState({});
 
+  const [tablePagination, setTablePagination]=useState({
+    pageSize: FETCH_ATTENDANCE_LIMIT,
+    current: 1,
+    total: 0
+  })
+
+  const totalAttendancesCount = useQuery(FETCH_ATTENDANCES_COUNT_QUERY, {
+    onCompleted(data) {
+      console.log(data)
+      setTablePagination({...tablePagination, total: data.getAttendancesCount})
+    },
+    onError(err) {
+      CheckError(err);
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
   const { data, loading, error, refetch } = useQuery(FETCH_ATTENDANCES_QUERY, {
     onCompleted(data) {},
     onError(err) {
       CheckError(err);
+    },
+    variables:{
+      currPage: tablePagination.current,
+      pageSize: tablePagination.pageSize,
     },
     notifyOnNetworkStatusChange: true,
   });
@@ -170,7 +194,7 @@ export default (props) => {
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
-        bil: index + 1,
+        bil: tablePagination.pageSize * (tablePagination.current-1) + index + 1,
         date: moment(att.date).format('DD/MM/YYYY'),
         time: moment(att.time).format('HH:mm'),
         courseID: att.course.shortID,
@@ -198,6 +222,15 @@ export default (props) => {
     return parsedData;
   };
 
+  const handleTableChange=(value)=>{
+    if (tablePagination!=value){
+      console.log(
+        "Fetch More"
+      )
+    }
+    setTablePagination(value)
+  }
+
   return (
     <Layout className='layout'>
       <Navbar />
@@ -213,7 +246,10 @@ export default (props) => {
 
             {!error && (
               <Space direction='vertical' className='width100'>
-                <h1>Total Attendance: {attendances.length || 0}</h1>
+                <h1>
+                  Total Attendance:{' '}
+                  {totalAttendancesCount.data?.getAttendancesCount || 0}
+                </h1>
 
                 <Button
                   style={{ float: 'right' }}
@@ -224,10 +260,10 @@ export default (props) => {
                 >
                   Refresh Table
                 </Button>
-
                 <Table
                   loading={loading}
-                  pagination={{ pageSize: 10, hideOnSinglePage: true }}
+                  pagination={tablePagination}
+                  onChange={handleTableChange}
                   dataSource={parseAttendanceData(attendances)}
                   columns={columns}
                 />

@@ -60,8 +60,8 @@ export const FETCH_ATTENDANCE_QUERY = gql`
 `;
 
 export const FETCH_ATTENDANCES_QUERY = gql`
-  query getAttendances {
-    getAttendances {
+  query getAttendances($currPage: Int!, $pageSize: Int!) {
+    getAttendances(currPage: $currPage, pageSize: $pageSize) {
       _id
       course {
         _id
@@ -92,8 +92,16 @@ export const FETCH_ATTENDANCES_QUERY = gql`
 `;
 
 export const FETCH_ATTENDANCES_IN_COURSE_QUERY = gql`
-  query getAttendancesInCourse($courseID: String!) {
-    getAttendancesInCourse(courseID: $courseID) {
+  query getAttendancesInCourse(
+    $courseID: String!
+    $currPage: Int!
+    $pageSize: Int!
+  ) {
+    getAttendancesInCourse(
+      courseID: $courseID
+      currPage: $currPage
+      pageSize: $pageSize
+    ) {
       course {
         _id
         name

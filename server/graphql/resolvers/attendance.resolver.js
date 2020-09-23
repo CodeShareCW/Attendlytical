@@ -4,7 +4,11 @@ const Attendance = require('../../models/attendance.model');
 const Course = require('../../models/course.model');
 const Expression = require('../../models/expression.model');
 
-const { ExpressiongqlParser, CoursegqlParser, AttendancegqlParser } = require('./merge');
+const {
+  ExpressiongqlParser,
+  CoursegqlParser,
+  AttendancegqlParser,
+} = require('./merge');
 
 const { validateAttendanceInput } = require('../../util/validators');
 
@@ -66,24 +70,30 @@ module.exports = {
           throw new Error('Access forbidden. You are not the course owner.');
         }
 
-
         return AttendancegqlParser(attendance);
       } catch (err) {
         throw err;
       }
     },
-    async getAttendances(_, __, context) {
+    async getAttendances(_, { currPage, pageSize }, context) {
       const currUser = checkAuth(context);
+      console.log(currPage, pageSize);
       try {
         let attendanceList = [];
         if (currUser.userLevel === 0) {
           attendanceList = await Attendance.find({
             participants: currUser._id,
-          }).sort({ _id: -1 });
+          })
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ _id: -1 });
         } else if (currUser.userLevel === 1) {
           attendanceList = await Attendance.find({
             creator: currUser._id,
-          }).sort({ _id: -1 });
+          })
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ _id: -1 });
         } else {
           throw new Error('Something wrong');
         }
@@ -95,7 +105,7 @@ module.exports = {
         throw err;
       }
     },
-    async getAttendancesInCourse(_, { courseID }, context) {
+    async getAttendancesInCourse(_, { courseID, currPage, pageSize }, context) {
       const currUser = checkAuth(context);
       try {
         const course = await Course.findOne({ shortID: courseID });
@@ -118,12 +128,18 @@ module.exports = {
           createdAttendance_list = await Attendance.find({
             participants: currUser._id,
             course: course._id,
-          }).sort({ _id: -1 });
+          })
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ _id: -1 });
         } else if (currUser.userLevel === 1) {
           createdAttendance_list = await Attendance.find({
             creator: currUser._id,
             course: course._id,
-          }).sort({ _id: -1 });
+          })
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
+            .sort({ _id: -1 });
         } else {
           throw new Error('Something wrong');
         }
@@ -178,25 +194,27 @@ module.exports = {
       }
     },
 
-    async createExpression(_, {participantID, expression, attendanceID}, context){
+    async createExpression(
+      _,
+      { participantID, expression, attendanceID },
+      context
+    ) {
       const currUser = checkAuth(context);
-      try{
-        const attendance=await Attendance.findById(attendanceID)
+      try {
+        const attendance = await Attendance.findById(attendanceID);
 
-        if (!attendance)
-        throw new Error("Attendance do not found");
+        if (!attendance) throw new Error('Attendance do not found');
 
-        const exp=new Expression({
+        const exp = new Expression({
           creator: participantID,
           attendance: attendanceID,
-          expression
-        })
+          expression,
+        });
 
         await exp.save();
 
         return ExpressiongqlParser(exp);
-      }
-      catch(err){
+      } catch (err) {
         throw err;
       }
     },
