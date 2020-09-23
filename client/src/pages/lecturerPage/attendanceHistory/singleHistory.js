@@ -11,7 +11,7 @@ import {
   Button,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Footer,
   Greeting,
@@ -80,6 +80,13 @@ export default (props) => {
   ];
 
   const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
+    onCompleted(data) {
+      if (data.getAttendance.course.shortID !== props.match.params.courseID) {
+        setCourseIDError(new Error('Course ID do not match'));
+      } else {
+        setCourseIDError();
+      }
+    },
     onError(err) {
       CheckError(err);
     },
@@ -88,6 +95,8 @@ export default (props) => {
     },
     notifyOnNetworkStatusChange: true,
   });
+
+  const [courseIDError, setCourseIDError] = useState();
 
   const parseParticipantData = (participants, absentees) => {
     let parsedData = [];
@@ -100,9 +109,15 @@ export default (props) => {
         key: participant.info._id,
         avatar: (
           <Avatar
-            icon={<UserOutlined />}
             src={participant.info.profilePictureURL}
-          />
+            style={{
+              backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
+                Math.random() * 150 + 30
+              }, ${Math.random() * 150 + 30})`,
+            }}
+          >
+            {participant.info.firstName[0]}
+          </Avatar>
         ),
         cardID: participant.info.cardID,
         name: participant.info.firstName + ' ' + participant.info.lastName,
@@ -143,8 +158,9 @@ export default (props) => {
         />
         <Content>
           <Card>
-            {error && <ErrorComp err={error} />}
-            {!error && (
+            {(error && <ErrorComp err={error} />) ||
+              (courseIDError && <ErrorComp err={courseIDError} />)}
+            {!error && !courseIDError && (
               <Space direction='vertical' className='width100'>
                 {data && (
                   <Title
@@ -190,7 +206,6 @@ export default (props) => {
                   }
                   columns={columns}
                 />
-              
               </Space>
             )}
           </Card>

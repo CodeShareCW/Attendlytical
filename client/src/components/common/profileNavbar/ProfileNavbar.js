@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context/auth';
 import './ProfileNavbar.css';
 
-export default ({ profilePictureURL }) => {
-  const { logout } = useContext(AuthContext);
+export default () => {
+  const { user, avatarColor, logout } = useContext(AuthContext);
 
   const menu = () => (
     <Menu theme='dark'>
@@ -24,13 +24,15 @@ export default ({ profilePictureURL }) => {
         <Avatar
           className='avatar'
           size='large'
-          alt='Face In'
-          src={profilePictureURL}
-          icon={<UserOutlined />}
+          alt='Face In Profile'
+          src={user.profilePictureURL}
           onError={(err) => {
             console.log(err);
           }}
-        />
+          style={avatarColor}
+        >
+          {user.firstName[0]}
+        </Avatar>
       </Dropdown>
     </div>
   );

@@ -16,7 +16,7 @@ import './Profile.css';
 const { Content } = Layout;
 
 export default () => {
-  const { user, editProfile } = useContext(AuthContext);
+  const { user, avatarColor, editProfile } = useContext(AuthContext);
 
   const [previewSource, setPreviewSource] = useState(null);
   const [editProfileMutation, { loading }] = useMutation(
@@ -63,8 +63,10 @@ export default () => {
                   src={previewSource ? previewSource : user.profilePictureURL}
                   size={200}
                   className='profile__picture'
-                  icon={<UserOutlined />}
-                />
+                  style={{...avatarColor, fontSize: "100px"}}
+                >
+                  {user.firstName[0]}
+                </Avatar>
                 <label className='profile__picture__label' htmlFor='files'>
                   Change Profile Picture
                 </label>

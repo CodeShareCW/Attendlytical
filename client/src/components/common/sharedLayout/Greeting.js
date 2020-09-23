@@ -77,7 +77,7 @@ export default () => {
           Good {greetMode()}, {user.firstName}
         </span>
         <div className='greeting__profileNavbar'>
-          <ProfileNavbar profilePictureURL={user.profilePictureURL} />
+          <ProfileNavbar />
         </div>
         <Link
           to='/notification'

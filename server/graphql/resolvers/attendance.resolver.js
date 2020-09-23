@@ -20,9 +20,20 @@ module.exports = {
     async getAttendancesCount(_, __, context) {
       const currUser = checkAuth(context);
       try {
-        const attendances = await Attendance.find({ creator: currUser._id }, [
-          '_id',
-        ]);
+        let attendances;
+
+        if (currUser.userLevel === 0) {
+          attendances = await Attendance.find({ participants: currUser._id }, [
+            '_id',
+          ]);
+        } else if (currUser.userLevel === 1) {
+          attendances = await Attendance.find({ creator: currUser._id }, [
+            '_id',
+          ]);
+        } else
+          throw new Error(
+            `Something wrong with your role index: ${currUser.userLevel}!`
+          );
 
         return attendances.length;
       } catch (err) {
@@ -45,11 +56,23 @@ module.exports = {
             'Access forbidden. You are not the course owner or join this course.'
           );
         }
+        let attendances;
 
-        const attendances = await Attendance.find(
-          { creator: currUser._id, course: course._id },
-          ['id']
-        );
+        if (currUser.userLevel === 0) {
+          attendances = await Attendance.find(
+            { participants: currUser._id, course: course._id },
+            ['id']
+          );
+        } else if (currUser.userLevel === 1) {
+          attendances = await Attendance.find(
+            { creator: currUser._id, course: course._id },
+            ['id']
+          );
+        } else
+          throw new Error(
+            `Something wrong with your role index: ${currUser.userLevel}!`
+          );
+
         return attendances.length;
       } catch (err) {
         throw err;
@@ -114,6 +137,7 @@ module.exports = {
           throw new Error('Course do not exist', { errors });
         }
 
+        console.log(currPage);
         if (
           course.creator != currUser._id &&
           !course.enrolledStudents.find((stud) => stud._id == currUser._id)

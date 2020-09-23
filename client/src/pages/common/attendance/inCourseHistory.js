@@ -171,7 +171,7 @@ export default (props) => {
         if (
           totalAttendancesCountInCourse.data?.getAttendancesCountInCourse -
             (tablePagination.current-1) * tablePagination.pageSize <=
-          0
+          0&&tablePagination.current!==1
         ) {
           setTablePagination((prevState) => {
             return {

@@ -38,8 +38,18 @@ export default (props) => {
       title: <strong>Avatar</strong>,
       dataIndex: 'profilePictureURL',
       key: 'profilePictureURL',
-      render: (imgURL) => (
-        <Avatar src={imgURL} size={50} icon={<UserOutlined />} />
+      render: (imgURL, record) => (
+        <Avatar
+          src={imgURL}
+          size={50}
+          style={{
+            backgroundColor: `rgb(${Math.random() * 255 + 30}, ${
+              Math.random() * 255 + 30
+            }, ${Math.random() * 255 + 30})`,
+          }}
+        >
+          {record.name[0]}
+        </Avatar>
       ),
     },
     {
@@ -62,8 +72,18 @@ export default (props) => {
       title: <strong>Avatar</strong>,
       dataIndex: 'profilePictureURL',
       key: 'profilePictureURL',
-      render: (imgURL) => (
-        <Avatar src={imgURL} size={50} icon={<UserOutlined />} />
+      render: (imgURL, record) => (
+        <Avatar
+          src={imgURL}
+          size={50}
+          style={{
+            backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
+              Math.random() * 150 + 30
+            }, ${Math.random() * 150 + 30})`,
+          }}
+        >
+          {record.name[0]}
+        </Avatar>
       ),
       align: 'center',
     },
@@ -78,6 +98,7 @@ export default (props) => {
       title: <strong>Name</strong>,
       dataIndex: 'name',
       key: 'name',
+      width: '50%',
       align: 'center',
     },
     {

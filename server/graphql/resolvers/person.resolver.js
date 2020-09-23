@@ -220,8 +220,8 @@ module.exports = {
               profilePicturePublicID: uploadedResponse.public_id,
             },
           });
-
-          await cloudinary.uploader.destroy(oldPerson.profilePicturePublicID);
+          if (oldPerson.profilePicturePublicID)
+            await cloudinary.uploader.destroy(oldPerson.profilePicturePublicID);
         } else {
           await Person.findByIdAndUpdate(currUser._id, {
             $set: {

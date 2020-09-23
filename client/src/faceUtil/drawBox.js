@@ -4,6 +4,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { EmojiProcessing } from '../utils/EmojiProcessing';
 import { ROBOT_ICON_URL } from '../assets';
 import './drawBox.css';
+import {maxDescriptorDistance} from "./"
 export default ({
   fullDesc,
   faceMatcher,
@@ -154,7 +155,7 @@ export default ({
                         backgroundColor: 'lightgreen',
                       }}
                     >
-                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < 0.5 thres`}
+                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < ${maxDescriptorDistance} thres`}
                     </div>
                   <div
                     className='drawBox__recognition-knownLabel'

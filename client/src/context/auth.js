@@ -4,6 +4,11 @@ import { actionTypes } from '../globalData';
 
 const initialState = {
   user: null,
+  avatarColor: {
+    backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
+      Math.random() * 150 + 30
+    }, ${Math.random() * 150 + 30})`,
+  },
 };
 
 if (localStorage.getItem('jwtToken')) {
@@ -68,7 +73,13 @@ function AuthProvider(props) {
 
   return (
     <AuthContext.Provider
-      value={{ user: state.user, login, logout, editProfile }}
+      value={{
+        user: state.user,
+        avatarColor: state.avatarColor,
+        login,
+        logout,
+        editProfile,
+      }}
       {...props}
     />
   );

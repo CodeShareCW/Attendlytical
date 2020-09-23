@@ -1,6 +1,6 @@
 import * as faceapi from 'face-api.js';
 
-const maxDescriptorDistance = 0.5;
+export const maxDescriptorDistance = 0.6;
 
 export async function loadModels(
   setLoadingMessage,

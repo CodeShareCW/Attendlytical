@@ -2,7 +2,7 @@ var shortid = require('shortid');
 const { UserInputError } = require('apollo-server');
 const Attendance = require('../../models/attendance.model');
 
-const Expression=require('../../models/expression.model');
+const Expression = require('../../models/expression.model');
 const Course = require('../../models/course.model');
 const Person = require('../../models/person.model');
 const PendingEnrolledCourse = require('../../models/pendingEnrolledCourse.model');
@@ -328,15 +328,15 @@ module.exports = {
         //delete the pending course
 
         //delete all related attendance
-        const attendanceList=await Attendance.find({course: courseID});
+        const attendanceList = await Attendance.find({ course: courseID });
 
-        attendanceList.map(async attendance=>{
+        attendanceList.map(async (attendance) => {
           //delete all related expression
-          await Expression.deleteMany({attendance: attendance._id})
-        })
+          await Expression.deleteMany({ attendance: attendance._id });
+        });
 
-        await Attendance.deleteMany({course: courseID})
-       
+        await Attendance.deleteMany({ course: courseID });
+
         //TODO: Notification to student who enrol to this
         course2Delete.enrolledStudents.map(async (stud) => {
           //delete all related warning
@@ -489,6 +489,7 @@ module.exports = {
           { $pull: { enrolledStudents: currUser._id } },
           { safe: true, upsert: true }
         );
+
 
         const owner = await Person.findById(course2withdraw.creator);
 

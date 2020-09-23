@@ -44,7 +44,6 @@ export default ({ course, participants, attendanceCount }) => {
               <br />
             </>
           )}
-          {console.log(participants.find((par) => par.info._id === user._id))}
           {user.userLevel === 0 && (
             <Card
               style={{
@@ -57,7 +56,7 @@ export default ({ course, participants, attendanceCount }) => {
               <p>
                 <strong>Your attendance rate in this course is </strong>
                 <span>
-                  {!attendRate ? (
+                  {attendRate===null ? (
                     <Tag className='alert'>No attendance record yet</Tag>
                   ) : (
                     <Tag
