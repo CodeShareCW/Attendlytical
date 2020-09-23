@@ -1,4 +1,8 @@
-import { ArrowRightOutlined, DeleteFilled } from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  DeleteFilled,
+  RedoOutlined,
+} from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { Button, Card, Layout, Space, Table, message, Tag } from 'antd';
@@ -15,9 +19,7 @@ import { AttendanceContext, AuthContext } from '../../../context';
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { modalItems } from '../../../globalData';
 import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
-import {
-  FETCH_ATTENDANCES_QUERY,
-} from '../../../graphql/query';
+import { FETCH_ATTENDANCES_QUERY } from '../../../graphql/query';
 
 const { Content } = Layout;
 
@@ -33,7 +35,6 @@ const ds = [
 ];
 
 export default (props) => {
-
   const { user } = useContext(AuthContext);
   const { attendances, loadAttendances, resetState } = useContext(
     AttendanceContext
@@ -123,8 +124,6 @@ export default (props) => {
     notifyOnNetworkStatusChange: true,
   });
 
-
-
   const [deleteAttendanceCallback, deleteAttendanceStatus] = useMutation(
     DELETE_ATTENDANCE_MUTATION,
     {
@@ -167,7 +166,7 @@ export default (props) => {
 
   const parseAttendanceData = (attendances) => {
     let parsedData = [];
-    console.log(attendances)
+    console.log(attendances);
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
@@ -188,7 +187,9 @@ export default (props) => {
       };
 
       if (user.userLevel === 0) {
-        const isAttend = att.attendees.find((stud) => stud.info._id === user._id);
+        const isAttend = att.attendees.find(
+          (stud) => stud.info._id === user._id
+        );
         Object.assign(tmp, { status: isAttend ? 'Attend' : 'Absent' });
       }
       parsedData.push(tmp);
@@ -212,18 +213,24 @@ export default (props) => {
 
             {!error && (
               <Space direction='vertical' className='width100'>
-                <h1>
-                  Total Attendance:{' '}
-                  {attendances.length || 0}
-                </h1>
+                <h1>Total Attendance: {attendances.length || 0}</h1>
+
+                <Button
+                  style={{ float: 'right' }}
+                  icon={<RedoOutlined />}
+                  disabled={loading}
+                  loading={loading}
+                  onClick={() => refetch()}
+                >
+                  Refresh Table
+                </Button>
 
                 <Table
                   loading={loading}
-                  pagination={{ pageSize: 10,hideOnSinglePage: true }}
+                  pagination={{ pageSize: 10, hideOnSinglePage: true }}
                   dataSource={parseAttendanceData(attendances)}
                   columns={columns}
                 />
-             {data&&<Button>Load More</Button>}
 
                 {/*modal backdrop*/}
                 <Modal

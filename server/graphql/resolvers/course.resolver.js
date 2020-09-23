@@ -2,6 +2,7 @@ var shortid = require('shortid');
 const { UserInputError } = require('apollo-server');
 const Attendance = require('../../models/attendance.model');
 
+const Expression=require('../../models/expression.model');
 const Course = require('../../models/course.model');
 const Person = require('../../models/person.model');
 const PendingEnrolledCourse = require('../../models/pendingEnrolledCourse.model');
@@ -157,12 +158,12 @@ module.exports = {
           }
         }
 
-        const courseAttendance = await Attendance.find({
-          course: course._id,
-        }, ["_id"]);
-
-       
-          
+        const courseAttendance = await Attendance.find(
+          {
+            course: course._id,
+          },
+          ['_id']
+        );
 
         return {
           course: CoursegqlParser(course),
@@ -326,8 +327,19 @@ module.exports = {
 
         //delete the pending course
 
+        //delete all related attendance
+        const attendanceList=await Attendance.find({course: courseID});
+
+        attendanceList.map(async attendance=>{
+          //delete all related expression
+          await Expression.deleteMany({attendance: attendance._id})
+        })
+
+        await Attendance.deleteMany({course: courseID})
+       
         //TODO: Notification to student who enrol to this
         course2Delete.enrolledStudents.map(async (stud) => {
+          //delete all related warning
           await Warning.deleteOne({ student: stud, course: courseID });
 
           notification = new Notification({

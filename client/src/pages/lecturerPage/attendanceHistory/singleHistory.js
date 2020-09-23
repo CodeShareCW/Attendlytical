@@ -1,4 +1,4 @@
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, RedoOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/react-hooks';
 import {
   Avatar,
@@ -8,6 +8,7 @@ import {
   Space,
   Table,
   Tag,
+  Button,
   Typography,
 } from 'antd';
 import React from 'react';
@@ -61,7 +62,9 @@ export default (props) => {
       dataIndex: 'attendRate',
       render: (text) =>
         text !== null ? (
-          <Tag color={text===0?'#f00':text<=80? "#f90": '#0c8'}>{text}%</Tag>
+          <Tag color={text === 0 ? '#f00' : text <= 80 ? '#f90' : '#0c8'}>
+            {text}%
+          </Tag>
         ) : (
           <Tag className='alert'>No attendance record yet</Tag>
         ),
@@ -76,7 +79,7 @@ export default (props) => {
     },
   ];
 
-  const { data, loading, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
+  const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
     onError(err) {
       CheckError(err);
     },
@@ -165,7 +168,15 @@ export default (props) => {
                     {data?.getAttendance.absentees.length || 0}
                   </p>
                 </Card>
-
+                <Button
+                  style={{ float: 'right' }}
+                  icon={<RedoOutlined />}
+                  disabled={loading}
+                  loading={loading}
+                  onClick={() => refetch()}
+                >
+                  Refresh Table
+                </Button>
                 <Table
                   loading={loading}
                   pagination={{ pageSize: 20 }}
@@ -179,6 +190,7 @@ export default (props) => {
                   }
                   columns={columns}
                 />
+              
               </Space>
             )}
           </Card>

@@ -1,4 +1,4 @@
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, RedoOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
   Avatar,
@@ -10,21 +10,21 @@ import {
   Modal,
   Space,
   Spin,
-
-  Table, Tag
+  Table,
+  Tag,
 } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Footer,
   Greeting,
   Navbar,
-  PageTitleBreadcrumb
+  PageTitleBreadcrumb,
 } from '../../../components/common/sharedLayout';
 import { AuthContext } from '../../../context';
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import {
   KICK_PARTICIPANT_MUTATION,
-  WARN_PARTICIPANT_MUTATION
+  WARN_PARTICIPANT_MUTATION,
 } from '../../../graphql/mutation';
 import { FETCH_COURSE_QUERY } from '../../../graphql/query';
 import CourseDetailCard from './CourseDetailCard';
@@ -159,13 +159,13 @@ export default (props) => {
     variables: {
       id: props.match.params.id,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   useEffect(() => {
     if (data) {
       setParticipants(data.getCourseAndParticipants.participants);
       setAttendanceCount(data.getCourseAndParticipants.attendanceCount);
-      refetch();
     }
   }, [data]);
 
@@ -279,7 +279,17 @@ export default (props) => {
                 >
                   Participants
                 </Divider>
+
                 <TableDisplay />
+                <Button
+                  style={{ float: 'right' }}
+                  icon={<RedoOutlined />}
+                  disabled={loading}
+                  loading={loading}
+                  onClick={() => refetch()}
+                >
+                  Refresh Table
+                </Button>
               </div>
             )}
           </Card>

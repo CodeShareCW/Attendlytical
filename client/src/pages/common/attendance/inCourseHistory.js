@@ -1,4 +1,4 @@
-import { ArrowRightOutlined, DeleteFilled } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteFilled, RedoOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
   Button,
@@ -113,13 +113,13 @@ export default (props) => {
   const { data, loading, error, refetch } = useQuery(
     FETCH_ATTENDANCES_IN_COURSE_QUERY,
     {
-      onCompleted(data) {},
       onError(err) {
         CheckError(err);
       },
       variables: {
         courseID: props.match.params.id,
       },
+      notifyOnNetworkStatusChange: true,
     }
   );
 
@@ -142,7 +142,6 @@ export default (props) => {
 
   useEffect(() => {
     setAttendances(data?.getAttendancesInCourse.attendances || []);
-    refetch();
   }, [data]);
 
   const handleAccess = (attendance) => {
@@ -217,7 +216,15 @@ export default (props) => {
                 )}
                 <Divider />
                 <h1>Total Attendance: {attendances?.length || 0}</h1>
-
+                <Button
+                  style={{ float: 'right' }}
+                  icon={<RedoOutlined />}
+                  disabled={loading}
+                  loading={loading}
+                  onClick={() => refetch()}
+                >
+                  Refresh Table
+                </Button>
                 <Table
                   loading={loading}
                   pagination={{ pageSize: 20 }}
