@@ -70,13 +70,13 @@ export default (props) => {
         ),
       align: 'center',
     },
-    {
-      key: 'mood',
-      title: <strong>Mood</strong>,
-      dataIndex: 'mood',
-      render: (text) => <EmojiProcessing exp={text} size='xxs' />,
-      align: 'center',
-    },
+    // {
+    //   key: 'mood',
+    //   title: <strong>Mood</strong>,
+    //   dataIndex: 'mood',
+    //   render: (text) => <EmojiProcessing exp={text} size='xxs' />,
+    //   align: 'center',
+    // },
   ];
 
   const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {

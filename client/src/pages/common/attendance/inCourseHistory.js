@@ -93,7 +93,7 @@ export default (props) => {
       ),
     },
     {
-      title: <strong>{user.userLevel === 1 ? 'Action' : 'Status'}</strong>,
+      title: <strong>{user.userLevel === 1 ? 'Action' : 'Your Status'}</strong>,
       dataIndex: user.userLevel === 1 ? 'action' : 'status',
       render: (_, record) =>
         user.userLevel === 1 ? (

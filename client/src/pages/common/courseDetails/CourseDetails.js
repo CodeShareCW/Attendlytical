@@ -48,7 +48,7 @@ export default (props) => {
             }, ${Math.random() * 255 + 30})`,
           }}
         >
-          {record.name[0]}
+          {record.firstName[0]}
         </Avatar>
       ),
     },
@@ -56,13 +56,23 @@ export default (props) => {
       title: <strong>Matric Number</strong>,
       dataIndex: 'cardID',
       key: 'cardID',
-
       align: 'center',
     },
     {
       title: <strong>Name</strong>,
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'displayedName',
+      key: 'displayedName',
+      render: (text, record) => (
+        <p
+          style={
+            record.displayedName === 'You'
+              ? { color: 'darkblue', fontWeight: 900, fontSize: "130%" }
+              : null
+          }
+        >
+          {text}
+        </p>
+      ),
       align: 'center',
     },
   ];
@@ -82,7 +92,7 @@ export default (props) => {
             }, ${Math.random() * 150 + 30})`,
           }}
         >
-          {record.name[0]}
+          {record.displayedName[0]}
         </Avatar>
       ),
       align: 'center',
@@ -96,8 +106,8 @@ export default (props) => {
     },
     {
       title: <strong>Name</strong>,
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'displayedName',
+      key: 'displayedName',
       width: '50%',
       align: 'center',
     },
@@ -252,11 +262,22 @@ export default (props) => {
   ];
 
   const parsedParticipants = (participants) => {
+    const currUser = participants.find((par) => par.info._id === user._id);
+    if (currUser)
+      participants = [
+        currUser,
+        ...participants.filter((par) => par.info._id !== user._id),
+      ];
     return participants.map((par) => {
       return {
         key: par.info._id,
         profilePictureURL: par.info.profilePictureURL,
-        name: par.info.firstName + ' ' + par.info.lastName,
+        firstName: par.info.firstName,
+        lastName: par.info.lastName,
+        displayedName:
+          par !== currUser
+            ? par.info.firstName + ' ' + par.info.lastName
+            : 'You',
         cardID: par.info.cardID,
         attendRate: par.attendRate,
         warningCount: par.warningCount,

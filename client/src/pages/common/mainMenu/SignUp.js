@@ -82,11 +82,7 @@ export default (props) => {
             name='firstName'
             rules={[
               { required: true, message: 'Please input your first name!' },
-              {
-                pattern: /^([a-zA-Z ])*$/,
-                message: 'Please enter character only!',
-              },
-              { min: 3, message: 'Please enter more than 3 character' },
+              { min: 1, message: 'Please enter more than 3 character' },
               {
                 whitespace: true,
                 message: 'Please do not insert whitespace only!',
@@ -106,11 +102,8 @@ export default (props) => {
             name='lastName'
             rules={[
               { required: true, message: 'Please input your last name!' },
-              {
-                pattern: /^([a-zA-Z ])*$/,
-                message: 'Please enter character only!',
-              },
-              { min: 3, message: 'Please enter more than 3 character' },
+             
+              { min: 1, message: 'Please enter more than 3 character' },
               {
                 whitespace: true,
                 message: 'Please do not insert whitespace only!',
