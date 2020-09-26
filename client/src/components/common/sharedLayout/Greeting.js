@@ -12,7 +12,7 @@ import { CheckError } from '../../../ErrorHandling';
 import { FETCH_UNCHECKED_NOTIFICATIONS_QUERY } from '../../../graphql/query';
 import { LecturerDrawerMenu } from '../../lecturerComponent';
 import { StudentDrawerMenu } from '../../studentComponent';
-import { ProfileNavbar } from '../profileNavbar';
+import ProfileNavbar from './ProfileNavbar';
 import './Greeting.css';
 
 const { Header } = Layout;
@@ -27,7 +27,8 @@ export default () => {
     pressedNotification,
     setPressedNotification,
   } = useContext(NotificationContext);
-  const { loading } = useQuery(FETCH_UNCHECKED_NOTIFICATIONS_QUERY, {
+  
+  useQuery(FETCH_UNCHECKED_NOTIFICATIONS_QUERY, {
     onCompleted: (data) => {
       if (!pressedNotification) {
         setUncheckedNotificationCount(data.getUncheckedNotificationsCount);
