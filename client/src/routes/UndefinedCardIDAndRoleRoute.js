@@ -3,22 +3,18 @@ import { Route, Redirect } from 'react-router-dom';
 
 import { AuthContext } from '../context/auth';
 
-function AuthRoute({ component: Component, ...rest }) {
+export default ({ component: Component, ...rest }) => {
   const { user } = useContext(AuthContext);
   return (
     <Route
       {...rest}
       render={(props) =>
-        user && (user.userLevel === 0 || user.userLevel === 1) ? (
+        user? (
           <Component {...props} />
-        ) : user && user.userLevel === -1 ? (
-          <Redirect to="/aboutYourself" />
         ) : (
           <Redirect to='/' />
         )
       }
     />
   );
-}
-
-export default AuthRoute;
+};

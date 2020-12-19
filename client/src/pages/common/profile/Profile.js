@@ -63,7 +63,7 @@ export default () => {
                   src={previewSource ? previewSource : user.profilePictureURL}
                   size={200}
                   className='profile__picture'
-                  style={{...avatarColor, fontSize: "100px"}}
+                  style={!user.profilePictureURL&&{...avatarColor, fontSize: "100px"}}
                 >
                   {user.firstName[0]}
                 </Avatar>

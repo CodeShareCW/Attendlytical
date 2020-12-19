@@ -26,6 +26,7 @@
     "react-scripts": "3.4.1",
     "react-waypoint": "^9.0.3",
     "react-webcam": "^5.2.0",
+    "recharts": "^1.8.5",
     "redux": "^4.0.5",
     "video-react": "^0.14.1"
   },

@@ -7,7 +7,6 @@ import {
   Divider,
   Layout,
   message,
-  Modal,
   Space,
   Spin,
   Table,
@@ -29,7 +28,8 @@ import {
 import { FETCH_COURSE_QUERY } from '../../../graphql/query';
 import CourseDetailCard from './CourseDetailCard';
 import './CourseDetails.css';
-
+import { modalItems } from '../../../globalData';
+import Modal from "../../../components/common/customModal"
 const { Content } = Layout;
 
 export default (props) => {
@@ -66,7 +66,7 @@ export default (props) => {
         <p
           style={
             record.displayedName === 'You'
-              ? { color: 'darkblue', fontWeight: 900, fontSize: "130%" }
+              ? { color: 'darkblue', fontWeight: 900, fontSize: '130%' }
               : null
           }
         >
@@ -159,7 +159,7 @@ export default (props) => {
             danger
             className='courseDetails__kickBtn'
             onClick={() => {
-              setIsVisible(true);
+              setVisible(true);
               setSelectedParticipant(index);
             }}
             loading={
@@ -181,7 +181,7 @@ export default (props) => {
   const [selectedParticipant, setSelectedParticipant] = useState({});
   const [attendanceCount, setAttendanceCount] = useState(0);
 
-  const [isVisible, setIsVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const { loading, data, error, refetch } = useQuery(FETCH_COURSE_QUERY, {
     onError(err) {
@@ -233,7 +233,7 @@ export default (props) => {
         setParticipants(updatedParticipant);
         //refetch the participant after kicked
         refetch();
-        setIsVisible(false);
+        setVisible(false);
       },
       variables: { participantID, courseID },
     });
@@ -336,51 +336,21 @@ export default (props) => {
             )}
           </Card>
           <Modal
-            visible={isVisible}
-            onOk={() =>
+            title='Delete Course'
+            action={modalItems.participant.action.kick}
+            itemType={modalItems.participant.name}
+            visible={visible}
+            loading={kickParticipantStatus.loading}
+            handleOk={() =>
               handleKickParticipant(
                 selectedParticipant.key,
                 props.match.params.id
               )
             }
-            onCancel={() => {
-              setIsVisible(false);
-            }}
-            okButtonProps={{ disabled: kickParticipantStatus.loading }}
-            cancelButtonProps={{ disabled: kickParticipantStatus.loading }}
-            okText='Kick'
-          >
-            {!kickParticipantStatus.loading ? (
-              <div>
-                <p>Are you sure to kick the following student?</p>
-                <p>
-                  <strong>Particular</strong>:{' '}
-                  {selectedParticipant.firstName +
-                    '-' +
-                    selectedParticipant.lastName +
-                    ' (' +
-                    selectedParticipant.matricNumber +
-                    ')'}
-                </p>
-              </div>
-            ) : (
-              <Spin>
-                <div>
-                  <p>Are you sure to kick the following student?</p>
-                  <p>
-                    <strong>Particular</strong>:{' '}
-                    {selectedParticipant.firstName +
-                      '-' +
-                      selectedParticipant.lastName +
-                      ' (' +
-                      selectedParticipant.matricNumber +
-                      ')'}
-                  </p>
-                </div>
-              </Spin>
-            )}
-          </Modal>
-          ;
+            handleCancel={() => setVisible(false)}
+            payload={selectedParticipant}
+          />
+         
         </Content>
         <Footer />
       </Layout>

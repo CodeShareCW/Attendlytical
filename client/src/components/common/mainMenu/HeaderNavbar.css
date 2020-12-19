@@ -1,3 +1,23 @@
+@media only screen and (max-width: 400px) {
+    .headerNavbar .avatar{
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .headerNavbar__text{
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    .headerNavbar__text{
+        display: block;
+    }
+}
+
+
+
 .headerNavbar__text{
     float: left;
 }

@@ -6,6 +6,7 @@ import Notifications from './notification/Notifications';
 import Profile from './profile/Profile';
 import MainAttendanceHistory from './attendance/mainHistory';
 import InCourseAttendanceHistory from './attendance/inCourseHistory';
+import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
 
 export {
   CourseDetails,
@@ -18,4 +19,5 @@ export {
   NoFound,
   MainAttendanceHistory,
   InCourseAttendanceHistory,
+  UndefinedCardIDAndRole
 };

@@ -50,16 +50,42 @@ export default ({
             />
           </>
         );
+      case modalItems.participant.name:
+        return (
+          <div>
+            <strong>Particular</strong>:{' '}
+            {payload.firstName +
+              '-' +
+              payload.lastName +
+              ' (' +
+              (payload.cardID||payload.matricNumber) +
+              ')'} {/* in case table and other stuff mess with cardID */}
+        </div>
+        );
       case modalItems.attendance.name:
-        console.log(payload)
         return (
           <>
-            <p><strong>Attendance ID: </strong>{payload.key}</p>
-            <br/>
-            <p><strong>Course: </strong>{payload.course}</p>
-            <p><strong>Date: </strong>{payload.date}</p>
-            <p><strong>Time: </strong>{payload.time}</p>
-            <p><strong>Stats: </strong>{payload.stats}</p>
+            <p>
+              <strong>Attendance ID: </strong>
+              {payload.key}
+            </p>
+            <br />
+            <p>
+              <strong>Course: </strong>
+              {payload.course}
+            </p>
+            <p>
+              <strong>Date: </strong>
+              {payload.date}
+            </p>
+            <p>
+              <strong>Time: </strong>
+              {payload.time}
+            </p>
+            <p>
+              <strong>Stats: </strong>
+              {payload.stats}
+            </p>
           </>
         );
       default:
@@ -87,7 +113,7 @@ export default ({
           {template(itemType, payload)}
         </div>
       ) : (
-        <Spin tip={action + 'ing...'}>
+        <Spin tip={'Loading, please wait...'}>
           <p>
             Are you sure to {action} the following {itemType}?
           </p>

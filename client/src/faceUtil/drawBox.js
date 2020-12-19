@@ -138,7 +138,8 @@ export default ({
                   ? 'drawBox__recognition-knownBox'
                   : 'drawBox__recognition-unknownBox'
               }
-              style={{
+              style={
+                {
                 height: _H,
                 width: _W,
                 transform: `translate(${_X}px,${_Y}px)`,

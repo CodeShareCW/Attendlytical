@@ -36,7 +36,7 @@ export default () => {
           onError={(err) => {
             console.log(err);
           }}
-          style={avatarColor}
+          style={!user.profilePictureURL&&avatarColor}
         >
           {user.firstName[0]}
         </Avatar>

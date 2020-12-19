@@ -1,13 +1,15 @@
-import { Avatar, Layout } from 'antd';
+import { Avatar, Layout, Menu } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FrontGateMenu } from './';
-import './HeaderNavbar.css';
 import { APP_LOGO_URL } from '../../../assets';
+import './HeaderNavbar.css';
 
 const { Header } = Layout;
 
 export default () => {
+  const pathname =
+    window.location.pathname; /* e.g: pathname="/signin" or "/" or "/signup" */
+  const path = pathname.substr(1); //skip '/' character
   return (
     <div className='headerNavbar'>
       <Header>
@@ -29,7 +31,14 @@ export default () => {
           </div>
         </Link>
         <div className='headerNavbar__menu'>
-          <FrontGateMenu />
+          <Menu theme='dark' mode='horizontal' defaultSelectedKeys={[path]}>
+            <Menu.Item key='signin'>
+              <Link to='/signin'>Sign in</Link>
+            </Menu.Item>
+            <Menu.Item key='signup'>
+              <Link to='/signup'>Sign up</Link>
+            </Menu.Item>
+          </Menu>
         </div>
       </Header>
     </div>

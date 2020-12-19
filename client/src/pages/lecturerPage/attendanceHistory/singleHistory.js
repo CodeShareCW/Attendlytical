@@ -21,6 +21,8 @@ import {
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_ATTENDANCE_QUERY } from '../../../graphql/query';
 import { EmojiProcessing } from '../../../utils/EmojiProcessing';
+import HistoryViz from './HistoryViz';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -85,6 +87,14 @@ export default (props) => {
         setCourseIDError(new Error('Course ID do not match'));
       } else {
         setCourseIDError();
+        {
+          /*set stats*/
+        }
+        console.log(data);
+
+        setStats(
+          `${data.getAttendance.attendees.length}/${data.getAttendance.participants.length}`
+        );
       }
     },
     onError(err) {
@@ -97,6 +107,7 @@ export default (props) => {
   });
 
   const [courseIDError, setCourseIDError] = useState();
+  const [stats, setStats] = useState('');
 
   const parseParticipantData = (participants, absentees) => {
     let parsedData = [];
@@ -116,6 +127,7 @@ export default (props) => {
               }, ${Math.random() * 150 + 30})`,
             }}
           >
+            {/* Set the avatar to participant's first name */}
             {participant.info.firstName[0]}
           </Avatar>
         ),
@@ -172,18 +184,11 @@ export default (props) => {
                 <Card style={{ display: 'flex', justifyContent: 'center' }}>
                   {' '}
                   <p>
-                    <strong>Total Participants:</strong>{' '}
-                    {data?.getAttendance.participants.length || 0}
+                    <strong>Statistics:</strong> {stats || '-'}
                   </p>
-                  <p>
-                    <strong>Attend Total:</strong>{' '}
-                    {data?.getAttendance.attendees.length || 0}
-                  </p>
-                  <p>
-                    <strong>Absent Total:</strong>{' '}
-                    {data?.getAttendance.absentees.length || 0}
-                  </p>
+                  <br />
                 </Card>
+                {data ? <HistoryViz attendeesLength={data.getAttendance.attendees.length} absenteesLength={data.getAttendance.absentees.length} /> : <LoadingSpin loading={loading} />}
                 <Button
                   style={{ float: 'right' }}
                   icon={<RedoOutlined />}

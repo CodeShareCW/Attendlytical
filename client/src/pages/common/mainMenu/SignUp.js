@@ -1,6 +1,6 @@
 import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/react-hooks';
-import { Button, Form, Input, Layout, message, Radio } from 'antd';
+import { Button, Card, Form, Input, Layout, message, Radio } from 'antd';
 import React, { useContext } from 'react';
 import { HeaderNavbar } from '../../../components/common/mainMenu';
 import { Footer } from '../../../components/common/sharedLayout';
@@ -11,13 +11,6 @@ import { useForm } from '../../../utils/hooks';
 
 const { Content } = Layout;
 
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 6 },
-};
-const tailLayout = {
-  wrapperCol: { offset: 8, span: 4 },
-};
 export default (props) => {
   const context = useContext(AuthContext);
 
@@ -50,9 +43,9 @@ export default (props) => {
     <Layout className='signin layout'>
       <HeaderNavbar />
 
-      <Content>
+      <Content  style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Card  style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Form
-          {...layout}
           name='basic'
           initialValues={{ remember: true }}
           onFinish={onSubmit}
@@ -192,12 +185,13 @@ export default (props) => {
               <Radio value={1}>Lecturer</Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item {...tailLayout}>
+          <Form.Item>
             <Button type='primary' htmlType='submit' loading={loading}>
               Submit
             </Button>
           </Form.Item>
         </Form>
+        </Card>
       </Content>
 
       <Footer />

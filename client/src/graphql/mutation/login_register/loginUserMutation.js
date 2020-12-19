@@ -14,3 +14,32 @@ export const LOGIN_USER = gql`
     }
   }
 `;
+
+export const LOGIN_GOOGLE_USER = gql`
+  mutation googleSignIn(
+    $googleID: String!
+    $googleEmail: String!
+    $googleFirstName: String!
+    $googleLastName: String!
+    $googleProfilePicture: String!
+  ) {
+    googleSignIn(
+      googlePersonInput: {
+        googleID: $googleID
+        googleEmail: $googleEmail
+        googleFirstName: $googleFirstName
+        googleLastName: $googleLastName
+        googleProfilePicture: $googleProfilePicture
+      }
+    ) {
+      _id
+      email
+      firstName
+      lastName
+      cardID
+      profilePictureURL
+      userLevel
+      token
+    }
+  }
+`;

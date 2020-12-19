@@ -160,7 +160,6 @@ export default (props) => {
 
   const totalAttendancesCount = useQuery(FETCH_ATTENDANCES_COUNT_QUERY, {
     onCompleted(data) {
-      console.log(data);
       totalAttendancesCount.refetch();
       setTablePagination({
         ...tablePagination,
@@ -247,7 +246,6 @@ export default (props) => {
 
   const parseAttendanceData = (attendances) => {
     let parsedData = [];
-    console.log(attendances);
     attendances.map((att, index) => {
       const tmp = {
         key: att._id,
@@ -296,7 +294,6 @@ export default (props) => {
         <PageTitleBreadcrumb
           titleList={[{ name: 'Attendance History', link: '/history' }]}
         />
-        {console.log(data)}
         <Content>
           <Card>
             {error && <ErrorComp err={error} />}

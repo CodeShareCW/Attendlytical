@@ -25,6 +25,14 @@ module.exports = gql`
     userLevel: Int!
   }
 
+  input googlePersonInput {
+    googleID: String!
+    googleFirstName: String!
+    googleLastName: String!
+    googleEmail: String!
+    googleProfilePicture: String!
+  }
+
   extend type Query {
     getPeople: [Person]
     getPerson(personID: ID!): Person!
@@ -33,6 +41,8 @@ module.exports = gql`
   extend type Mutation {
     register(personInput: personInput!): Person!
     login(email: String!, password: String!): Person!
+    googleSignIn(googlePersonInput: googlePersonInput!) : Person!
+    editCardIDAndUserLevel(cardID: String!, userLevel: Int!): Person!
     editProfile(
       firstName: String!
       lastName: String!

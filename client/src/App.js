@@ -22,6 +22,7 @@ import {
   SignUp,
   InCourseAttendanceHistory,
   MainAttendanceHistory,
+  UndefinedCardIDAndRole,
 } from './pages/common';
 import {
   AddCourse,
@@ -36,6 +37,7 @@ import {
   LecturerRoute,
   ProtectedRoute,
   StudentRoute,
+  UndefinedCardIDAndRoleRoute,
 } from './routes';
 import Testing from './Testing';
 
@@ -54,6 +56,7 @@ function App() {
                       <ProtectedRoute exact path='/signin' component={SignIn} />
                       <ProtectedRoute exact path='/signup' component={SignUp} />
 
+                      <UndefinedCardIDAndRoleRoute exact path="/aboutYourself" component={UndefinedCardIDAndRole} />
                       <AuthRoute
                         exact
                         path='/dashboard'
