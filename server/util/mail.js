@@ -1,6 +1,10 @@
 require("dotenv").config();
 
 const mailer = require("nodemailer");
+const { google } = require('googleapis')
+const oAuth2Client = new google.auth.OAuth2(process.env.GOOGLE_OAUTH_CLIENT_ID, process.env.GOOGLE_OAUTH_CLIENT_SECRET, process.env.GOOGLE_OAUTH_REDIRECT_URI)
+oAuth2Client.setCredentials({ refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN })
+
 const {
   Welcome,
   EnrolRequest,
@@ -15,21 +19,23 @@ const {
 //global mail type naming
 const { MAIL_TEMPLATE_TYPE } = require("../globalData");
 
+
+
 const getEmailData = (to, firstName, template, payload) => {
   let data = null;
 
   switch (template) {
     case MAIL_TEMPLATE_TYPE.Welcome:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
-        subject: `Welcome To Face In!`,
+        subject: `Welcome To Attendlytical!`,
         html: Welcome(firstName),
       };
       break;
     case MAIL_TEMPLATE_TYPE.EnrolRequest:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - You have a new enrol request`,
         html: EnrolRequest(firstName, payload),
@@ -37,7 +43,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.ApproveEnrolment:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - Your enrolment is approved`,
         html: ApproveEnrolment(firstName, payload),
@@ -45,7 +51,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.WarnStudent:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - You have an attendance warning`,
         html: WarnStudent(firstName, payload),
@@ -53,7 +59,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.KickStudent:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - You had been kicked out`,
         html: KickStudent(firstName, payload),
@@ -61,7 +67,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.DeleteCourse:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - A course was deleted by course owner`,
         html: DeleteCourse(firstName, payload),
@@ -69,7 +75,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.DeletePendingCourse:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - A course was deleted by course owner`,
         html: DeletePendingCourse(firstName, payload),
@@ -77,7 +83,7 @@ const getEmailData = (to, firstName, template, payload) => {
       break;
     case MAIL_TEMPLATE_TYPE.WithdrawCourse:
       data = {
-        from: "Face In <faceinattendanceapp@gmail.com>",
+        from: "Attendlytical <attendlytical@gmail.com>",
         to,
         subject: `Course ID: ${payload.course.shortID} - A student had withdrawn from your course`,
         html: WithdrawCourse(firstName, payload),
@@ -89,15 +95,19 @@ const getEmailData = (to, firstName, template, payload) => {
   return data;
 };
 
-const sendEmail = (to, name, type, payload) => {
+const sendEmail = async (to, name, type, payload) => {
+  const accessToken = await oAuth2Client.getAccessToken()
   const smtpTransport = mailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
-    secure: true,
-    service: "Gmail",
+    secure: true, // use SSL
     auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PASSWORD,
+      type: 'OAuth2',
+      user: process.env.GOOGLE_OAUTH_USERNAME,
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+      refreshToken: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
+      accessToken: accessToken
     },
   });
 

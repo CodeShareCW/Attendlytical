@@ -1,22 +1,38 @@
-import { Button, Col, Layout, Row } from 'antd';
+import { Button, Col, Layout, Row, Avatar, Divider, Typography } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HeaderNavbar } from '../../../components/common/mainMenu';
 import { Footer } from '../../../components/common/sharedLayout';
+import Texty from 'rc-texty';
+import 'rc-texty/assets/index.css';
 
+import animType from 'rc-texty/lib/animTypes';
 const { Content } = Layout;
+const { Title } = Typography;
 
 export default () => {
   return (
     <Layout className='home layout'>
       <HeaderNavbar />
       <Content>
-        <Row>
-          <Col style={{ top: '50px' }} offset={8} span={8}>
-            <h1>Welcome to Face In</h1>
-            <h3>
-              An deep learning based facial recognition for attendance system
-            </h3>
+        <Row align="middle">
+          <Col style={{ top: '50px'}} span={24} align="middle">
+            <Title level={3}>
+              <Texty
+                type="left"
+                mode="random"
+              >
+                Welcome to Attendlytical
+              </Texty>
+            </Title>
+            <Texty
+              type="left"
+              mode="smooth"
+              interval="20"
+            >
+              An attendance tracking app with facial recognition
+            </Texty>
+
             <br />
             <Button type='primary' htmlType='submit'>
               <Link to='/signup'>Get Started</Link>

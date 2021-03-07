@@ -9,6 +9,7 @@ export const CREATE_ATTENDANCE_MUTATION = gql`
     $attendees: [ID!]
     $absentees: [ID!]
     $participants: [ID!]
+    $expressions: [String!]
   ) {
     createAttendance(
       attendanceInput: {
@@ -19,6 +20,7 @@ export const CREATE_ATTENDANCE_MUTATION = gql`
         attendees: $attendees
         absentees: $absentees
         participants: $participants
+        expressions: $expressions
       }
     ) {
       _id

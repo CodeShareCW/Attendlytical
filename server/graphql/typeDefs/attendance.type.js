@@ -35,6 +35,7 @@ module.exports = gql`
     attendees: [ID!]
     absentees: [ID!]
     participants: [ID!]
+    expressions: [String!]
   }
   extend type Query {
     getAttendancesCount: Int!

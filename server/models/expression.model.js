@@ -8,7 +8,7 @@ const expressionSchema = new Schema(
     },
     creator: {
       type: Schema.Types.ObjectId,
-      required: true,
+      required: true,   
     },
     expression: {
       type: String,

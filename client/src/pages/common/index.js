@@ -7,6 +7,8 @@ import Profile from './profile/Profile';
 import MainAttendanceHistory from './attendance/mainHistory';
 import InCourseAttendanceHistory from './attendance/inCourseHistory';
 import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
+import PrivacyPolicy from './privacyPolicy/PrivacyPolicy';
+import TermCondition from './termCondition/TermCondition';
 
 export {
   CourseDetails,
@@ -19,5 +21,7 @@ export {
   NoFound,
   MainAttendanceHistory,
   InCourseAttendanceHistory,
-  UndefinedCardIDAndRole
+  UndefinedCardIDAndRole,
+  PrivacyPolicy,
+  TermCondition
 };

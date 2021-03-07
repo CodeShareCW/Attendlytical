@@ -13,7 +13,7 @@ export const EmojiProcessing = ({ exp, size }) => {
       case 'xxs':
         return '5px';
       case 'xs':
-        return '20px';
+        return '18px';
       case 'sm':
         return '30px';
       case 'md':
@@ -24,7 +24,7 @@ export const EmojiProcessing = ({ exp, size }) => {
         return '60px';
       case 'xxl':
         return '70px';
-      case 'xxxl':
+      default:
         return '100px';
     }
   };
@@ -32,9 +32,11 @@ export const EmojiProcessing = ({ exp, size }) => {
   const emojiExpression = EmojiExpressionsType.find(
     (type) => type.expression === exp
   );
+  console.log(emojiExpression);
+
   if (
     emojiExpression.expression === 'disgusted' ||
-    emojiExpression.expression === 'fearful'
+    emojiExpression.expression === 'fearful' || emojiExpression.expression === '-'
   )
     return (
       <strong style={{ fontSize: alternativeSize(size) }}>

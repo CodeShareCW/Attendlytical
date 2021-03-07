@@ -43,9 +43,8 @@ export default (props) => {
           src={imgURL}
           size={50}
           style={{
-            backgroundColor: `rgb(${Math.random() * 255 + 30}, ${
-              Math.random() * 255 + 30
-            }, ${Math.random() * 255 + 30})`,
+            backgroundColor: `rgb(${Math.random() * 255 + 30}, ${Math.random() * 255 + 30
+              }, ${Math.random() * 255 + 30})`,
           }}
         >
           {record.firstName[0]}
@@ -87,9 +86,8 @@ export default (props) => {
           src={imgURL}
           size={50}
           style={{
-            backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
-              Math.random() * 150 + 30
-            }, ${Math.random() * 150 + 30})`,
+            backgroundColor: `rgb(${Math.random() * 150 + 30}, ${Math.random() * 150 + 30
+              }, ${Math.random() * 150 + 30})`,
           }}
         >
           {record.displayedName[0]}
@@ -101,8 +99,8 @@ export default (props) => {
       title: <strong>Matric Number</strong>,
       dataIndex: 'cardID',
       key: 'cardID',
-
       align: 'center',
+      sorter: (a, b) => a.cardID.localeCompare(b.cardID)
     },
     {
       title: <strong>Name</strong>,
@@ -110,6 +108,7 @@ export default (props) => {
       key: 'displayedName',
       width: '50%',
       align: 'center',
+      sorter: (a, b) => a.displayedName.localeCompare(b.displayedName)
     },
     {
       title: <strong>Attend Rate</strong>,
@@ -124,6 +123,10 @@ export default (props) => {
           <Tag className='alert'>No attendance record yet</Tag>
         ),
       align: 'center',
+      sorter: {
+        compare: (a, b) => a.attendRate - b.attendRate,
+        multiple: 2,
+      },
     },
     {
       title: <strong>Warning Count</strong>,
@@ -135,6 +138,10 @@ export default (props) => {
         </div>
       ),
       align: 'center',
+      sorter: {
+        compare: (a, b) => a.warningCount - b.warningCount,
+        multiple: 2,
+      },
     },
     {
       title: <strong>Action</strong>,
@@ -350,7 +357,7 @@ export default (props) => {
             handleCancel={() => setVisible(false)}
             payload={selectedParticipant}
           />
-         
+
         </Content>
         <Footer />
       </Layout>

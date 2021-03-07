@@ -1,6 +1,6 @@
 import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
-import { Avatar, Button, Card, Layout, message, Switch } from 'antd';
+import { Avatar, Button, Card, Layout, message, Skeleton, Switch } from 'antd';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
 import { ROBOT_ICON_URL } from '../../../assets';
@@ -26,6 +26,7 @@ import {
 import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 import { FetchChecker } from '../../../utils/FetchChecker';
 import AddFacePhoto from './addFacePhoto';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
 
 const { Content } = Layout;
 export default () => {
@@ -198,7 +199,7 @@ export default () => {
                 <h1>
                   {' '}
                   {!photoPrivacyQuery.loading &&
-                  !togglePhotoPrivacyStatus.loading ? (
+                    !togglePhotoPrivacyStatus.loading ? (
                     <Switch
                       onChange={handleTogglePhotoPrivacy}
                       checked={photoPrivacy}
@@ -219,11 +220,12 @@ export default () => {
               {facePhotos.map((photo, index) => (
                 <Card key={photo._id}>
                   <Card>
-                    <Avatar
-                      shape='square'
-                      size={120}
-                      src={photo.photoURL}
-                      icon={<FileImageOutlined />}
+                    <img
+                      height={150}
+                      width={120}
+                      data-src={photo.photoURL}
+                      src="img/loader.gif"
+                      className="lazyload"
                       alt={'Face Photo: ' + index}
                     />
                     <br /> <br />
@@ -287,7 +289,7 @@ export default () => {
                   </div>
                 </Card>
               ))}
-
+              <LoadingSpin loading={loading} />
               {/*give text of fetch result*/}
               <FetchChecker
                 loading={loading}

@@ -13,7 +13,7 @@ export const EmojiExpressionsType = [
   },
   {
     expression: 'happy',
-    emoji: 'yay',
+    emoji: 'haha',
   },
   {
     expression: 'surprised',
@@ -26,5 +26,9 @@ export const EmojiExpressionsType = [
   {
     expression: 'neutral',
     emoji: 'like',
+  },
+  {
+    expression: '-',
+    emoji: '🤔',
   },
 ];

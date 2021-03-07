@@ -134,12 +134,12 @@ export default (props) => {
         attendees: participants
           .filter((participant) => !absentees.includes(participant))
           .map((participant) => participant.student._id),
+        expressions: participants
+        .filter((participant) => !absentees.includes(participant))
+        .map((participant) => participant.expression),
       },
     }
   );
-
-
-  console.log(absentees.map((absentee) => absentee.student._id));
 
   useEffect(() => {
     async function loadingtheModel() {
@@ -482,6 +482,8 @@ export default (props) => {
             >
               Total Participants: {participants.length}
             </p>
+            {console.log(absentees)}
+            {console.log(participants)}
 
             <ParticipantAttendanceDisplay
               loading={loading}

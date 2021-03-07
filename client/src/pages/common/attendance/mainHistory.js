@@ -32,6 +32,7 @@ import {
   FETCH_ATTENDANCES_COUNT_QUERY,
   FETCH_ATTENDANCES_QUERY,
 } from '../../../graphql/query';
+import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
 const { Content } = Layout;
 
@@ -62,6 +63,10 @@ export default (props) => {
           {text}
         </Skeleton>
       ),
+      sorter: {
+        compare: (a, b) => a.bil - b.bil,
+        multiple: 2,
+      },
     },
     {
       key: 'date',
@@ -73,6 +78,7 @@ export default (props) => {
         </Skeleton>
       ),
       align: 'center',
+      sorter: (a, b) => a.date.localeCompare(b.date)
     },
     {
       key: 'time',
@@ -84,6 +90,7 @@ export default (props) => {
         </Skeleton>
       ),
       align: 'center',
+      sorter: (a, b) => a.time.localeCompare(b.time)
     },
     {
       key: 'course',
@@ -96,6 +103,7 @@ export default (props) => {
           <Link to={`/course/${record.courseID}/history`}>{text}</Link>
         </Skeleton>
       ),
+      sorter: (a, b) => a.course.localeCompare(b.course)
     },
     {
       key: 'stats',
@@ -107,6 +115,8 @@ export default (props) => {
         </Skeleton>
       ),
       align: 'center',
+      sorter: (a, b) => a.stats.localeCompare(b.stats)
+
     },
     {
       title: <strong>{user.userLevel === 1 ? 'Action' : 'Status'}</strong>,
@@ -143,8 +153,19 @@ export default (props) => {
           </Skeleton>
         ),
       align: 'center',
-    },
+      sorter: user.userLevel === 1 ? null : (a, b) => a.status.localeCompare(b.status)
+    }
   ];
+
+  if (user.userLevel===0){
+    columns.push({
+      key: 'mood',
+      title: <strong>Mood</strong>,
+      dataIndex: 'mood',
+      render: (text) => <EmojiProcessing exp={text} size='xs' />,
+      align: 'center',
+    })
+  }
 
   //modal visible boolean
   const [visible, SetVisible] = useState(false);
@@ -160,7 +181,7 @@ export default (props) => {
 
   const totalAttendancesCount = useQuery(FETCH_ATTENDANCES_COUNT_QUERY, {
     onCompleted(data) {
-      totalAttendancesCount.refetch();
+      // totalAttendancesCount.refetch();
       setTablePagination({
         ...tablePagination,
         total: data.getAttendancesCount,
@@ -268,10 +289,13 @@ export default (props) => {
       };
 
       if (user.userLevel === 0) {
-        const isAttend = att.attendees.find(
+        const isAttend = att.attendees.filter(
           (stud) => stud.info._id === user._id
         );
-        Object.assign(tmp, { status: isAttend ? 'Attend' : 'Absent' });
+        console.log(isAttend)
+        Object.assign(tmp, { status: isAttend[0] ? 'Attend' : 'Absent' });
+        Object.assign(tmp, { mood: isAttend[0]?.expression? isAttend[0].expression : "-" });
+
       }
       parsedData.push(tmp);
     });

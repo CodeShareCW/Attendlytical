@@ -41,12 +41,14 @@ export default (props) => {
       title: <strong>Matric Number</strong>,
       dataIndex: 'cardID',
       align: 'center',
+      sorter: (a, b) => a.cardID.localeCompare(b.cardID)
     },
     {
       key: 'name',
       title: <strong>Name</strong>,
       dataIndex: 'name',
       align: 'center',
+      sorter: (a, b) => a.name.localeCompare(b.name)
     },
     {
       title: <strong>Status</strong>,
@@ -57,6 +59,7 @@ export default (props) => {
         </Tag>
       ),
       align: 'center',
+      sorter: (a, b) => a.status.localeCompare(b.status)
     },
     {
       key: 'attendRate',
@@ -71,14 +74,18 @@ export default (props) => {
           <Tag className='alert'>No attendance record yet</Tag>
         ),
       align: 'center',
+      sorter: {
+        compare: (a, b) => a.attendRate - b.attendRate,
+        multiple: 2,
+      },
     },
-    // {
-    //   key: 'mood',
-    //   title: <strong>Mood</strong>,
-    //   dataIndex: 'mood',
-    //   render: (text) => <EmojiProcessing exp={text} size='xxs' />,
-    //   align: 'center',
-    // },
+    {
+      key: 'mood',
+      title: <strong>Mood</strong>,
+      dataIndex: 'mood',
+      render: (text) => <EmojiProcessing exp={text} size='xs' />,
+      align: 'center',
+    },
   ];
 
   const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
@@ -138,7 +145,7 @@ export default (props) => {
           ? 'Absent'
           : 'Attend',
         attendRate: participant.attendRate,
-        mood: 'happy',
+        mood: participant.expression? participant.expression : "-",
       };
       parsedData.push(tmp);
     });
@@ -200,7 +207,7 @@ export default (props) => {
                 </Button>
                 <Table
                   loading={loading}
-                  pagination={{ pageSize: 20 }}
+                  pagination={{ pageSize: 5 }}
                   dataSource={
                     data
                       ? parseParticipantData(

@@ -315,7 +315,7 @@ module.exports = {
 
           const studentDoc = await Person.findById(enrolment.student);
           //notify student through email
-          sendEmail(
+          await sendEmail(
             studentDoc.email,
             studentDoc.firstName,
             MAIL_TEMPLATE_TYPE.DeletePendingCourse,
@@ -353,7 +353,7 @@ module.exports = {
           const studentDoc = await Person.findById(stud);
 
           //notify student through email
-          sendEmail(
+          await sendEmail(
             studentDoc.email,
             studentDoc.firstName,
             MAIL_TEMPLATE_TYPE.DeleteCourse,
@@ -441,7 +441,7 @@ module.exports = {
         await notification.save();
 
         //notify lecturer through email
-        sendEmail(
+        await sendEmail(
           owner.email,
           owner.firstName,
           MAIL_TEMPLATE_TYPE.EnrolRequest,
@@ -508,7 +508,7 @@ module.exports = {
         });
 
         //notify lecturer through email
-        sendEmail(
+        await sendEmail(
           owner.email,
           owner.firstName,
           MAIL_TEMPLATE_TYPE.WithdrawCourse,
@@ -645,7 +645,7 @@ module.exports = {
         await notification.save();
 
         //notify student through email
-        sendEmail(
+        await sendEmail(
           kickedPerson.email,
           kickedPerson.firstName,
           MAIL_TEMPLATE_TYPE.KickStudent,
@@ -720,7 +720,7 @@ module.exports = {
         }
 
         //notify student through email
-        sendEmail(
+        await sendEmail(
           warnedPerson.email,
           warnedPerson.firstName,
           MAIL_TEMPLATE_TYPE.WarnStudent,

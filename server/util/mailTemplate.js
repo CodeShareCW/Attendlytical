@@ -3,13 +3,13 @@ const {OfficialURL}=require("../globalData");
 module.exports.Welcome = (firstName) => {
   return `
         <p>Dear ${firstName}: </p>
-        <p>Thank you for signing up Face In! Do send me an email to:
-        <a href="mailto:faceinattendanceapp@gmail.com">faceinattendanceapp@gmail.com</a></p>
+        <p>Thank you for signing up Attendlytical! Do send me an email to:
+        <a href="mailto:attendlytical@gmail.com">attendlytical@gmail.com</a></p>
         if you have any inquiry, suggestion or found bug.<p>Thank you again and have a nice day ahead!</p>
         <i>Note: This mail is auto-generated for every signup</i>
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
@@ -39,7 +39,7 @@ module.exports.EnrolRequest = (firstName, payload) => {
           Click <a href=${OfficialURL}>here</a> to sign in
           <p>
           Best regards, <br/>
-          Face In
+          Attendlytical
           </p>
       `;
 };
@@ -62,17 +62,16 @@ module.exports.ApproveEnrolment = (firstName, payload) => {
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
 
 module.exports.WarnStudent = (firstName, payload) => {
-  console.log(payload);
   return `
         <p>Dear ${firstName}: </p>
         <p>
-          Course owner warned about your attendance (20%) in the course below. 
+          Your lecturer: ${payload.owner.firstName} ${payload.owner.lastName} send you a warning alert. 
         </p>
         
         <p>---------------------Course Detail---------------------</p>
@@ -85,7 +84,7 @@ module.exports.WarnStudent = (firstName, payload) => {
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
@@ -108,7 +107,7 @@ module.exports.KickStudent = (firstName, payload) => {
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
@@ -131,7 +130,7 @@ module.exports.DeleteCourse = (firstName, payload) => {
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
@@ -154,7 +153,7 @@ module.exports.DeletePendingCourse = (firstName, payload) => {
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
         Best regards, <br/>
-        Face In
+        Attendlytical
         </p>
     `;
 };
@@ -184,7 +183,7 @@ module.exports.WithdrawCourse = (firstName, payload) => {
     Click <a href=${OfficialURL}>here</a> to sign in
     <p>
     Best regards, <br/>
-    Face In
+    Attendlytical
     </p>
       `;
 };

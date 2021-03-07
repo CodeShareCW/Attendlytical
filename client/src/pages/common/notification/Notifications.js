@@ -13,6 +13,8 @@ import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_NOTIFICATION_LIMIT } from '../../../globalData';
 import { FETCH_NOTIFICATIONS_QUERY } from '../../../graphql/query';
 import './Notifications.css';
+import { FetchChecker } from '../../../utils/FetchChecker';
+import { LoadingSpin } from '../../../utils/LoadingSpin';
 
 const { Content } = Layout;
 
@@ -102,41 +104,27 @@ export default () => {
             titleList={[{ name: 'Notification', link: '/notification' }]}
           />
           <Content className='notifications__content'>
-            {error && <ErrorComp err={error} />}
-            {data && (
-              <Card className='notifications__card'>
-                {notifications &&
-                  notifications.map((notification) => (
-                    <Notification
-                      key={notification._id}
-                      notification={notification}
-                    />
-                  ))}
-                {loading && (
-                  <div className='notifications__loading__container'>
-                    <div className='notifications__loading'>
-                      <Spin size='large' tip='Loading...' />
-                    </div>
-                  </div>
-                )}
-                {notifications && notifications.length !== 0 && !fetchedDone && (
-                  <Button
-                    onClick={handleFetchMore}
-                    loading={networkStatus === 3}
-                  >
-                    Load More Notification...
-                  </Button>
-                )}
-                {notifications.length !== 0 && fetchedDone && (
-                  <div className='allLoadedCard'>
-                    <h3>All Notifications Loaded</h3>
-                  </div>
-                )}
-                {notifications && notifications.length === 0 && (
-                  <p>No notifications...</p>
-                )}
-              </Card>
-            )}
+
+            <Card>
+              {notifications &&
+                notifications.map((notification) => (
+                  <Notification
+                    key={notification._id}
+                    notification={notification}
+                  />
+                ))}
+
+              <LoadingSpin loading={loading} />
+              <FetchChecker
+                loading={loading}
+                payload={notifications}
+                fetchedDone={fetchedDone}
+                allLoadedMessage='All Notification Loaded'
+                noItemMessage='No Notification...'
+                handleFetchMore={handleFetchMore}
+              />
+            </Card>
+
           </Content>
           <Footer />
         </Layout>

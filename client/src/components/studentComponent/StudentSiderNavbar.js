@@ -13,6 +13,7 @@ export default () => {
       <Link to='/dashboard'>
         <div className='studentSiderNavbar__logo'>
           <Avatar
+            shape="square"
             className='avatar'
             size='large'
             alt='Face In'

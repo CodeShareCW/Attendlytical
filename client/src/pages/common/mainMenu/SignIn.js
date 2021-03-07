@@ -70,7 +70,7 @@ export default (props) => {
       },
     });
   };
-console.log(values)
+
   return (
     <Layout className='signin layout'>
       <HeaderNavbar />

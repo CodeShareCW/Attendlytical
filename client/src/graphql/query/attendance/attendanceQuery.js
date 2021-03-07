@@ -34,6 +34,7 @@ export const FETCH_ATTENDANCE_QUERY = gql`
           profilePictureURL
         }
         attendRate
+        expression
       }
       attendees {
         info {
@@ -44,6 +45,7 @@ export const FETCH_ATTENDANCE_QUERY = gql`
           profilePictureURL
         }
         attendRate
+        expression
       }
       absentees {
         info {
@@ -54,6 +56,7 @@ export const FETCH_ATTENDANCE_QUERY = gql`
           profilePictureURL
         }
         attendRate
+        expression
       }
     }
   }
@@ -76,16 +79,19 @@ export const FETCH_ATTENDANCES_QUERY = gql`
         info {
           _id
         }
+        expression
       }
       attendees {
         info {
           _id
         }
+        expression
       }
       absentees {
         info {
           _id
         }
+        expression
       }
     }
   }
@@ -117,16 +123,19 @@ export const FETCH_ATTENDANCES_IN_COURSE_QUERY = gql`
           info {
             _id
           }
+          expression
         }
         absentees {
           info {
             _id
           }
+          expression
         }
         participants {
           info {
             _id
           }
+          expression
         }
       }
     }

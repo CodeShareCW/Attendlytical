@@ -188,6 +188,7 @@ module.exports = {
           time,
           courseID,
           participants,
+          expressions,
           absentees,
           attendees,
         },
@@ -196,6 +197,7 @@ module.exports = {
     ) {
       const currUser = checkAuth(context);
       const { valid, errors } = validateAttendanceInput(date, time);
+      console.log(expressions)
       try {
         if (!valid) {
           throw new UserInputError('Errors', { errors });
@@ -211,6 +213,16 @@ module.exports = {
         });
 
         await attendance.save();
+
+        for (i = 0; i < attendees.length; i++) {
+          console.log(attendees)
+          const expressionsList = new Expression({
+            attendance: attendance._id,
+            creator: attendees[i],
+            expression: expressions[i]
+          });
+          await expressionsList.save();
+        }
 
         return AttendancegqlParser(attendance);
       } catch (err) {

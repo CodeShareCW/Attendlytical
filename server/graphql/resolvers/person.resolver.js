@@ -167,7 +167,7 @@ module.exports = {
         const savedPerson = await newPerson.save();
 
         //send email
-        sendEmail(email, firstName, MAIL_TEMPLATE_TYPE.Welcome);
+        await sendEmail(email, firstName, MAIL_TEMPLATE_TYPE.Welcome);
 
         const token = generateToken(savedPerson);
         return PersongqlParser(savedPerson, token);
@@ -237,7 +237,7 @@ module.exports = {
 
           const savedPerson = await newPerson.save();
           //send email
-          sendEmail(
+          await sendEmail(
             updatedPerson.email,
             updatedPerson.firstName,
             MAIL_TEMPLATE_TYPE.Welcome

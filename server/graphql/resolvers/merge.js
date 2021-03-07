@@ -42,6 +42,11 @@ const ParticipantsgqlParser = async (
         course: course._id,
       });
 
+      const expression=await Expression.findOne({
+        attendance: attendanceID,
+        creator: stud._id
+      })
+
       const attendanceHistories = await Attendance.find({
         participants: stud._id,
         course: course._id,
@@ -65,6 +70,9 @@ const ParticipantsgqlParser = async (
       });
       Object.assign(obj, {
         warningCount: (await warning) ? warning.count : 0,
+      });
+      Object.assign(obj, {
+        expression: (await expression) ? expression.expression : "-",
       });
 
       return obj;

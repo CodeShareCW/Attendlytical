@@ -20,10 +20,6 @@ export default () => {
         collapsed={collapsed}
         onCollapse={toggleCollapsed}
       >
-        <Link to='/testing' style={{ fontSize: '50px' }}>
-          Testing
-        </Link>
-
         {user.userLevel == 0 ? <StudentSiderNavbar /> : <LecturerSiderNavbar />}
       </Sider>
     </>

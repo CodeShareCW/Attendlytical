@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import 'video-react/dist/video-react.css'; // import css
 import './App.css';
 import {
@@ -23,6 +23,8 @@ import {
   InCourseAttendanceHistory,
   MainAttendanceHistory,
   UndefinedCardIDAndRole,
+  PrivacyPolicy,
+  TermCondition
 } from './pages/common';
 import {
   AddCourse,
@@ -122,7 +124,16 @@ function App() {
                         path='/facegallery'
                         component={FaceGallery}
                       />
-
+                      <Route
+                        exact
+                        path='/termandcondition'
+                        component={TermCondition}
+                      />
+                      <Route
+                        exact
+                        path='/privacypolicy'
+                        component={PrivacyPolicy}
+                      />
                       <AuthRoute component={NoFound} />
                     </Switch>
                   </Router>

@@ -9,4 +9,4 @@ module.exports.MAIL_TEMPLATE_TYPE={
     WithdrawCourse: "Withdraw Course",
 }
 
-module.exports.OfficialURL="https://www.google.com";
+module.exports.OfficialURL="https://attendlytical.netlify.app";

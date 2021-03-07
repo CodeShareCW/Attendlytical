@@ -4,7 +4,7 @@ const { ApolloServer, PubSub } = require('apollo-server');
 
 const mongoose = require('mongoose');
 
-const typeDefs= require('./graphql/typeDefs');
+const typeDefs = require('./graphql/typeDefs');
 
 const resolvers = require('./graphql/resolvers');
 
@@ -12,7 +12,13 @@ const pubsub = new PubSub();
 
 const PORT = process.env.PORT || 5000;
 
+var env = process.env.NODE_ENV || 'development';
+
 const server = new ApolloServer({
+  cors: {
+    origin: env=="development"? ['http://localhost:3000'] : ['https://attendlytical.netlify.app'],
+    credentials: true
+  },
   typeDefs,
   resolvers,
   context: ({ req }) => ({ req, pubsub }),
@@ -38,10 +44,10 @@ mongoose
   });
 
 /*Test
-  
+
   Postman
 {
-	"query": "mutation {createCourse(courseInput: {code: \"123\", section: \"123\", name: \"123\"}) {name}}"
+  "query": "mutation {createCourse(courseInput: {code: \"123\", section: \"123\", name: \"123\"}) {name}}"
 }
 
   mutation{
@@ -58,7 +64,7 @@ mongoose
     createdAt
   }
 }
-  
+
   mutation{
   createCourse(courseInput:{
     name: "Test",
@@ -74,7 +80,7 @@ mongoose
     name
   }
 }
-  
+
   mutation{
   deleteCourse(courseID:"5ee1de0f270b0f8774f94094")
  {
@@ -87,8 +93,8 @@ mongoose
   }
 }
 }
-  
-  
-  
-  
+
+
+
+
   */

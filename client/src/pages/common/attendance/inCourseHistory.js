@@ -33,6 +33,7 @@ import {
   FETCH_ATTENDANCES_IN_COURSE_QUERY,
   FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
 } from '../../../graphql/query';
+import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -58,6 +59,10 @@ export default (props) => {
       dataIndex: 'bil',
       key: 'bil',
       render: (text) => <Skeleton loading={loading}>{text}</Skeleton>,
+      sorter: {
+        compare: (a, b) => a.bil - b.bil,
+        multiple: 2,
+      },
     },
     {
       key: 'date',
@@ -69,6 +74,7 @@ export default (props) => {
           {text}
         </Skeleton>
       ),
+      sorter: (a, b) => a.date.localeCompare(b.date)
     },
     {
       key: 'time',
@@ -80,6 +86,7 @@ export default (props) => {
           {text}
         </Skeleton>
       ),
+      sorter: (a, b) => a.time.localeCompare(b.time)
     },
     {
       key: 'stats',
@@ -91,6 +98,8 @@ export default (props) => {
           {text}
         </Skeleton>
       ),
+      sorter: (a, b) => a.stats.localeCompare(b.stats)
+
     },
     {
       title: <strong>{user.userLevel === 1 ? 'Action' : 'Your Status'}</strong>,
@@ -127,8 +136,19 @@ export default (props) => {
           </Skeleton>
         ),
       align: 'center',
-    },
+      sorter: user.userLevel === 1 ? null : (a, b) => a.status.localeCompare(b.status)
+    }
   ];
+
+  if (user.userLevel === 0) {
+    columns.push({
+      key: 'mood',
+      title: <strong>Mood</strong>,
+      dataIndex: 'mood',
+      render: (text) => <EmojiProcessing exp={text} size='xs' />,
+      align: 'center',
+    })
+  }
 
   //modal visible boolean
   const [visible, SetVisible] = useState(false);
@@ -170,8 +190,8 @@ export default (props) => {
         });
         if (
           totalAttendancesCountInCourse.data?.getAttendancesCountInCourse -
-            (tablePagination.current-1) * tablePagination.pageSize <=
-          0&&tablePagination.current!==1
+          (tablePagination.current - 1) * tablePagination.pageSize <=
+          0 && tablePagination.current !== 1
         ) {
           setTablePagination((prevState) => {
             return {
@@ -249,10 +269,11 @@ export default (props) => {
           (+att.absentees.length + +att.attendees.length),
       };
       if (user.userLevel === 0) {
-        const isAttend = att.attendees.find(
+        const isAttend = att.attendees.filter(
           (stud) => stud.info._id === user._id
         );
-        Object.assign(tmp, { status: isAttend ? 'Attend' : 'Absent' });
+        Object.assign(tmp, { status: isAttend[0] ? 'Attend' : 'Absent' });
+        Object.assign(tmp, { mood: isAttend[0]?.expression ? isAttend[0].expression : "-" });
       }
       parsedData.push(tmp);
     });

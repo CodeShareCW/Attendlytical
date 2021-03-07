@@ -16,17 +16,17 @@ export default () => {
         <Link to='/'>
           <div className='headerNavbar__logo'>
             <Avatar
+              shape="square"
               className='avatar'
               size='large'
-              alt='Face In'
+              alt='Attendlytics'
               src={APP_LOGO_URL.link}
               onError={(err) => {
                 console.log(err);
               }}
             />
             <div className='headerNavbar__text'>
-              <span className='headerNavbar__text__item'>Face</span>
-              <span className='headerNavbar__text__item'>In</span>
+              <span className='headerNavbar__text__item'>Attendlytical</span>
             </div>
           </div>
         </Link>
