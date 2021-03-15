@@ -5,7 +5,6 @@ An attendance tracking application with facial recognition.
 Facial Analytics API: [Face-API](https://github.com/justadudewhohacks/face-api.js/)
 
 ## Getting Started
----
 ### Requirement
 1. You will need a dependency managers such as npm, yarn, brew, etc.
 2. As for me, I am using npm.
@@ -64,7 +63,6 @@ Facial Analytics API: [Face-API](https://github.com/justadudewhohacks/face-api.j
 ---
 
 ## Download Pretrained Weight Files
----
 1. Go to https://github.com/justadudewhohacks/face-api.js/, the API is built on top of TensorflowJS.
 2. There are 4 pretrained models need to be downloaded (face detection, facial landmark detection, face recognition 128 feature vectors extraction, facial expression).
 3. Download the shard weight file and model json file.
