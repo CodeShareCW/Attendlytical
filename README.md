@@ -70,8 +70,8 @@ Facial Analytics API: [Face-API](https://github.com/justadudewhohacks/face-api.j
 11. Click "Use your own OAuth credentials"
 12. Enter "Client ID" and "Client Secret" of "mail" OAuth client.
 13. Submit the API scope.
-14. You will an authorization code, exchange with access token and refresh token using this code.
-15. Copy the refresh token and assigned to GOOGLE_OAUTH_REFRESH_TOKEN.
+14. You will get an authorization code, exchange it with access token and refresh token.
+15. Assign the refresh token to GOOGLE_OAUTH_REFRESH_TOKEN.
 16. Assign GOOGLE_OAUTH_REDIRECT_URI to https://developers.google.com/oauthplayground.
 
 ---
