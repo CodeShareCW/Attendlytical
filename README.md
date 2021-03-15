@@ -100,8 +100,8 @@ Facial Analytics API: [Face-API](https://github.com/justadudewhohacks/face-api.j
 ## Running the application
 ### Server
 1. Make sure the 10 env variables have been assigned in ".env" file.
-2. Install the "nodemon" globally which can restart the server script automatically if change detected.
-3. Running "npm i -g nodemon"
+2. Install the "nodemon" which can restart the server script automatically if changes are detected.
+3. Open CMD, execute command "npm i -g nodemon" to install nodemon globally.
 4. Take a look at "server/package.json".
 5. Open CMD under directory "server", type "npm run dev".
 6. The server is running on http://localhost:4000.
