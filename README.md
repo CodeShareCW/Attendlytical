@@ -26,21 +26,35 @@ Facial Analytics API: [Face-API](https://github.com/justadudewhohacks/face-api.j
 3. Choose the nearest region, for me, GCP (Singapore).
 4. Adding IP whitelist "0.0.0.0" to allow all network access.
 
-### Step 4: Create an account in Cloudinary media storage
+### Step 4: Create an account in Cloudinary media storage and configure
 1. Go to https://cloudinary.com/users/register/free to register a free-tier account.
 2. You will get an api key and app secret.
 3. In tab "Media Library", create folder named "Attendlytical".
 4. Inside folder "Attendlytical", create another two folders named "ProfilePicture" and "FaceGallery".
+5. Click Setting icon on top right.
+6. Under tab "Upload", scroll down until you see "Upload presets".
+7. Click "Add upload preset", set Upload preset name to "attendlytical_facegallery" and folder set to "Attendlytical/FaceGallery".
+8. Leave the others as default and click "Save".
+9. Again, click "Add upload preset", set Upload preset name to "attendlytical_profilepicture" and folder set to "Attendlytical/ProfilePicture".
+10. Leave the others as default and click "Save".
 
 ### Step 5: Create Google OAuth Credential to enable google login and sending email
 1. Go to GCP console: https://console.cloud.google.com/apis.
-2. Under tab "Credentials", click "Create Credential" and choose "OAuth client ID".
-3. Choose the application type "Web Application".
-4. Name the OAuth client name "Google Login".
-5. Add the javascript origin: http://localhost:3000, https://attendlytical.netlify.app
-6. Add the redirect uri: https://developers.google.com/oauthplayground.
-7. Repeat step 2 to step 6 for email sending, OAuth client name to "Mail".
-8. Under tab "OAuth Consent Screen", enter the required info (app name, app logo, app uri, privacy policy, etc).
+2. Create an OAuth credential for google login.
+3. Under tab "Credentials", click "Create Credential" and choose "OAuth client ID".
+4. Choose the application type "Web Application".
+5. Name the OAuth client name "Google Login".
+6. Add the javascript origin: http://localhost:3000, https://attendlytical.netlify.app
+7. Add the redirect uri: https://developers.google.com/oauthplayground.
+8. Click "Save".
+9. Create an OAuth credential for email sending.
+10. Under tab "Credentials", click "Create Credential" and choose "OAuth client ID".
+11. Choose the application type "Web Application".
+12. Name the OAuth client name "Mail".
+13. Add the javascript origin: http://localhost:4000, https://attendlytical.netlify.app
+14. Add the redirect uri: https://developers.google.com/oauthplayground.
+15. Click "Save".
+16. Under tab "OAuth Consent Screen", enter the required info (app name, app logo, app uri, privacy policy, etc).
 
 ### Step 6: Configure server environment variables.
 1. Inside the "server" folder, create a file named ".env" used to save the credential data of database, API and so on.
