@@ -27,6 +27,7 @@ export default ({
       videoConstraints={{
         deviceId: selectedWebcam,
       }}
+      mirrored
     />
     <Title level={4}>Total detected faces: {detectionCount}</Title>
 

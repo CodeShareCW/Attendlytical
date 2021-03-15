@@ -32,7 +32,6 @@ export const EmojiProcessing = ({ exp, size }) => {
   const emojiExpression = EmojiExpressionsType.find(
     (type) => type.expression === exp
   );
-  console.log(emojiExpression);
 
   if (
     emojiExpression.expression === 'disgusted' ||

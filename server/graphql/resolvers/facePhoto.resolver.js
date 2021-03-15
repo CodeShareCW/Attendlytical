@@ -115,7 +115,7 @@ module.exports = {
 
       try {
         const uploadedResponse = await cloudinary.uploader.upload(photoData, {
-          folder: `FaceIn/FaceGallery/${currUser._id}`,
+          folder: `Attendlytical/FaceGallery/${currUser._id}`,
         });
 
         const facePhoto = new FacePhoto({

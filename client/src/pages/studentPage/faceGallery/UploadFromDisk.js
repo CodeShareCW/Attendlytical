@@ -1,20 +1,20 @@
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Col, message, Modal, Row, Upload } from 'antd';
-import React, { useState } from 'react';
-import { ROBOT_ICON_URL } from '../../../assets';
-import { CheckError } from '../../../ErrorHandling';
-import { getFullFaceDescription } from '../../../faceUtil';
-import { inputSize } from '../../../globalData';
-import { EmojiProcessing } from '../../../utils/EmojiProcessing';
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Col, message, Modal, Row, Upload } from "antd";
+import React, { useState } from "react";
+import { ROBOT_ICON_URL } from "../../../assets";
+import { CheckError } from "../../../ErrorHandling";
+import { getFullFaceDescription } from "../../../faceUtil";
+import { inputSize } from "../../../globalData";
+import { EmojiProcessing } from "../../../utils/EmojiProcessing";
 
 function getBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
 
 export const UploadFromDisk = ({
   addFacePhotoCallback,
@@ -25,19 +25,19 @@ export const UploadFromDisk = ({
   const [previewVisible, setPreviewVisible] = useState(false);
   const [fullDesc, setFullDesc] = useState([]);
   const [faceDescriptor, setFaceDescriptor] = useState([]);
-  const [expression, setExpression] = useState('');
-  const [previewImage, setPreviewImage] = useState('');
-  const [previewTitle, setPreviewTitle] = useState('');
+  const [expression, setExpression] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
   const [isRunningFaceDetector, setIsRunningFaceDetector] = useState(false);
   const [detectionCount, setDetectionCount] = useState(0);
 
-  const [fileList, setFileList] = useState({});
+  const [fileList, setFileList] = useState([]);
   const handleCancel = () => setPreviewVisible(false);
 
   const handlePreview = async (file) => {
     setPreviewVisible(true);
     setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf('/') + 1)
+      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
     );
   };
 
@@ -50,19 +50,24 @@ export const UploadFromDisk = ({
     }
 
     if (!fileList[0].url && !fileList[0].preview) {
+      if (/\.(jpe?g|png)$/i.test(fileList[0].name) === false) {
+        alert("Not an image file (only JPG/JEPG/PNG accepted)!");
+        return;
+      }
       fileList[0].preview = await getBase64(fileList[0].originFileObj);
     }
     setPreviewImage(fileList[0].url || fileList[0].preview);
     setFileList(fileList);
-    setTimeout(() => {
-      if (fileList[0].preview.length > 0) {
-        setIsRunningFaceDetector(true);
-        getFullFaceDescription(fileList[0].preview, inputSize).then((data) => {
+
+    if (fileList[0].preview.length > 0) {
+      setIsRunningFaceDetector(true);
+      await getFullFaceDescription(fileList[0].preview, inputSize).then(
+        (data) => {
           setFullDesc(data);
           setDetectionCount(data.length);
           setFaceDescriptor(data[0]?.descriptor);
-          setExpression(
-            data[0] &&
+          if (data[0])
+            setExpression(
               Object.keys(data[0]?.expressions).find(
                 (key) =>
                   data[0]?.expressions[key] ===
@@ -70,11 +75,11 @@ export const UploadFromDisk = ({
                     Math.max(a, b)
                   )
               )
-          );
+            );
           setIsRunningFaceDetector(false);
-        });
-      }
-    }, 1000);
+        }
+      );
+    }
   };
   
   const handleSubmit = () => {
@@ -83,7 +88,7 @@ export const UploadFromDisk = ({
         update(_, data) {
           galleryRefetch();
           countRefetch();
-          message.success('Add Face Photo Success!');
+          message.success("Add Face Photo Success!");
         },
         onError(err) {
           CheckError(err);
@@ -95,18 +100,19 @@ export const UploadFromDisk = ({
         },
       });
   };
-  console.log(faceDescriptor);
   return (
     <>
-      <Row style={{ display: 'flex', alignItems: 'center' }}>
+      <Row style={{ display: "flex", alignItems: "center" }}>
         <Col>
           <Upload
             beforeUpload={() => false}
             multiple={false}
-            listType='picture-card'
+            listType="picture-card"
             onPreview={handlePreview}
             onChange={handleChange}
-            accept='image/x-png,image/gif,image/jpeg'
+            accept="image/x-png,image/jpeg"
+            progress
+            fileList={fileList}
           >
             {fileList.length >= 1 ? null : (
               <div>
@@ -117,9 +123,9 @@ export const UploadFromDisk = ({
           </Upload>
         </Col>
         <Col>
-          {' '}
+          {" "}
           <Button
-            type='primary'
+            type="primary"
             loading={loading}
             disabled={
               previewImage.length === 0 ||
@@ -136,10 +142,10 @@ export const UploadFromDisk = ({
       <Row>
         <div>
           {detectionCount > 1 && (
-            <span className='alert'>Only single face allowed</span>
+            <span className="alert">Only single face allowed</span>
           )}
           {detectionCount === 0 && (
-            <span className='alert'>No face detected</span>
+            <span className="alert">No face detected</span>
           )}
           {detectionCount === 1 && expression.length > 0 && (
             <Card>
@@ -150,14 +156,14 @@ export const UploadFromDisk = ({
                   height: ROBOT_ICON_URL.height,
                 }}
               />
-              <span style={{ color: 'darkblue', fontWeight: 900 }}>
-                : Feel like you are{' '}
+              <span style={{ color: "darkblue", fontWeight: 900 }}>
+                : Feel like you are{" "}
               </span>
-              <EmojiProcessing exp={expression} size='sm' />
+              <EmojiProcessing exp={expression} size="sm" />
             </Card>
           )}
           <p>
-            Number of detection:{' '}
+            Number of detection:{" "}
             {isRunningFaceDetector ? (
               <>
                 Detecting face... <LoadingOutlined />
@@ -166,7 +172,7 @@ export const UploadFromDisk = ({
               detectionCount
             )}
           </p>
-          Face Descriptor:{' '}
+          Face Descriptor:{" "}
           {detectionCount === 0 && !isRunningFaceDetector && <span>Empty</span>}
           {isRunningFaceDetector && (
             <>
@@ -178,14 +184,14 @@ export const UploadFromDisk = ({
             <div
               key={index}
               style={{
-                wordBreak: 'break-all',
-                marginBottom: '10px',
-                backgroundColor: 'lightblue',
+                wordBreak: "break-all",
+                marginBottom: "10px",
+                backgroundColor: "lightblue",
               }}
             >
-              <p style={{ color: 'red', fontSize: '20px', fontWeight: 900 }}>
-                Face #{index + 1}:{' '}
-              </p>{' '}
+              <p style={{ color: "red", fontSize: "20px", fontWeight: 900 }}>
+                Face #{index + 1}:{" "}
+              </p>{" "}
               {desc.descriptor.toString()}
             </div>
           ))}
@@ -198,7 +204,7 @@ export const UploadFromDisk = ({
         footer={null}
         onCancel={handleCancel}
       >
-        <img alt='example' style={{ width: '100%' }} src={previewImage} />
+        <img alt="example" style={{ width: "100%" }} src={previewImage} />
       </Modal>
     </>
   );

@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/react-hooks';
-import { Card, Layout, Select, Typography } from 'antd';
+import { Card, Divider, Layout, Select, Typography } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -12,6 +12,7 @@ import { CheckError } from '../../../ErrorHandling';
 import { FETCH_ALL_CREATEDCOURSES_QUERY } from '../../../graphql/query';
 import { LoadingSpin } from '../../../utils/LoadingSpin';
 import './SelectedCourse.css';
+import lazySizes from 'lazysizes';
 const { Text } = Typography;
 const { Content } = Layout;
 const { Option } = Select;
@@ -44,14 +45,7 @@ export default (props) => {
             style={{ display: 'flex', justifyContent: 'center' }}
           >
             <h1>Select the course below for attendance marking</h1>
-            <Text keyboard>
-              Alternatively, you can also access to the course and press "Take
-              Attendance" button.
-            </Text>
-            <br />
-            <br />
             <LoadingSpin loading={loading} />
-
             {!loading && (
               <Select
                 className='selectCourse__select'
@@ -69,6 +63,22 @@ export default (props) => {
                 ))}
               </Select>
             )}
+            <Divider />
+
+            <Card style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', flexDirection: 'column' }}>
+              <div><Text keyboard>
+                Alternatively, you can also access to the course and press "Take
+                Attendance" button.
+                </Text></div>
+              <div>
+                <img style={{ width: "500px", height: "400px" }}
+                  data-src={`${process.env.PUBLIC_URL}/img/user_manual/TakeAttendanceAlt.png`}
+                  src={`${process.env.PUBLIC_URL}/img/loader.gif`}
+                  className="lazyload"
+                  alt="lazySizes"
+                />
+              </div>
+            </Card>
           </Card>
         </Content>
         <Footer />

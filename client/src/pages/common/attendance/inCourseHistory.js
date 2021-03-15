@@ -1,7 +1,7 @@
 import {
   ArrowRightOutlined,
   DeleteFilled,
-  RedoOutlined,
+  RedoOutlined
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import {
@@ -14,7 +14,7 @@ import {
   Space,
   Table,
   Tag,
-  Typography,
+  Typography
 } from 'antd';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
@@ -23,15 +23,14 @@ import {
   Footer,
   Greeting,
   Navbar,
-  PageTitleBreadcrumb,
+  PageTitleBreadcrumb
 } from '../../../components/common/sharedLayout';
 import { AuthContext } from '../../../context';
 import { CheckError, ErrorComp } from '../../../ErrorHandling';
 import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
 import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
 import {
-  FETCH_ATTENDANCES_IN_COURSE_QUERY,
-  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
+  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY, FETCH_ATTENDANCES_IN_COURSE_QUERY
 } from '../../../graphql/query';
 import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
@@ -314,7 +313,6 @@ export default (props) => {
                     {`${data.getAttendancesInCourse.course.code} ${data.getAttendancesInCourse.course.name} (${data.getAttendancesInCourse.course.session})`}
                   </Title>
                 )}
-                {console.log(totalAttendancesCountInCourse.data)}
                 <Divider />
                 <h1>
                   Total Attendance:{' '}

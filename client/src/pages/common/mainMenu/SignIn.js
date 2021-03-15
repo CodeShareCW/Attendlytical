@@ -1,24 +1,23 @@
-import { LockOutlined, MailOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/react-hooks';
 import {
   Button,
   Card,
-  Checkbox,
+  Divider,
   Form,
   Input,
   Layout,
-  Space,
-  Divider,
+  Space
 } from 'antd';
 import React, { useContext, useState } from 'react';
 import GoogleLogin from 'react-google-login';
 import HeaderNavbar from '../../../components/common/mainMenu/HeaderNavbar';
 import Footer from '../../../components/common/sharedLayout/Footer';
+import { GOOGLE_CLIENT_ID } from "../../../config";
 import { AuthContext } from '../../../context';
 import { CheckError } from '../../../ErrorHandling';
-import { LOGIN_USER, LOGIN_GOOGLE_USER } from '../../../graphql/mutation';
+import { LOGIN_GOOGLE_USER, LOGIN_USER } from '../../../graphql/mutation';
 import { useForm } from '../../../utils/hooks';
-import {GOOGLE_CLIENT_ID} from "../../../config";
 const { Content } = Layout;
 
 export default (props) => {
@@ -90,12 +89,6 @@ export default (props) => {
             justifyContent: 'center',
           }}
         >
-          {loginGoogleUserStatus.loading && (
-            <p>
-              Redirecting, please wait...
-              <LoadingOutlined />
-            </p>
-          )}
           <Form
             name='basic'
             initialValues={{ remember: true }}
@@ -135,7 +128,7 @@ export default (props) => {
                 type='primary'
                 htmlType='submit'
                 loading={loading}
-                disabled={pressedGoogleLogin||loginGoogleUserStatus.loading}
+                disabled={pressedGoogleLogin || loginGoogleUserStatus.loading}
               >
                 Submit
               </Button>
@@ -146,7 +139,7 @@ export default (props) => {
         <Space>
           <GoogleLogin
             clientId={GOOGLE_CLIENT_ID}
-            buttonText='Login With Google'
+            buttonText='Continue With Google'
             onSuccess={handleGoogleResponse}
             onFailure={(error) => {
               setPressedGoogleLogin(false);
@@ -157,6 +150,13 @@ export default (props) => {
             disabled={pressedGoogleLogin}
           />
         </Space>
+        {loginGoogleUserStatus.loading && (
+          <Space>
+            <Divider />
+              Redirecting, please wait...
+            <LoadingOutlined />
+          </Space>
+        )}
       </Content>
       <Footer />
     </Layout>

@@ -88,7 +88,7 @@ export const UploadFromWebcam = ({
 
     let interval = setInterval(() => {
       capture();
-    }, 1500);
+    }, 500);
 
     return () => clearInterval(interval);
   });

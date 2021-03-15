@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { EmojiProcessing } from '../utils/EmojiProcessing';
 import { ROBOT_ICON_URL } from '../assets';
 import './drawBox.css';
-import {maxDescriptorDistance} from "./"
+import { FaceThresholdDistanceContext } from '../context';
 export default ({
   fullDesc,
   faceMatcher,
@@ -15,6 +15,7 @@ export default ({
   setAbsentees,
   mode = 'Recognition',
 }) => {
+  const {threshold} = useContext(FaceThresholdDistanceContext)
   const [descriptors, setDescriptors] = useState(null);
   const [detections, setDetections] = useState(null);
   const [expressions, setExpressions] = useState(null);
@@ -69,10 +70,15 @@ export default ({
     };
   }, [fullDesc, faceMatcher]);
 
+
+  useEffect(()=>{
+    if (!!detections)
+      setDetectionCount(detections?.length);
+  }, [detections])
+  
   let box = null;
 
   if (!!detections) {
-    setDetectionCount(detections?.length);
     box = detections.map((detection, i) => {
       const relativeBox = detection.relativeBox;
       const dimension = detection._imageDims;
@@ -156,7 +162,7 @@ export default ({
                         backgroundColor: 'lightgreen',
                       }}
                     >
-                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < ${maxDescriptorDistance} thres`}
+                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < ${threshold} thres`}
                     </div>
                   <div
                     className='drawBox__recognition-knownLabel'

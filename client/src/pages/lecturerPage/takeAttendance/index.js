@@ -1,23 +1,28 @@
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
-  CheckOutlined,
-  DeleteOutlined,
-  MinusCircleOutlined,
-  PlayCircleOutlined,
-  SaveOutlined,
-} from '@ant-design/icons';
-import { useQuery, useMutation } from '@apollo/react-hooks';
-import { Button, Card, Layout, message, Typography } from 'antd';
-import moment from 'moment';
-import React, { useEffect, useRef, useState, useContext } from 'react';
-import { Prompt } from 'react-router';
-import { Player } from 'video-react';
+  Button,
+  Card,
+  Col,
+  Layout,
+  message,
+  Row,
+  Slider,
+  Typography,
+} from "antd";
+import moment from "moment";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Prompt } from "react-router";
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from '../../../components/common/sharedLayout';
-import { CheckError, ErrorComp } from '../../../ErrorHandling';
+} from "../../../components/common/sharedLayout";
+import {
+  AttendanceContext,
+  FaceThresholdDistanceContext,
+} from "../../../context";
+import { CheckError, ErrorComp } from "../../../ErrorHandling";
 import {
   createMatcher,
   getFullFaceDescription,
@@ -26,42 +31,35 @@ import {
   isFacialLandmarkDetectionModelLoaded,
   isFeatureExtractionModelLoaded,
   loadModels,
-} from '../../../faceUtil';
-import WebcamFR from '../../../faceUtil/WebcamFR';
+} from "../../../faceUtil";
+import WebcamFR from "../../../faceUtil/WebcamFR";
 import {
   DEFAULT_WEBCAM_RESOLUTION,
   inputSize,
   webcamResolutionType,
-} from '../../../globalData';
-import { FETCH_FACE_MATCHER_IN_COURSE_QUERY } from '../../../graphql/query';
-import { CREATE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
-import AttendanceForm from './attendanceForm';
-import ModelLoading from './ModelLoading';
-import ModelLoadStatus from '../../../utils/ModelLoadStatus';
-import ParticipantAttendanceDisplay from './ParticipantAttendanceDisplay';
-import { AttendanceContext } from '../../../context';
-import './TakeAttendance.css';
+} from "../../../globalData";
+import { CREATE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
+import { FETCH_FACE_MATCHER_IN_COURSE_QUERY } from "../../../graphql/query";
+import ModelLoading from "../../../utils/ModelLoading";
+import ModelLoadStatus from "../../../utils/ModelLoadStatus";
+import AttendanceForm from "./attendanceForm";
+import ParticipantAttendanceDisplay from "./ParticipantAttendanceDisplay";
+import "./TakeAttendance.css";
 
 const { Title } = Typography;
 const { Content } = Layout;
 
 export default (props) => {
   const { addAttendance } = useContext(AttendanceContext);
+  const { threshold, setFaceThresholdDistance } = useContext(
+    FaceThresholdDistanceContext
+  );
 
   const webcam = useRef();
-  const mediaRecorderRef = useRef(null);
 
   const [selectedWebcam, setSelectedWebcam] = useState();
   const [selectedDate, setSelectedDate] = useState(moment().toISOString());
   const [selectedTime, setSelectedTime] = useState(moment().toISOString());
-
-  const [capturing, setCapturing] = useState(false);
-  const [timer, setTimer] = useState(0);
-  const [recordedChunks, setRecordedChunks] = useState([]);
-  const [videoURL, setVideoURL] = useState('');
-  const [videoBase64, setVideoBase64] = useState('');
-
-  const [isVideoSave, setIsVideoSave] = useState(false);
 
   const [inputDevices, setInputDevices] = useState([]);
   const [camWidth, setCamWidth] = useState(DEFAULT_WEBCAM_RESOLUTION.width);
@@ -73,8 +71,8 @@ export default (props) => {
   const [absentees, setAbsentees] = useState([]);
 
   const [isAllModelLoaded, setIsAllModelLoaded] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
-  const [loadingMessageError, setLoadingMessageError] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loadingMessageError, setLoadingMessageError] = useState("");
 
   const [detectionCount, setDetectionCount] = useState(0);
 
@@ -83,7 +81,7 @@ export default (props) => {
 
   const [isAttendanceSubmit, setIsAttendanceSubmit] = useState(false);
 
-  const [waitText, setWaitText] = useState('');
+  const [waitText, setWaitText] = useState("");
 
   const { data, loading, error } = useQuery(
     FETCH_FACE_MATCHER_IN_COURSE_QUERY,
@@ -99,7 +97,7 @@ export default (props) => {
         });
 
         if (data.getFaceMatcherInCourse.matcher.length === 0) {
-          message.info('Course do not have any participant yet!');
+          message.info("Course do not have any participant yet!");
         }
       },
       onError(err) {
@@ -117,7 +115,7 @@ export default (props) => {
       onCompleted(data) {
         setIsAttendanceSubmit(true);
         addAttendance(data.createAttendance);
-        message.success('Success Submit.');
+        message.success("Success Submit.");
       },
       onError(err) {
         CheckError(err);
@@ -125,7 +123,6 @@ export default (props) => {
       variables: {
         date: selectedDate,
         time: selectedTime,
-        videoData: videoBase64,
         courseID: data?.getFaceMatcherInCourse.course._id,
         absentees: absentees.map((absentee) => absentee.student._id),
         participants: participants.map(
@@ -135,8 +132,8 @@ export default (props) => {
           .filter((participant) => !absentees.includes(participant))
           .map((participant) => participant.student._id),
         expressions: participants
-        .filter((participant) => !absentees.includes(participant))
-        .map((participant) => participant.expression),
+          .filter((participant) => !absentees.includes(participant))
+          .map((participant) => participant.expression),
       },
     }
   );
@@ -162,7 +159,7 @@ export default (props) => {
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(async (devices) => {
       let inputDevice = await devices.filter(
-        (device) => device.kind === 'videoinput'
+        (device) => device.kind === "videoinput"
       );
       setInputDevices({ ...inputDevices, inputDevice });
     });
@@ -178,14 +175,14 @@ export default (props) => {
         const validMatcher = data.getFaceMatcherInCourse.matcher.filter(
           (m) => m.facePhotos.length > 0
         );
-        const profileList = await createMatcher(validMatcher);
+        const profileList = await createMatcher(validMatcher, threshold);
         setFaceMatcher(profileList);
       }
     }
     if (!!data) {
       matcher();
     }
-  }, [data, facePhotos]);
+  }, [data, facePhotos, threshold]);
 
   useEffect(() => {
     function capture() {
@@ -193,11 +190,14 @@ export default (props) => {
         getFullFaceDescription(webcam.current.getScreenshot(), inputSize)
           .then((data) => {
             setFullDesc(data);
-            setWaitText('');
+            setWaitText("");
           })
           .catch((err) => {
-            setWaitText('Preparing face matcher and device setup, please wait...');
+            setWaitText(
+              "Preparing face matcher and device setup, please wait..."
+            );
           });
+        console.log(fullDesc);
       }
     }
 
@@ -230,133 +230,37 @@ export default (props) => {
     });
   };
 
-  //record and download
-  const handleStartCaptureClick = React.useCallback(() => {
-    if (!webcam.current) return;
-
-    setCapturing(true);
-    setRecordedChunks([]);
-    mediaRecorderRef.current = new MediaRecorder(webcam.current.stream, {
-      mimeType: 'video/webm',
-    });
-    mediaRecorderRef.current.addEventListener(
-      'dataavailable',
-      handleDataAvailable
-    );
-    mediaRecorderRef.current.start();
-  }, [webcam, setCapturing, mediaRecorderRef, setRecordedChunks]);
-
-  useEffect(() => {
-    let interval;
-    if (capturing) {
-      interval = setInterval(() => {
-        setTimer((prevTime) => prevTime + 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [capturing, timer, setTimer]);
-
-  const handleDataAvailable = React.useCallback(
-    ({ data }) => {
-      if (data.size > 0) {
-        setRecordedChunks((prev) => prev.concat(data));
-      }
-    },
-    [setRecordedChunks]
-  );
-
-  const handleStopCaptureClick = React.useCallback(() => {
-    mediaRecorderRef.current.stop();
-    setCapturing(false);
-    setTimer(0);
-  }, [mediaRecorderRef, webcam, setCapturing]);
-
-  const handleDownload = React.useCallback(() => {
-    if (recordedChunks.length) {
-      const blob = new Blob(recordedChunks, {
-        type: 'video/webm',
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      document.body.appendChild(a);
-      a.style = 'display: none';
-      a.href = url;
-      a.download = 'Attendance Record.webm';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      setRecordedChunks([]);
-    }
-  }, [recordedChunks]);
-
-  const handleSave = async () => {
-    await setVideoURL(
-      window.URL.createObjectURL(
-        new Blob(recordedChunks, {
-          type: 'video/webm',
-        })
-      )
-    );
-    setIsVideoSave(true);
-  };
-
-  const handleRemove = () => {
-    setRecordedChunks([]);
-    setIsVideoSave(false);
-  };
-
-  useEffect(() => {
-    if (isVideoSave && recordedChunks.length > 0) {
-      var reader = new window.FileReader();
-      reader.readAsDataURL(recordedChunks[0]);
-      reader.onloadend = function () {
-        let base64 = reader.result;
-        base64 = base64.split(',')[1];
-        setVideoBase64(base64);
-        console.log(base64); //TODO: Save to cloudinary
-      };
-    }
-  }, [isVideoSave, recordedChunks]);
-
   //submit attendance
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime) {
-      message.info('Please fill up both the date and time');
+      message.info("Please fill up both the date and time");
       return;
     }
     submitAttendanceCallback();
   };
 
   const titleList = [
-    { name: 'Home', link: '/dashboard' },
+    { name: "Home", link: "/dashboard" },
     {
       name: `Course: ${props.match.params.id}`,
       link: `/course/${props.match.params.id}`,
     },
-    { name: 'Take Attendance', link: 'takeAttendance' },
+    { name: "Take Attendance", link: "takeAttendance" },
   ];
 
   return (
-    <Layout className='layout'>
+    <Layout className="layout">
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb titleList={titleList} />
-
-        {console.log(recordedChunks)}
         <Content>
           {error && <ErrorComp err={error} />}
-          {/* 
-          {videoBase64 && (
-            <video>
-              <source src={videoBase64} />
-            </video>
-          )} */}
           <Card>
             {data && (
               <Title level={4}>
-                Course:{' '}
-                {course.code + '-' + course.name + '(' + course.session + ')'}
+                Course:{" "}
+                {course.code + "-" + course.name + "(" + course.session + ")"}
               </Title>
             )}
 
@@ -368,23 +272,60 @@ export default (props) => {
               handleWebcamResolution={handleWebcamResolution}
             />
             <Card>
-              <span>Face Descriptor Matcher: {facePhotos.length}</span>
+              <Row>Face Descriptor Matcher: {facePhotos.length}</Row>
             </Card>
 
             {facePhotos.length === 0 && (
-              <p className='alert'>No have any face matcher.</p>
+              <p className="alert">No have any face matcher.</p>
             )}
-            <ModelLoadStatus />
+            <ModelLoadStatus errorMessage={loadingMessageError} />
+            <Card>
+              <Row>
+                <Col>Threshold Distance: {threshold} </Col>
+                &nbsp;
+                <Col span={24}>
+                  <Slider
+                    defaultValue={threshold}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onChange={(value) => {
+                      setFaceThresholdDistance(value);
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <div className="alert">
+                  The larger threshold distance might be good for detecting
+                  occluded and non-frontal face, but more prone to
+                  misclassification
+                </div>
+              </Row>
+              <Row>
+                <div className="alert">
+                  The smaller threshold distance might be good for reducing
+                  misclassification, but more prone to "unknown" cases
+                </div>
+              </Row>
+              <Row>
+                <div className="alert">
+                  Hence, there is no any best threshold
+                </div>
+              </Row>
+            </Card>
+            {!isAllModelLoaded ? (
+              <ModelLoading loadingMessage={loadingMessage} />
+            ) : loadingMessageError ? (
+              <div className="error">{loadingMessageError}</div>
+            ) : (
+              <div></div>
+            )}
 
-            {facePhotos.length > 0 && (
-              <Card className='takeAttendance__card__webcam'>
-                {!isAllModelLoaded ? (
-                  <ModelLoading loadingMessage={loadingMessage} />
-                ) : loadingMessageError ? (
-                  <div className='error'>{loadingMessageError}</div>
-                ) : (
-                  <>
-                  <p style={{fontSize: "18px"}}>{waitText}</p>
+            {isAllModelLoaded && loadingMessageError.length == 0 && (
+              <Card className="takeAttendance__card__webcam">
+                <>
+                  <p>{waitText}</p>
                   <WebcamFR
                     webcam={webcam}
                     camWidth={camWidth}
@@ -396,88 +337,17 @@ export default (props) => {
                     fullDesc={fullDesc}
                     faceMatcher={faceMatcher}
                     participants={participants}
-                    mode='Recognition'
+                    mode="Recognition"
                   />
-                  </>
-                )}
-
-                <div style={{ display: 'none' }}>
-                  {' '}
-                  //TODO: remove
-                  <p className='alert'>
-                    Record for future reference if you wish
-                  </p>
-                  {!capturing && recordedChunks.length === 0 ? (
-                    <Button
-                      onClick={handleStartCaptureClick}
-                      icon={<PlayCircleOutlined />}
-                      disabled={loading || !isAllModelLoaded || !webcam.current}
-                    >
-                      Start Record
-                    </Button>
-                  ) : capturing ? (
-                    <Button
-                      danger
-                      onClick={handleStopCaptureClick}
-                      icon={<MinusCircleOutlined />}
-                    >
-                      Stop Record ({timer} s)
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        style={
-                          isVideoSave
-                            ? {
-                                color: 'rgba(0,150, 0, 0.8)',
-                                backgroundColor: 'rgba(125,255, 125, 0.3)',
-                              }
-                            : {}
-                        }
-                        onClick={handleSave}
-                        shape='round'
-                        icon={<SaveOutlined />}
-                        disabled={isVideoSave}
-                      >
-                        <span>Save {isVideoSave && <CheckOutlined />}</span>
-                      </Button>
-                      <Button
-                        type='danger'
-                        onClick={handleRemove}
-                        shape='round'
-                        icon={<DeleteOutlined />}
-                      >
-                        Remove
-                      </Button>
-                    </>
-                  )}
-                  {/* {recordedChunks.length > 0 && (
-                <Button
-                  onClick={handleDownload}
-                  shape='round'
-                  icon={<DownloadOutlined />}
-                >
-                  Download
-                </Button>
-              )} */}
-                  {recordedChunks.length > 0 && isVideoSave && (
-                    <Card>
-                      <Player
-                        playsInline
-                        poster='/assets/poster.png'
-                        src={videoURL}
-                      />
-                    </Card>
-                  )}
-                </div>
+                </>
               </Card>
             )}
 
             <p
               style={{
-                textAlign: 'center',
+                textAlign: "center",
                 fontWeight: 900,
-                fontSize: '20px',
+                fontSize: "20px",
               }}
             >
               Total Participants: {participants.length}
@@ -498,14 +368,14 @@ export default (props) => {
             </div> */}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '30px',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "30px",
               }}
             >
               <Button
-                type='primary'
+                type="primary"
                 disabled={
                   loading ||
                   error ||
@@ -523,7 +393,7 @@ export default (props) => {
                   participants.length > 0 &&
                   facePhotos.length > 0
                 }
-                message='You have not submit the attendance, are you sure to leave?'
+                message="You have not submit the attendance, are you sure to leave?"
               />
             </div>
           </Card>

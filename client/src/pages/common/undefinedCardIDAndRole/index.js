@@ -1,23 +1,25 @@
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from "@apollo/react-hooks";
 import {
   Avatar,
   Button,
   Card,
+  Checkbox,
   Divider,
   Form,
   Input,
   Layout,
   Radio,
   Space,
-  Typography
-} from 'antd';
-import React, { useContext } from 'react';
-import { APP_LOGO_URL } from '../../../assets';
-import Footer from '../../../components/common/sharedLayout/Footer';
-import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
-import { EDIT_CARDID_AND_ROLE_MUTATION } from '../../../graphql/mutation';
-import { useForm } from '../../../utils/hooks';
+  Typography,
+} from "antd";
+import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import { APP_LOGO_URL } from "../../../assets";
+import Footer from "../../../components/common/sharedLayout/Footer";
+import { AuthContext } from "../../../context";
+import { CheckError } from "../../../ErrorHandling";
+import { EDIT_CARDID_AND_ROLE_MUTATION } from "../../../graphql/mutation";
+import { useForm } from "../../../utils/hooks";
 
 const { Content } = Layout;
 
@@ -27,7 +29,7 @@ export default (props) => {
   const { user, login, logout } = useContext(AuthContext);
   const { onChange, onSubmit, values } = useForm(editCardIDAndRole, {
     userLevel: 0,
-    cardID: "none",
+    cardID: "",
   });
 
   const [editCardIDAndRoleCallback, editCardIDAndRoleStatus] = useMutation(
@@ -36,7 +38,7 @@ export default (props) => {
       update(_, { data: { editCardIDAndUserLevel: userData } }) {
         //reset login stuff
         login(userData);
-        props.history.push('/dashboard');
+        props.history.push("/dashboard");
       },
       variables: values,
       onError(err) {
@@ -44,32 +46,33 @@ export default (props) => {
       },
     }
   );
+  const [isAgreementChecked, setIsAgreementChecked] = useState(false);
 
-  function editCardIDAndRole(){
+  function editCardIDAndRole() {
     editCardIDAndRoleCallback();
   }
 
   return (
-    <Layout className='layout'>
+    <Layout className="layout">
       <Content
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
         }}
       >
         <Card
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <Avatar
-            className='avatar'
-            size='large'
-            alt='Face In'
+            className="avatar"
+            size="large"
+            alt="Face In"
             src={APP_LOGO_URL.link}
             onError={(err) => {
               console.log(err);
@@ -84,29 +87,29 @@ export default (props) => {
             Dear {user.firstName} {user.lastName}, tell us more about you!
           </Title>
           <Form
-            name='basic'
+            name="basic"
             initialValues={{ userLevel: values.role, cardID: values.cardID }}
             onFinish={onSubmit}
           >
             <Form.Item
-              label='Staff ID/Matrix No'
-              name='cardID'
+              label="Staff ID/Matrix No"
+              name="cardID"
               rules={[
                 {
                   required: true,
-                  message: 'Please input your staff ID/Matrix No!',
+                  message: "Please input your staff ID/Matrix No!",
                 },
               ]}
             >
               <Input
-                placeholder='Enter your staff ID/Matrix No'
-                name='cardID'
+                placeholder="Enter your staff ID/Matrix No"
+                name="cardID"
                 onChange={onChange}
               />
             </Form.Item>
-            <Form.Item label='Role' name='userLevel' valuePropName='checked'>
+            <Form.Item label="Role" name="userLevel" valuePropName="checked">
               <Radio.Group
-                name='userLevel'
+                name="userLevel"
                 value={values.userLevel}
                 onChange={onChange}
               >
@@ -114,10 +117,22 @@ export default (props) => {
                 <Radio value={1}>Lecturer</Radio>
               </Radio.Group>
             </Form.Item>
+            <Divider />
+            <Checkbox checked disabled>
+              By submitting this form, I agree to Attendlytical's{" "}
+            </Checkbox>
+            <Link to="/privacypolicy">Privacy Policy</Link> and{" "}
+            <Link to="/termandcondition">Term & Condition</Link>
+            <Divider />
+            <div>
+              First time user? Please visit{" "}
+              <Link to="/userguidelines"> User Guidelines</Link>
+            </div>
+            <Divider />
             <Form.Item>
               <Button
-                type='primary'
-                htmlType='submit'
+                type="primary"
+                htmlType="submit"
                 loading={editCardIDAndRoleStatus.loading}
               >
                 Submit
@@ -125,8 +140,8 @@ export default (props) => {
             </Form.Item>
           </Form>
           <Button
-            type='danger'
-            htmlType='submit'
+            type="danger"
+            htmlType="submit"
             disabled={editCardIDAndRoleStatus.loading}
             onClick={() => logout()}
           >

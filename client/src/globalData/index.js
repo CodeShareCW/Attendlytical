@@ -1,7 +1,7 @@
 import { actionTypes } from './actionTypes';
 import { modalItems } from './customModalItems';
 import { EmojiExpressionsType } from './EmojiExpressionType';
-import { inputSize } from './faceAPI';
+import { inputSize, maxDescriptorDistance } from './faceAPI';
 import { DEFAULT_UPLOAD_OPTION, UPLOAD_OPTION } from './facePhoto';
 import {
   FETCH_ATTENDANCE_LIMIT,
@@ -27,8 +27,7 @@ export {
 export { actionTypes };
 export { webcamResolutionType, DEFAULT_WEBCAM_RESOLUTION };
 export { EmojiExpressionsType };
-export { inputSize };
+export { inputSize, maxDescriptorDistance };
 export { DEFAULT_UPLOAD_OPTION, UPLOAD_OPTION };
 export { modalItems };
 
-export const OfficialURL = 'https://localhost:3000';

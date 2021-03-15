@@ -1,20 +1,19 @@
-import { useMutation, useQuery } from '@apollo/react-hooks';
-import { Card, message, notification, Space } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
-import { EnrolCourse } from '../';
-import Course from '../../../components/common/course/Course';
-import Modal from '../../../components/common/customModal';
-import { CourseContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
-import { FETCH_COURSE_LIMIT, modalItems } from '../../../globalData';
-import { WITHDRAW_COURSE_MUTATION } from '../../../graphql/mutation';
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import { Card, message, Space } from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import { EnrolCourse } from "../";
+import Course from "../../../components/common/course/Course";
+import Modal from "../../../components/common/customModal";
+import { CourseContext } from "../../../context";
+import { CheckError } from "../../../ErrorHandling";
+import { FETCH_COURSE_LIMIT, modalItems } from "../../../globalData";
+import { WITHDRAW_COURSE_MUTATION } from "../../../graphql/mutation";
 import {
   FETCH_ENROLLEDCOURSES_COUNT_QUERY,
   FETCH_ENROLLEDCOURSES_QUERY,
-  FETCH_FACE_PHOTOS_COUNT_QUERY,
-} from '../../../graphql/query';
-import { FetchChecker } from '../../../utils/FetchChecker';
-import { LoadingSpin } from '../../../utils/LoadingSpin';
+} from "../../../graphql/query";
+import { FetchChecker } from "../../../utils/FetchChecker";
+import { LoadingSpin } from "../../../utils/LoadingSpin";
 
 export default (props) => {
   const { courses, fetchedDone, setFetchedDone, loadCourses } = useContext(
@@ -27,13 +26,6 @@ export default (props) => {
 
   //get total courses count query
   const totalCoursesQuery = useQuery(FETCH_ENROLLEDCOURSES_COUNT_QUERY, {
-    onError(err) {
-      CheckError(err);
-    },
-  });
-
-  //get uploaded photos query
-  const facePhotosCountQuery = useQuery(FETCH_FACE_PHOTOS_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
@@ -73,23 +65,6 @@ export default (props) => {
       },
     }
   );
-
-  //check amount of uploaded photo to notify student
-  useEffect(() => {
-    if (facePhotosCountQuery.data)
-      if (facePhotosCountQuery.data.getFacePhotosCount < 2) {
-        notification['info']({
-          message: (
-            <strong>
-              Please add your face photograph for at least 2<br />
-              <br />
-            </strong>
-          ),
-          description: `Number of face photograph uploaded: ${facePhotosCountQuery.data.getFacePhotosCount}`,
-        });
-      }
-    facePhotosCountQuery.refetch();
-  }, [facePhotosCountQuery]);
 
   //load courses as long as data is fetched
   useEffect(() => {
@@ -135,7 +110,7 @@ export default (props) => {
       updateQuery: (pv, { fetchMoreResult }) => {
         return {
           getEnrolledCourses: {
-            __typename: 'Courses',
+            __typename: "Courses",
             courses: [
               ...pv.getEnrolledCourses.courses,
               ...fetchMoreResult.getEnrolledCourses.courses,
@@ -150,7 +125,7 @@ export default (props) => {
   return (
     <Card>
       <EnrolCourse />
-      <Space direction='vertical' className='width100'>
+      <Space direction="vertical" className="width100">
         <h1>
           Total Enrolled Course:
           {totalCoursesQuery.data?.getEnrolledCoursesCount || 0}
@@ -175,14 +150,14 @@ export default (props) => {
           loading={loading}
           payload={courses}
           fetchedDone={fetchedDone}
-          allLoadedMessage='All Courses Loaded'
-          noItemMessage='No Course Enrolled...'
+          allLoadedMessage="All Courses Loaded"
+          noItemMessage="No Course Enrolled..."
           handleFetchMore={handleFetchMore}
         />
 
         {/*modal backdrop*/}
         <Modal
-          title='Withdraw Course'
+          title="Withdraw Course"
           action={modalItems.course.action.withdraw}
           itemType={modalItems.course.name}
           visible={visible}

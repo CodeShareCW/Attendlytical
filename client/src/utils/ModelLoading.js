@@ -9,8 +9,7 @@ export default ({loadingMessage}) => (
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '500px',
-      minWidth: '1000px',
+      minHeight: '150px',
     }}
     indicator={
       <div style={{ marginRight: '50px' }}>

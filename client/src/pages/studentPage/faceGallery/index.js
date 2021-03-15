@@ -1,32 +1,32 @@
-import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/react-hooks';
-import { Avatar, Button, Card, Layout, message, Skeleton, Switch } from 'antd';
-import moment from 'moment';
-import React, { useContext, useEffect, useState } from 'react';
-import { ROBOT_ICON_URL } from '../../../assets';
-import Modal from '../../../components/common/customModal';
+import { LoadingOutlined } from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import { Button, Card, Layout, message, Switch } from "antd";
+import moment from "moment";
+import React, { useContext, useEffect, useState } from "react";
+import { ROBOT_ICON_URL } from "../../../assets";
+import Modal from "../../../components/common/customModal";
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from '../../../components/common/sharedLayout';
-import { FacePhotoContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
-import { FETCH_FACE_PHOTOS_LIMIT, modalItems } from '../../../globalData';
+} from "../../../components/common/sharedLayout";
+import { FacePhotoContext } from "../../../context";
+import { CheckError } from "../../../ErrorHandling";
+import { FETCH_FACE_PHOTOS_LIMIT, modalItems } from "../../../globalData";
 import {
   DELETE_FACE_PHOTO_MUTATION,
   TOGGLE_PHOTO_PRIVACY_MUTATION,
-} from '../../../graphql/mutation';
+} from "../../../graphql/mutation";
 import {
   FETCH_FACE_PHOTOS_COUNT_QUERY,
   FETCH_FACE_PHOTOS_QUERY,
   FETCH_PHOTO_PRIVACY_QUERY,
-} from '../../../graphql/query';
-import { EmojiProcessing } from '../../../utils/EmojiProcessing';
-import { FetchChecker } from '../../../utils/FetchChecker';
-import AddFacePhoto from './addFacePhoto';
-import { LoadingSpin } from '../../../utils/LoadingSpin';
+} from "../../../graphql/query";
+import { EmojiProcessing } from "../../../utils/EmojiProcessing";
+import { FetchChecker } from "../../../utils/FetchChecker";
+import { LoadingSpin } from "../../../utils/LoadingSpin";
+import AddFacePhoto from "./addFacePhoto";
 
 const { Content } = Layout;
 export default () => {
@@ -85,7 +85,7 @@ export default () => {
     {
       onCompleted(data) {
         message.success(
-          data.togglePhotoPrivacy ? 'Set to public mode' : 'Set to private mode'
+          data.togglePhotoPrivacy ? "Set to public mode" : "Set to private mode"
         );
         photoPrivacyQuery.refetch();
       },
@@ -161,7 +161,7 @@ export default () => {
       updateQuery: (pv, { fetchMoreResult }) => {
         return {
           getFacePhotos: {
-            __typename: 'FacePhotos',
+            __typename: "FacePhotos",
             facePhotos: [
               ...pv.getFacePhotos.facePhotos,
               ...fetchMoreResult.getFacePhotos.facePhotos,
@@ -173,12 +173,12 @@ export default () => {
     });
   };
   return (
-    <Layout className='layout'>
+    <Layout className="layout">
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb
-          titleList={[{ name: 'Face Gallery', link: '/facegallery' }]}
+          titleList={[{ name: "Face Gallery", link: "/facegallery" }]}
         />
 
         <Content>
@@ -190,29 +190,29 @@ export default () => {
             <Card
               title={
                 <strong>
-                  Your Gallery:{' '}
+                  Your Gallery:{" "}
                   {facePhotosCountQuery.data?.getFacePhotosCount || 0}
                 </strong>
               }
             >
               <span>
                 <h1>
-                  {' '}
+                  {" "}
                   {!photoPrivacyQuery.loading &&
-                    !togglePhotoPrivacyStatus.loading ? (
+                  !togglePhotoPrivacyStatus.loading ? (
                     <Switch
                       onChange={handleTogglePhotoPrivacy}
                       checked={photoPrivacy}
                     />
                   ) : (
                     <LoadingOutlined
-                      style={{ fontSize: '25px', color: 'blue' }}
+                      style={{ fontSize: "25px", color: "blue" }}
                     />
                   )}
-                  &nbsp;Public:{' '}
-                  {photoPrivacyQuery.data?.getPhotoPrivacy ? 'Yes' : 'No'}{' '}
+                  &nbsp;Public:{" "}
+                  {photoPrivacyQuery.data?.getPhotoPrivacy ? "Yes" : "No"}{" "}
                   &nbsp;
-                  <strong style={{ color: 'darkred' }}>
+                  <strong style={{ color: "darkred" }}>
                     (Lecturer can view your uploaded photo if public)
                   </strong>
                 </h1>
@@ -224,9 +224,9 @@ export default () => {
                       height={150}
                       width={120}
                       data-src={photo.photoURL}
-                      src="img/loader.gif"
+                      src={`${process.env.PUBLIC_URL}/img/loader.gif`}
                       className="lazyload"
-                      alt={'Face Photo: ' + index}
+                      alt={"Face Photo: " + index}
                     />
                     <br /> <br />
                     <div>
@@ -237,25 +237,25 @@ export default () => {
                           height: ROBOT_ICON_URL.height,
                         }}
                       />
-                      <span style={{ color: 'darkblue', fontWeight: 900 }}>
-                        : Feel like you are{' '}
+                      <span style={{ color: "darkblue", fontWeight: 900 }}>
+                        : Feel like you are{" "}
                       </span>
                       <span>
-                        <EmojiProcessing exp={photo.expression} size='sm' />
+                        <EmojiProcessing exp={photo.expression} size="sm" />
                       </span>
                     </div>
                   </Card>
                   &nbsp;
                   <strong>Face Descriptor: </strong>
                   <Button onClick={() => handleDescriptorVisible(photo._id)}>
-                    {!isDescriptorVisible[photo._id] ? 'Show' : 'Hide'}
+                    {!isDescriptorVisible[photo._id] ? "Show" : "Hide"}
                   </Button>
                   {isDescriptorVisible[photo._id] && (
                     <p
                       style={{
-                        wordBreak: 'break-all',
-                        marginBottom: '10px',
-                        backgroundColor: 'lightblue',
+                        wordBreak: "break-all",
+                        marginBottom: "10px",
+                        backgroundColor: "lightblue",
                       }}
                     >
                       {photo.faceDescriptor}
@@ -263,22 +263,22 @@ export default () => {
                   )}
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'flex-end',
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "flex-end",
                     }}
                   >
-                    <p>Uploaded at: {moment(photo.createdAt).format('LLL')}</p>
+                    <p>Uploaded at: {moment(photo.createdAt).format("LLL")}</p>
                   </div>
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'flex-end',
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "flex-end",
                     }}
                   >
                     <Button
-                      type='danger'
+                      type="danger"
                       onClick={() => {
                         setIsDeleteModalVisible(true);
                         setSelectedPhoto(photo);
@@ -295,14 +295,14 @@ export default () => {
                 loading={loading}
                 payload={facePhotos}
                 fetchedDone={fetchedDone}
-                allLoadedMessage='All Face Photo Loaded'
-                noItemMessage='No Face Photo Added...'
+                allLoadedMessage="All Face Photo Loaded"
+                noItemMessage="No Face Photo Added..."
                 handleFetchMore={handleFetchMore}
               />
 
               {/*modal backdrop*/}
               <Modal
-                title='Delete Photo'
+                title="Delete Photo"
                 action={modalItems.facePhoto.action.delete}
                 itemType={modalItems.facePhoto.name}
                 visible={isDeleteModalVisible}

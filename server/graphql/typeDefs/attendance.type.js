@@ -31,7 +31,6 @@ module.exports = gql`
     time: String!
     date: String!
     courseID: ID!
-    videoData: String
     attendees: [ID!]
     absentees: [ID!]
     participants: [ID!]

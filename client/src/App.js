@@ -1,16 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import 'video-react/dist/video-react.css'; // import css
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import "./App.css";
 import {
   AttendanceProvider,
   AuthProvider,
   CourseProvider,
   EnrolmentProvider,
   FacePhotoProvider,
+  FaceThresholdDistanceProvider,
   NavbarProvider,
   NotificationProvider,
-} from './context';
+} from "./context";
 import {
   CourseDetails,
   Dashboard,
@@ -24,24 +24,26 @@ import {
   MainAttendanceHistory,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
-  TermCondition
-} from './pages/common';
+  TermCondition,
+  UserGuidelines,
+} from "./pages/common";
 import {
   AddCourse,
   EnrolRequest,
   SelectCourseForAttendance,
   SingleAttendanceHistory,
   TakeAttendance,
-} from './pages/lecturerPage';
-import { EnrolPending, FaceGallery } from './pages/studentPage';
+} from "./pages/lecturerPage";
+import { EnrolPending, FaceGallery } from "./pages/studentPage";
 import {
   AuthRoute,
   LecturerRoute,
   ProtectedRoute,
   StudentRoute,
   UndefinedCardIDAndRoleRoute,
-} from './routes';
-import Testing from './Testing';
+} from "./routes";
+import Testing from "./Testing";
+import "lazysizes";
 
 function App() {
   return (
@@ -52,91 +54,110 @@ function App() {
             <CourseProvider>
               <EnrolmentProvider>
                 <FacePhotoProvider>
-                  <Router>
-                    <Switch>
-                      <ProtectedRoute exact path='/' component={MainMenu} />
-                      <ProtectedRoute exact path='/signin' component={SignIn} />
-                      <ProtectedRoute exact path='/signup' component={SignUp} />
+                  <FaceThresholdDistanceProvider>
+                    <Router>
+                      <Switch>
+                        <ProtectedRoute exact path="/" component={MainMenu} />
+                        <ProtectedRoute
+                          exact
+                          path="/signin"
+                          component={SignIn}
+                        />
+                        <ProtectedRoute
+                          exact
+                          path="/signup"
+                          component={SignUp}
+                        />
 
-                      <UndefinedCardIDAndRoleRoute exact path="/aboutYourself" component={UndefinedCardIDAndRole} />
-                      <AuthRoute
-                        exact
-                        path='/dashboard'
-                        component={Dashboard}
-                      />
-                      <AuthRoute exact path='/profile' component={Profile} />
-                      <AuthRoute
-                        exact
-                        path='/notification'
-                        component={Notifications}
-                      />
-                      <AuthRoute
-                        exact
-                        path='/course/:id'
-                        component={CourseDetails}
-                      />
-                      <LecturerRoute
-                        exact
-                        path='/addcourse'
-                        component={AddCourse}
-                      />
-                      <AuthRoute exact path='/testing' component={Testing} />
-                      <LecturerRoute
-                        exact
-                        path='/takeAttendance'
-                        component={SelectCourseForAttendance}
-                      />
-                      <LecturerRoute
-                        exact
-                        path='/course/:id/takeAttendance'
-                        component={TakeAttendance}
-                      />
-                      <LecturerRoute
-                        exact
-                        path='/enrolrequest'
-                        component={EnrolRequest}
-                      />
-                      <AuthRoute
-                        exact
-                        path='/history'
-                        component={MainAttendanceHistory}
-                      />
+                        <UndefinedCardIDAndRoleRoute
+                          exact
+                          path="/aboutYourself"
+                          component={UndefinedCardIDAndRole}
+                        />
+                        <AuthRoute
+                          exact
+                          path="/dashboard"
+                          component={Dashboard}
+                        />
+                        <AuthRoute exact path="/profile" component={Profile} />
+                        <AuthRoute
+                          exact
+                          path="/notification"
+                          component={Notifications}
+                        />
+                        <AuthRoute
+                          exact
+                          path="/course/:id"
+                          component={CourseDetails}
+                        />
+                        <LecturerRoute
+                          exact
+                          path="/addcourse"
+                          component={AddCourse}
+                        />
+                        {/* <AuthRoute exact path='/testing' component={Testing} /> */}
+                        <LecturerRoute
+                          exact
+                          path="/takeAttendance"
+                          component={SelectCourseForAttendance}
+                        />
+                        <LecturerRoute
+                          exact
+                          path="/course/:id/takeAttendance"
+                          component={TakeAttendance}
+                        />
+                        <LecturerRoute
+                          exact
+                          path="/enrolrequest"
+                          component={EnrolRequest}
+                        />
+                        <AuthRoute
+                          exact
+                          path="/history"
+                          component={MainAttendanceHistory}
+                        />
 
-                      <AuthRoute
-                        exact
-                        path='/course/:id/history'
-                        component={InCourseAttendanceHistory}
-                      />
+                        <AuthRoute
+                          exact
+                          path="/course/:id/history"
+                          component={InCourseAttendanceHistory}
+                        />
 
-                      <LecturerRoute
-                        exact
-                        path='/course/:courseID/history/:attendanceID'
-                        component={SingleAttendanceHistory}
-                      />
+                        <LecturerRoute
+                          exact
+                          path="/course/:courseID/history/:attendanceID"
+                          component={SingleAttendanceHistory}
+                        />
 
-                      <StudentRoute
-                        exact
-                        path='/enrolpending'
-                        component={EnrolPending}
-                      />
-                      <StudentRoute
-                        exact
-                        path='/facegallery'
-                        component={FaceGallery}
-                      />
-                      <Route
-                        exact
-                        path='/termandcondition'
-                        component={TermCondition}
-                      />
-                      <Route
-                        exact
-                        path='/privacypolicy'
-                        component={PrivacyPolicy}
-                      />
-                      <AuthRoute component={NoFound} />
-                    </Switch>
-                  </Router>
+                        <StudentRoute
+                          exact
+                          path="/enrolpending"
+                          component={EnrolPending}
+                        />
+                        <StudentRoute
+                          exact
+                          path="/facegallery"
+                          component={FaceGallery}
+                        />
+                        <Route
+                          exact
+                          path="/termandcondition"
+                          component={TermCondition}
+                        />
+                        <Route
+                          exact
+                          path="/privacypolicy"
+                          component={PrivacyPolicy}
+                        />
+                        <Route
+                          exact
+                          path="/userguidelines"
+                          component={UserGuidelines}
+                        />
+                        <AuthRoute component={NoFound} />
+                      </Switch>
+                    </Router>
+                  </FaceThresholdDistanceProvider>
                 </FacePhotoProvider>
               </EnrolmentProvider>
             </CourseProvider>

@@ -149,7 +149,7 @@ module.exports = {
         if (newPerson.userLevel === 0) {
           const notification = new Notification({
             receiver: newPerson.id,
-            title: 'Welcome To Face In',
+            title: 'Welcome To Attendlytical',
             content:
               'Please remember to upload your face photograph for attendance verification',
           });
@@ -238,8 +238,8 @@ module.exports = {
           const savedPerson = await newPerson.save();
           //send email
           await sendEmail(
-            updatedPerson.email,
-            updatedPerson.firstName,
+            savedPerson.email,
+            savedPerson.firstName,
             MAIL_TEMPLATE_TYPE.Welcome
           );
           const token = generateToken(savedPerson);
@@ -283,7 +283,7 @@ module.exports = {
         if (updatedPerson.userLevel === 0) {
           const notification = new Notification({
             receiver: updatedPerson.id,
-            title: 'Welcome To Face In',
+            title: 'Welcome To Attendlytical',
             content:
               'Please remember to upload your face photograph for attendance verification',
           });
@@ -318,7 +318,7 @@ module.exports = {
         if (profilePicture) {
           const uploadedResponse = await cloudinary.uploader.upload(
             profilePicture,
-            { upload_preset: 'facein_profilepicture' }
+            { upload_preset: 'attendlytical_profilepicture' }
           );
 
           const oldPerson = await Person.findByIdAndUpdate(currUser._id, {

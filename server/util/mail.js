@@ -19,7 +19,9 @@ const {
 //global mail type naming
 const { MAIL_TEMPLATE_TYPE } = require("../globalData");
 
-
+oAuth2Client.generateAuthUrl({
+  access_type: 'offline',
+});
 
 const getEmailData = (to, firstName, template, payload) => {
   let data = null;
@@ -96,6 +98,7 @@ const getEmailData = (to, firstName, template, payload) => {
 };
 
 const sendEmail = async (to, name, type, payload) => {
+
   const accessToken = await oAuth2Client.getAccessToken()
   const smtpTransport = mailer.createTransport({
     host: "smtp.gmail.com",

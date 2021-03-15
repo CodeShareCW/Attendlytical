@@ -2,13 +2,13 @@ const {OfficialURL}=require("../globalData");
 
 module.exports.Welcome = (firstName) => {
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>Thank you for signing up Attendlytical! Do send me an email to:
         <a href="mailto:attendlytical@gmail.com">attendlytical@gmail.com</a></p>
         if you have any inquiry, suggestion or found bug.<p>Thank you again and have a nice day ahead!</p>
         <i>Note: This mail is auto-generated for every signup</i>
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -17,7 +17,7 @@ module.exports.Welcome = (firstName) => {
 module.exports.EnrolRequest = (firstName, payload) => {
   console.log(payload);
   return `
-          <p>Dear ${firstName}: </p>
+          <p>Hi ${firstName}, </p>
 
           <p>
             A student requested to enrol the course below. 
@@ -38,7 +38,7 @@ module.exports.EnrolRequest = (firstName, payload) => {
 
           Click <a href=${OfficialURL}>here</a> to sign in
           <p>
-          Best regards, <br/>
+          Thanks, <br/>
           Attendlytical
           </p>
       `;
@@ -47,7 +47,7 @@ module.exports.EnrolRequest = (firstName, payload) => {
 module.exports.ApproveEnrolment = (firstName, payload) => {
   console.log(payload);
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>
           Your enrolment to the course below had been approved. 
         </p>
@@ -61,7 +61,7 @@ module.exports.ApproveEnrolment = (firstName, payload) => {
         
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -69,7 +69,7 @@ module.exports.ApproveEnrolment = (firstName, payload) => {
 
 module.exports.WarnStudent = (firstName, payload) => {
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>
           Your lecturer: ${payload.owner.firstName} ${payload.owner.lastName} send you a warning alert. 
         </p>
@@ -83,7 +83,7 @@ module.exports.WarnStudent = (firstName, payload) => {
         
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -92,7 +92,7 @@ module.exports.WarnStudent = (firstName, payload) => {
 module.exports.KickStudent = (firstName, payload) => {
   console.log(payload);
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>
           Course owner had kicked you out from the course below. 
         </p>
@@ -106,7 +106,7 @@ module.exports.KickStudent = (firstName, payload) => {
         
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -115,7 +115,7 @@ module.exports.KickStudent = (firstName, payload) => {
 module.exports.DeleteCourse = (firstName, payload) => {
   console.log(payload);
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>
           Course owner had deleted the course below, hence disappeared in your enrolled course list. Sayonara.
         </p>
@@ -129,7 +129,7 @@ module.exports.DeleteCourse = (firstName, payload) => {
       
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -138,7 +138,7 @@ module.exports.DeleteCourse = (firstName, payload) => {
 module.exports.DeletePendingCourse = (firstName, payload) => {
   console.log(payload);
   return `
-        <p>Dear ${firstName}: </p>
+        <p>Hi ${firstName}, </p>
         <p>
           Course owner had deleted the course below, hence disappeared in your enrolment pending list.
         </p>
@@ -152,7 +152,7 @@ module.exports.DeletePendingCourse = (firstName, payload) => {
       
         Click <a href=${OfficialURL}>here</a> to sign in
         <p>
-        Best regards, <br/>
+        Thanks, <br/>
         Attendlytical
         </p>
     `;
@@ -161,7 +161,7 @@ module.exports.DeletePendingCourse = (firstName, payload) => {
 module.exports.WithdrawCourse = (firstName, payload) => {
   console.log(payload);
   return `
-    <p>Dear ${firstName}: </p>
+    <p>Hi ${firstName}, </p>
 
     <p>
       A student had withdrawn from your course below. 
@@ -182,7 +182,7 @@ module.exports.WithdrawCourse = (firstName, payload) => {
 
     Click <a href=${OfficialURL}>here</a> to sign in
     <p>
-    Best regards, <br/>
+    Thanks, <br/>
     Attendlytical
     </p>
       `;

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Footer,
   Greeting,
-  Navbar,
+  Navbar
 } from '../../../components/common/sharedLayout';
 import './NoFound.css';
 

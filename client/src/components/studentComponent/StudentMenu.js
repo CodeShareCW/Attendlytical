@@ -34,7 +34,7 @@ export default () => {
   return (
     <Menu theme='dark' mode='vertical' defaultSelectedKeys={[path]}>
       <Menu.Item key={'dashboard'} icon={<HomeOutlined />}>
-        <Link to={'/dashboard'}>Home</Link>
+        <Link to={'/dashboard'}>Courses</Link>
       </Menu.Item>
       <Menu.Item key={'enrolpending'} icon={<ClockCircleOutlined />}>
         <Link to={'/enrolpending'}>Enrol Pending ({enrolCount})</Link>

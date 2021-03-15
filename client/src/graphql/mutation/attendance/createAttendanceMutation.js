@@ -5,7 +5,6 @@ export const CREATE_ATTENDANCE_MUTATION = gql`
     $courseID: ID!
     $date: String!
     $time: String!
-    $videoData: String
     $attendees: [ID!]
     $absentees: [ID!]
     $participants: [ID!]
@@ -16,7 +15,6 @@ export const CREATE_ATTENDANCE_MUTATION = gql`
         courseID: $courseID
         date: $date
         time: $time
-        videoData: $videoData
         attendees: $attendees
         absentees: $absentees
         participants: $participants

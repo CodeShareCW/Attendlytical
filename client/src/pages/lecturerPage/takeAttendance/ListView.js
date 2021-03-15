@@ -111,12 +111,17 @@ export default ({ participants, absentees, setAbsentees }) => {
                         {item.facePhotos?.map((photo) => (
                           <div key={photo._id}>
                             <img
-                              src={photo.photoURL}
+
                               style={{
                                 width: '100px',
                                 height: '100px',
                                 margin: '10px',
                               }}
+                              data-src={photo.photoURL}
+                              className="lazyload"
+                              src={`${process.env.PUBLIC_URL}/img/loader.gif`}
+                              alt={item.firstName}
+
                             />
                           </div>
                         ))}

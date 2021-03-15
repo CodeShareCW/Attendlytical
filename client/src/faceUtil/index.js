@@ -1,7 +1,5 @@
 import * as faceapi from 'face-api.js';
 
-export const maxDescriptorDistance = 0.6;
-
 export async function loadModels(
   setLoadingMessage,
   setLoadingMessageError
@@ -22,7 +20,7 @@ export async function loadModels(
     await faceapi.loadFaceExpressionModel(MODEL_URL)
   } catch (err) {
     setLoadingMessageError(
-      'Model loading failed. Please contact me about the bug: faceinattendanceapp@gmail.com'
+      'Model loading failed. Please contact me about the bug:attendlytical@gmail.com'
     );
   }
 }
@@ -46,11 +44,10 @@ export async function getFullFaceDescription(blob, inputSize = 512) {
     .withFaceLandmarks(useTinyModel)
     .withFaceExpressions()
     .withFaceDescriptors();
-  console.log('face', fullDesc);
   return fullDesc;
 }
 
-export async function createMatcher(faceProfile) {
+export async function createMatcher(faceProfile, maxDescriptorDistance) {
   // Create labeled descriptors of member from profile
   let labeledDescriptors = faceProfile.map(
     (profile) =>
@@ -68,7 +65,6 @@ export async function createMatcher(faceProfile) {
     maxDescriptorDistance
   );
 
-  console.log(faceMatcher)
   return faceMatcher;
 }
 

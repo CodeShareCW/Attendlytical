@@ -9,6 +9,7 @@ import InCourseAttendanceHistory from './attendance/inCourseHistory';
 import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
 import PrivacyPolicy from './privacyPolicy/PrivacyPolicy';
 import TermCondition from './termCondition/TermCondition';
+import UserGuidelines from './userGuidelines/UserGuidelines';
 
 export {
   CourseDetails,
@@ -23,5 +24,6 @@ export {
   InCourseAttendanceHistory,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
-  TermCondition
+  TermCondition,
+  UserGuidelines
 };

@@ -5,11 +5,11 @@ import { AuthContext } from '../context/auth';
 
 export default ({ component: Component, ...rest }) => {
   const { user } = useContext(AuthContext);
-  return (
+  console.log(rest)
+  return (    
     <Route
-      {...rest}
       render={(props) =>
-        user? (
+        user && user.userLevel==-1 ? (
           <Component {...props} />
         ) : (
           <Redirect to='/' />

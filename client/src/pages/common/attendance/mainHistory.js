@@ -292,7 +292,6 @@ export default (props) => {
         const isAttend = att.attendees.filter(
           (stud) => stud.info._id === user._id
         );
-        console.log(isAttend)
         Object.assign(tmp, { status: isAttend[0] ? 'Attend' : 'Absent' });
         Object.assign(tmp, { mood: isAttend[0]?.expression? isAttend[0].expression : "-" });
 
@@ -304,9 +303,7 @@ export default (props) => {
   };
 
   const handleTableChange = (value) => {
-    if (tablePagination != value) {
-      console.log('Fetch More');
-    }
+
     setTablePagination(value);
   };
 

@@ -6,6 +6,11 @@ export const DEFAULT_WEBCAM_RESOLUTION = {
 
 export const webcamResolutionType = [
   {
+    label: '300x250',
+    width: 300,
+    height: 250,
+  },
+  {
     label: '500x350',
     width: 500,
     height: 350,
