@@ -31,7 +31,6 @@ import {
 import {
   AddCourse,
   EnrolRequest,
-  SelectCourseForAttendance,
   TakeAttendance,
 } from "./pages/lecturerPage";
 import { EnrolPending, FaceGallery } from "./pages/studentPage";
@@ -96,11 +95,6 @@ function App() {
                           component={AddCourse}
                         />
                         {/* <AuthRoute exact path='/testing' component={Testing} /> */}
-                        <LecturerRoute
-                          exact
-                          path="/takeAttendance"
-                          component={SelectCourseForAttendance}
-                        />
                         <LecturerRoute
                           exact
                           path="/course/:id/takeAttendance"

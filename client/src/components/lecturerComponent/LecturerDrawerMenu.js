@@ -60,12 +60,6 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
         </Link>
       </p>
       <p>
-        <Link to={'/takeAttendance'}>
-          <AuditOutlined />
-          &nbsp; Take Attendance
-        </Link>
-      </p>
-      <p>
         <Link to={'/history'}>
           <HistoryOutlined />
           &nbsp; Attendance History
