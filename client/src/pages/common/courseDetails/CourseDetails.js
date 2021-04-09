@@ -1,5 +1,5 @@
-import { UserOutlined, RedoOutlined } from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/react-hooks';
+import { RedoOutlined } from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
   Avatar,
   Button,
@@ -8,78 +8,77 @@ import {
   Layout,
   message,
   Space,
-  Spin,
   Table,
   Tag,
-} from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+} from "antd";
+import React, { useContext, useEffect, useState } from "react";
+import Modal from "../../../components/common/customModal";
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from '../../../components/common/sharedLayout';
-import { AuthContext } from '../../../context';
-import { CheckError, ErrorComp } from '../../../ErrorHandling';
+} from "../../../components/common/sharedLayout";
+import { AuthContext } from "../../../context";
+import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { modalItems } from "../../../globalData";
 import {
   KICK_PARTICIPANT_MUTATION,
   WARN_PARTICIPANT_MUTATION,
-} from '../../../graphql/mutation';
-import { FETCH_COURSE_QUERY } from '../../../graphql/query';
-import CourseDetailCard from './CourseDetailCard';
-import './CourseDetails.css';
-import { modalItems } from '../../../globalData';
-import Modal from "../../../components/common/customModal"
+} from "../../../graphql/mutation";
+import { FETCH_COURSE_QUERY } from "../../../graphql/query";
+import CourseDetailCard from "./CourseDetailCard";
+import "./CourseDetails.css";
 const { Content } = Layout;
 
 export default (props) => {
-
   const columns = [
     {
       title: <strong>Avatar</strong>,
-      dataIndex: 'profilePictureURL',
-      key: 'profilePictureURL',
+      dataIndex: "profilePictureURL",
+      key: "profilePictureURL",
       render: (imgURL, record) => (
         <Avatar
           src={imgURL}
           size={50}
           style={{
-            backgroundColor: `rgb(${Math.random() * 150 + 30}, ${Math.random() * 150 + 30
-              }, ${Math.random() * 150 + 30})`,
+            backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
+              Math.random() * 150 + 30
+            }, ${Math.random() * 150 + 30})`,
           }}
         >
           {record.displayedName[0]}
         </Avatar>
       ),
-      align: 'center',
+      align: "center",
     },
     {
       title: <strong>Matric Number</strong>,
-      dataIndex: 'cardID',
-      key: 'cardID',
-      align: 'center',
-      sorter: (a, b) => a.cardID.localeCompare(b.cardID)
+      dataIndex: "cardID",
+      key: "cardID",
+      align: "center",
+      sorter: (a, b) => a.cardID.localeCompare(b.cardID),
     },
     {
       title: <strong>Name</strong>,
-      dataIndex: 'displayedName',
-      key: 'displayedName',
-      align: 'center',
-      sorter: (a, b) => a.displayedName.localeCompare(b.displayedName)
+      dataIndex: "displayedName",
+      key: "displayedName",
+      align: "center",
+      sorter: (a, b) => a.displayedName.localeCompare(b.displayedName),
     },
     {
       title: <strong>Attend Rate</strong>,
-      dataIndex: 'attendRate',
-      key: 'attendRate',
+      dataIndex: "attendRate",
+      key: "attendRate",
       render: (text) =>
         text !== null ? (
-          <Tag color={text === 0 ? '#f00' : text <= 80 ? '#f90' : '#0c8'}>
+          <Tag color={text === 0 ? "#f00" : text <= 80 ? "#f90" : "#0c8"}>
             {text}%
           </Tag>
         ) : (
-          <Tag className='alert'>No attendance record yet</Tag>
+          <Tag className="alert">No attendance record yet</Tag>
         ),
-      align: 'center',
+      align: "center",
       sorter: {
         compare: (a, b) => a.attendRate - b.attendRate,
         multiple: 2,
@@ -87,14 +86,14 @@ export default (props) => {
     },
     {
       title: <strong>Warns</strong>,
-      dataIndex: 'warningCount',
-      key: 'warningCount',
+      dataIndex: "warningCount",
+      key: "warningCount",
       render: (text) => (
         <div>
           <p>{text}</p>
         </div>
       ),
-      align: 'center',
+      align: "center",
       sorter: {
         compare: (a, b) => a.warningCount - b.warningCount,
         multiple: 2,
@@ -102,12 +101,12 @@ export default (props) => {
     },
     {
       title: <strong>Action</strong>,
-      key: 'action',
+      key: "action",
       render: (index) => (
-        <Space size='middle'>
+        <Space size="middle">
           <Button
             danger
-            className='courseDetails__warnBtn'
+            className="courseDetails__warnBtn"
             onClick={() => {
               handleWarnParticipant(index.key, props.match.params.id);
               setSelectedParticipant(index);
@@ -121,7 +120,7 @@ export default (props) => {
           </Button>
           <Button
             danger
-            className='courseDetails__kickBtn'
+            className="courseDetails__kickBtn"
             onClick={() => {
               setVisible(true);
               setSelectedParticipant(index);
@@ -135,7 +134,7 @@ export default (props) => {
           </Button>
         </Space>
       ),
-      align: 'center',
+      align: "center",
     },
   ];
 
@@ -146,10 +145,9 @@ export default (props) => {
   const [attendanceCount, setAttendanceCount] = useState(0);
 
   const [visible, setVisible] = useState(false);
-  if (user.userLevel==0){
-    columns.splice(-1,1);
+  if (user.userLevel == 0) {
+    columns.splice(-1, 1);
   }
-
 
   const { loading, data, error, refetch } = useQuery(FETCH_COURSE_QUERY, {
     onError(err) {
@@ -222,7 +220,7 @@ export default (props) => {
   };
 
   const titleList = [
-    { name: 'Home', link: '/dashboard' },
+    { name: "Home", link: "/dashboard" },
     {
       name: `Course: ${props.match.params.id}`,
       link: `/course/${props.match.params.id}`,
@@ -242,7 +240,7 @@ export default (props) => {
         profilePictureURL: par.info.profilePictureURL,
         firstName: par.info.firstName,
         lastName: par.info.lastName,
-        displayedName: par.info.firstName + ' ' + par.info.lastName,
+        displayedName: par.info.firstName + " " + par.info.lastName,
         cardID: par.info.cardID,
         attendRate: par.attendRate,
         warningCount: par.warningCount,
@@ -250,17 +248,8 @@ export default (props) => {
     });
   };
 
-  const TableDisplay = () => (
-    <Table
-      columns={columns}
-      style={{ textAlign: 'center' }}
-      dataSource={parsedParticipants(participants)}
-      loading={loading}
-    />
-  );
-
   return (
-    <Layout className='courseDetails layout'>
+    <Layout className="courseDetails layout">
       <Navbar />
       <Layout>
         <Greeting
@@ -269,39 +258,42 @@ export default (props) => {
         />
         <PageTitleBreadcrumb titleList={titleList} />
         <Content>
-          <Card className='courseDetails__card'>
+          <Card className="courseDetails__card">
             {error && <ErrorComp err={error} />}
             {!error && (
-              <div className='courseDetails__container'>
-                {data && (
-                  <CourseDetailCard
-                    course={data?.getCourseAndParticipants.course}
-                    attendanceCount={attendanceCount}
-                    participants={participants}
-                  />
-                )}
-                <Divider
-                  orientation='left'
-                  style={{ color: '#333', fontWeight: 'normal' }}
-                >
-                  Participants
-                </Divider>
-
-                <TableDisplay />
-                <Button
-                  style={{ float: 'right' }}
-                  icon={<RedoOutlined />}
-                  disabled={loading}
-                  loading={loading}
-                  onClick={() => refetch()}
-                >
-                  Refresh Table
-                </Button>
-              </div>
+                  data && (
+                    <CourseDetailCard
+                      course={data?.getCourseAndParticipants.course}
+                      attendanceCount={attendanceCount}
+                      participants={participants}
+                    />
+                  )
             )}
           </Card>
+          <Divider
+            orientation="left"
+            style={{ color: "#333", fontWeight: "normal" }}
+          >
+            Participants
+          </Divider>
+          <Table
+            scroll={{ x: "max-content" }}
+            columns={columns}
+            dataSource={parsedParticipants(participants)}
+            loading={loading}
+          />
+
+          <Button
+            style={{ float: "right" }}
+            icon={<RedoOutlined />}
+            disabled={loading}
+            loading={loading}
+            onClick={() => refetch()}
+          >
+            Refresh Table
+          </Button>
           <Modal
-            title='Delete Course'
+            title="Delete Course"
             action={modalItems.participant.action.kick}
             itemType={modalItems.participant.name}
             visible={visible}
@@ -315,7 +307,6 @@ export default (props) => {
             handleCancel={() => setVisible(false)}
             payload={selectedParticipant}
           />
-
         </Content>
         <Footer />
       </Layout>

@@ -38,9 +38,6 @@ export default () => {
       <Menu.Item key={'dashboard'} icon={<HomeOutlined />}>
         <Link to={'/dashboard'}>Courses</Link>
       </Menu.Item>
-      <Menu.Item key={'addcourse'} icon={<PlusCircleOutlined />}>
-        <Link to={'/addcourse'}>Add Course</Link>
-      </Menu.Item>
       <Menu.Item key={'enrolrequest'} icon={<AliwangwangOutlined />}>
         <Link to={'/enrolrequest'}>Enrol Request ({enrolCount})</Link>
       </Menu.Item>

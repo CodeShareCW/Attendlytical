@@ -1,9 +1,15 @@
 require("dotenv").config();
 
 const mailer = require("nodemailer");
-const { google } = require('googleapis')
-const oAuth2Client = new google.auth.OAuth2(process.env.GOOGLE_OAUTH_CLIENT_ID, process.env.GOOGLE_OAUTH_CLIENT_SECRET, process.env.GOOGLE_OAUTH_REDIRECT_URI)
-oAuth2Client.setCredentials({ refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN })
+const { google } = require("googleapis");
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_OAUTH_CLIENT_ID,
+  process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+  process.env.GOOGLE_OAUTH_REDIRECT_URI
+);
+oAuth2Client.setCredentials({
+  refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
+});
 
 const {
   Welcome,
@@ -13,14 +19,14 @@ const {
   KickStudent,
   DeleteCourse,
   WithdrawCourse,
-  DeletePendingCourse
+  DeletePendingCourse,
 } = require("./mailTemplate");
 
 //global mail type naming
 const { MAIL_TEMPLATE_TYPE } = require("../globalData");
 
 oAuth2Client.generateAuthUrl({
-  access_type: 'offline',
+  access_type: "offline",
 });
 
 const getEmailData = (to, firstName, template, payload) => {
@@ -98,32 +104,32 @@ const getEmailData = (to, firstName, template, payload) => {
 };
 
 const sendEmail = async (to, name, type, payload) => {
+  try {
+    const accessToken = await oAuth2Client.getAccessToken();
+    const smtpTransport = mailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // use SSL
+      auth: {
+        type: "OAuth2",
+        user: process.env.GOOGLE_OAUTH_USERNAME,
+        clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+        refreshToken: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
+        accessToken: accessToken,
+      },
+    });
 
-  const accessToken = await oAuth2Client.getAccessToken()
-  const smtpTransport = mailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // use SSL
-    auth: {
-      type: 'OAuth2',
-      user: process.env.GOOGLE_OAUTH_USERNAME,
-      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-      refreshToken: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
-      accessToken: accessToken
-    },
-  });
-
-  const mail = getEmailData(to, name, type, payload);
-
-  smtpTransport.sendMail(mail, function (error, response) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(`Email sent to: ${to} successfully: ` + response);
-    }
-    smtpTransport.close();
-  });
+    const mail = getEmailData(to, name, type, payload);
+    smtpTransport.sendMail(mail, function (error, response) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(`Email sent to: ${to} successfully: ` + response);
+      }
+      smtpTransport.close();
+    });
+  } catch (e) {}
 };
 
 module.exports = { sendEmail };

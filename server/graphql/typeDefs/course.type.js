@@ -14,7 +14,6 @@ module.exports = gql`
 
   type Courses {
     courses: [Course!]
-    hasNextPage: Boolean!
   }
 
   type CourseVParticipants {
@@ -30,12 +29,8 @@ module.exports = gql`
   }
 
   extend type Query {
-    getAllCreatedCourses: [Course!]
-    getCreatedCourses(cursor: ID, limit: Int!): Courses
-    getEnrolledCourses(cursor: ID, limit: Int!): Courses
-
-    getCreatedCoursesCount: Int!
-    getEnrolledCoursesCount: Int!
+    getCourses(currPage: Int!, pageSize: Int!): Courses
+    getCoursesCount: Int!
     getCourseAndParticipants(courseID: ID!): CourseVParticipants!
   }
 

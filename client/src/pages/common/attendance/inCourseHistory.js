@@ -295,6 +295,7 @@ export default (props) => {
                   Refresh Table
                 </Button>
                 <Table
+                  scroll={{ x: "max-content" }}
                   loading={loading}
                   pagination={tablePagination}
                   dataSource={parseAttendanceData(attendances)}

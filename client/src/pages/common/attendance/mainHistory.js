@@ -4,16 +4,7 @@ import {
   RedoOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import {
-  Button,
-  Card,
-  Layout,
-  message,
-  Skeleton,
-  Space,
-  Table,
-  Tag,
-} from "antd";
+import { Button, Card, Layout, message, Skeleton, Space, Table } from "antd";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -297,6 +288,7 @@ export default (props) => {
                   Refresh Table
                 </Button>
                 <Table
+                  scroll={{ x: "max-content" }}
                   loading={loading}
                   pagination={tablePagination}
                   onChange={handleTableChange}

@@ -15,7 +15,7 @@ export default ({ course, participants, attendanceCount }) => {
     <Row className='courseDetails__row'>
       <Col>
         <Card className='courseDetails__info'>
-          <p className='courseDetails__shortID'>Unique ID: {course.shortID}</p>
+          <p className='courseDetails__shortID'>ID: {course.shortID}</p>
           <p>
             <strong>Code:</strong> {course.code}
           </p>

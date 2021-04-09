@@ -126,21 +126,19 @@ const PersongqlParser = (person, token) => {
   };
 };
 
-const CoursegqlParser = (course, hasNextPage) => {
+const CoursegqlParser = (course) => {
   return {
     ...course._doc,
     createdAt: new Date(course._doc.createdAt).toISOString(),
     updatedAt: new Date(course._doc.updatedAt).toISOString(),
     creator: person.bind(this, course._doc.creator),
     enrolledStudents: people.bind(this, course._doc.enrolledStudents),
-    hasNextPage,
   };
 };
 
-const CoursesgqlParser = (coursesList, hasNextPage) => {
+const CoursesgqlParser = (coursesList) => {
   return {
     courses: courses.bind(this, coursesList),
-    hasNextPage,
   };
 };
 

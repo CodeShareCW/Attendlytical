@@ -1,14 +1,14 @@
-var shortid = require('shortid');
-const { UserInputError } = require('apollo-server');
-const Attendance = require('../../models/attendance.model');
+var shortid = require("shortid");
+const { UserInputError } = require("apollo-server");
+const Attendance = require("../../models/attendance.model");
 
-const Course = require('../../models/course.model');
-const Person = require('../../models/person.model');
-const PendingEnrolledCourse = require('../../models/pendingEnrolledCourse.model');
-const Notification = require('../../models/notification.model');
-const Warning = require('../../models/warning.model');
+const Course = require("../../models/course.model");
+const Person = require("../../models/person.model");
+const PendingEnrolledCourse = require("../../models/pendingEnrolledCourse.model");
+const Notification = require("../../models/notification.model");
+const Warning = require("../../models/warning.model");
 
-const { validateCourseInput } = require('../../util/validators');
+const { validateCourseInput } = require("../../util/validators");
 
 const {
   ParticipantsgqlParser,
@@ -16,126 +16,90 @@ const {
   CoursegqlParser,
   CoursesgqlParser,
   PendingEnrolledCoursegqlParser,
-} = require('./merge');
+} = require("./merge");
 
-const checkAuth = require('../../util/check-auth');
+const checkAuth = require("../../util/check-auth");
 
-const { sendEmail } = require('../../util/mail');
+const { sendEmail } = require("../../util/mail");
 
 //global mail type naming
-const { MAIL_TEMPLATE_TYPE } = require('../../globalData');
+const { MAIL_TEMPLATE_TYPE } = require("../../globalData");
 
 module.exports = {
   Query: {
-    async getEnrolledCourses(_, { cursor, limit }, context) {
+    async getCourses(_, { currPage, pageSize }, context) {
       const currUser = checkAuth(context);
       try {
-        let coursesEnrolled;
-        if (!cursor) {
+        let coursesEnrolled = [];
+        if (currUser.userLevel === 0) {
           coursesEnrolled = await Course.find({
             enrolledStudents: currUser._id,
           })
-            .limit(limit)
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
             .sort({ _id: -1 });
-        } else {
+        } else if (currUser.userLevel === 1) {
           coursesEnrolled = await Course.find({
-            enrolledStudents: currUser._id,
-            _id: { $lt: cursor },
-          })
-            .limit(limit)
-            .sort({ _id: -1 });
-        }
-        let hasNextPage = true;
-
-        if (coursesEnrolled.length < limit) hasNextPage = false;
-
-        return CoursesgqlParser(coursesEnrolled, hasNextPage);
-      } catch (err) {
-        throw err;
-      }
-    },
-
-    async getAllCreatedCourses(_, __, context) {
-      const currUser = checkAuth(context);
-      try {
-        const courseCreated = await Course.find({
-          creator: currUser._id,
-        }).sort({ _id: -1 });
-
-        return courseCreated.map((course) => CoursegqlParser(course));
-      } catch (err) {
-        throw err;
-      }
-    },
-    async getCreatedCourses(_, { cursor, limit }, context) {
-      const currUser = checkAuth(context);
-      try {
-        let courseCreated;
-        if (!cursor) {
-          courseCreated = await Course.find({
             creator: currUser._id,
           })
-            .limit(limit)
+            .skip((currPage - 1) * pageSize)
+            .limit(pageSize)
             .sort({ _id: -1 });
         } else {
-          courseCreated = await Course.find({
-            creator: currUser._id,
-            _id: { $lt: cursor },
-          })
-            .limit(limit)
-            .sort({ _id: -1 });
+          throw new Error("Something wrong");
         }
-        let hasNextPage = true;
+        return CoursesgqlParser(coursesEnrolled);
+      } catch (err) {
+        throw err;
+      }
+    },
 
-        if (courseCreated.length < limit) hasNextPage = false;
+    async getCoursesCount(_, __, context) {
+      const currUser = checkAuth(context);
+      var count=0;
+      try {
+        if (currUser.userLevel === 0) {
+          const courseEnrolled = await Course.find(
+            {
+              creator: currUser._id,
+            },
+            ["id"]
+          );
+          count=courseEnrolled.length;
+        }
+        else if (currUser.userLevel === 1) {
+          const courseCreated = await Course.find(
+            {
+              creator: currUser._id,
+            },
+            ["id"]
+          );
 
-        return CoursesgqlParser(courseCreated, hasNextPage);
+          count=courseCreated.length;
+        } else {
+          throw new Error("Something wrong");
+        }
+
+        return count;
       } catch (err) {
         throw err;
       }
     },
-    async getCreatedCoursesCount(_, __, context) {
-      const currUser = checkAuth(context);
-      try {
-        const courseCreated = await Course.find(
-          {
-            creator: currUser._id,
-          },
-          ['id']
-        );
-        return courseCreated.length;
-      } catch (err) {
-        throw err;
-      }
-    },
-    async getEnrolledCoursesCount(_, __, context) {
-      const currUser = checkAuth(context);
-      try {
-        const courseEnrolled = await Course.find(
-          {
-            enrolledStudents: currUser._id,
-          },
-          ['id']
-        );
-        return courseEnrolled.length;
-      } catch (err) {
-        throw err;
-      }
-    },
+
     async getCourseAndParticipants(_, { courseID }, context) {
       const currUser = checkAuth(context);
       let errors = {};
       try {
         const course = await Course.findOne({ shortID: courseID });
         if (!course) {
-          errors.general = 'Course do not exist';
-          throw new UserInputError('Course do not exist', { errors });
+          errors.general = "Course do not exist";
+          throw new UserInputError("Course do not exist", { errors });
         }
         if (currUser.userLevel === 1) {
           if (course.creator != currUser._id) {
-            errors.general = 'Access forbidden. You do not own this course.';
+            errors.general = "Access forbidden. You do not own this course.";
             throw new UserInputError(
-              'Access forbidden. You do not own this course.',
+              "Access forbidden. You do not own this course.",
               {
                 errors,
               }
@@ -147,9 +111,9 @@ module.exports = {
           );
           if (!student) {
             errors.general =
-              'Access forbidden. You do not enrol to this course.';
+              "Access forbidden. You do not enrol to this course.";
             throw new UserInputError(
-              'Access forbidden. You do not enrol to this course.',
+              "Access forbidden. You do not enrol to this course.",
               {
                 errors,
               }
@@ -161,7 +125,7 @@ module.exports = {
           {
             course: course._id,
           },
-          ['_id']
+          ["_id"]
         );
 
         return {
@@ -183,9 +147,9 @@ module.exports = {
       try {
         if (currUser.userLevel !== 1) {
           errors.general =
-            'The user is not a lecturer but want to create course!';
+            "The user is not a lecturer but want to create course!";
           throw new UserInputError(
-            'The user is not a lecturer but want to create course!',
+            "The user is not a lecturer but want to create course!",
             { errors }
           );
         }
@@ -197,15 +161,15 @@ module.exports = {
             existingShortID = await Course.find({ shortID: id });
           } while (existingShortID.length > 0);
           const newCourse = new Course({
-            shortID: 'Course_' + id,
+            shortID: "Course_" + id,
             creator: currUser._id,
-            code: i + ' SCSV2013',
-            name: i + ' Graphic',
-            session: '20192020-01',
+            code: i + " SCSV2013",
+            name: i + " Graphic",
+            session: "20192020-01",
           });
           await newCourse.save();
         }
-        return 'Create 50 Course...';
+        return "Create 50 Course...";
       } catch (err) {
         throw err;
       }
@@ -218,16 +182,16 @@ module.exports = {
       try {
         if (currUser.userLevel !== 1) {
           errors.general =
-            'The user is not a lecturer but want to delete course!';
+            "The user is not a lecturer but want to delete course!";
           throw new UserInputError(
-            'The user is not a lecturer but want to delete course!',
+            "The user is not a lecturer but want to delete course!",
             { errors }
           );
         }
 
         await Course.deleteMany({ create: currUser._id });
 
-        return 'CDelete 50 Course...';
+        return "CDelete 50 Course...";
       } catch (err) {
         throw err;
       }
@@ -241,14 +205,14 @@ module.exports = {
       const { valid, errors } = validateCourseInput(code, name, session);
 
       if (!valid) {
-        throw new UserInputError('Errors', { errors });
+        throw new UserInputError("Errors", { errors });
       }
 
       try {
         if (currUser.userLevel !== 1) {
-          errors.general = 'You are not a lecturer but want to create course!';
+          errors.general = "You are not a lecturer but want to create course!";
           throw new UserInputError(
-            'You are not a lecturer but want to create course!',
+            "You are not a lecturer but want to create course!",
             { errors }
           );
         }
@@ -281,9 +245,9 @@ module.exports = {
       let errors = {};
       try {
         if (currUser.userLevel !== 1) {
-          errors.general = 'You are not a lecturer but want to delete course!';
+          errors.general = "You are not a lecturer but want to delete course!";
           throw new UserInputError(
-            'You are not a lecturer but want to delete course!',
+            "You are not a lecturer but want to delete course!",
             { errors }
           );
         }
@@ -291,8 +255,8 @@ module.exports = {
         const course2Delete = await Course.findById(courseID);
 
         if (!course2Delete) {
-          errors.general = 'Try to delete a non existing course';
-          throw new UserInputError('Try to delete a non existing course', {
+          errors.general = "Delete a non existing course";
+          throw new UserInputError("Delete a non existing course", {
             errors,
           });
         }
@@ -373,9 +337,9 @@ module.exports = {
       let errors = {};
       try {
         if (currUser.userLevel !== 0) {
-          errors.general = 'You are not a student but want to enrol course!';
+          errors.general = "Invalid role, only student allowed to enrol!";
           throw new UserInputError(
-            'You are not a student but want to enrol course!',
+            "Invalid role, only student allowed to enrol",
             { errors }
           );
         }
@@ -383,9 +347,9 @@ module.exports = {
         const course2enrol = await Course.findOne({ shortID: courseID });
 
         if (!course2enrol) {
-          errors.general = 'Course do not exist but you wish to enrol!';
+          errors.general = "Course do not exist!";
           throw new UserInputError(
-            'Course do not exist but you wish to enrol!',
+            "Course do not exist!",
             { errors }
           );
         }
@@ -393,7 +357,7 @@ module.exports = {
         const checkPending = await PendingEnrolledCourse.find({
           course: course2enrol.id,
           student: currUser._id,
-          status: 'pending',
+          status: "pending",
         });
 
         if (checkPending.length > 0) {
@@ -410,8 +374,8 @@ module.exports = {
           );
 
           if (student) {
-            errors.general = 'You already enrolled!';
-            throw new UserInputError('You already enrol the course');
+            errors.general = "You already enrolled!";
+            throw new UserInputError("You already enrol the course");
           }
         }
         //just pending the course
@@ -426,8 +390,8 @@ module.exports = {
         const owner = await Person.findById(course2enrol.creator);
 
         if (!owner) {
-          errors.general = 'Course owner do not exist';
-          throw new UserInputError('Course owner do not exist', { errors });
+          errors.general = "Course owner do not exist";
+          throw new UserInputError("Course owner do not exist", { errors });
         }
 
         //notify lecturer
@@ -457,18 +421,18 @@ module.exports = {
       let errors = {};
       try {
         if (currUser.userLevel !== 0) {
-          errors.general = 'You are not a student but want to unenrol course!';
+          errors.general = "You are not a student but want to unenrol course!";
           throw new UserInputError(
-            'You are not a student but want to unenrol course!',
+            "You are not a student but want to unenrol course!",
             { errors }
           );
         }
 
         const course2withdraw = await Course.findById(courseID);
         if (!course2withdraw) {
-          errors.general = 'Course not exist but student wish to withdraw!';
+          errors.general = "Course not exist but student wish to withdraw!";
           throw new UserInputError(
-            'Course not exist but student wish to withdraw!',
+            "Course not exist but student wish to withdraw!",
             { errors }
           );
         }
@@ -477,8 +441,8 @@ module.exports = {
         );
 
         if (!student) {
-          errors.general = 'Student do not enrol the course';
-          throw new UserInputError('Student do not enrol the course', {
+          errors.general = "Student do not enrol the course";
+          throw new UserInputError("Student do not enrol the course", {
             errors,
           });
         }
@@ -489,12 +453,11 @@ module.exports = {
           { safe: true, upsert: true }
         );
 
-
         const owner = await Person.findById(course2withdraw.creator);
 
         if (!owner) {
-          errors.general = 'Course owner do not exist';
-          throw new UserInputError('Course owner do not exist', { errors });
+          errors.general = "Course owner do not exist";
+          throw new UserInputError("Course owner do not exist", { errors });
         }
 
         await Warning.deleteOne({ student: currUser._id, course: courseID });
@@ -516,7 +479,7 @@ module.exports = {
 
         await notification.save();
 
-        return 'Withdraw success!';
+        return "Withdraw success!";
       } catch (err) {
         throw err;
       }
@@ -527,29 +490,29 @@ module.exports = {
       let errors = {};
       try {
         if (currUser.userLevel !== 1) {
-          errors.general = 'You are not a lecturer';
-          throw new UserInputError('You are not a lecturer', { errors });
+          errors.general = "You are not a lecturer";
+          throw new UserInputError("You are not a lecturer", { errors });
         }
         const addedPerson = await Person.findOne({ email });
         const course = await Course.findOne({ shortID: courseID });
 
         if (!addedPerson) {
-          errors.general = 'Student do not exist';
-          throw new UserInputError('Student do not exist', { errors });
+          errors.general = "Student do not exist";
+          throw new UserInputError("Student do not exist", { errors });
         }
 
         if (addedPerson.userLevel !== 0) {
           errors.general =
-            'Added person is a lecturer and is not allowed to join any course';
+            "Added person is a lecturer and is not allowed to join any course";
           throw new UserInputError(
-            'Added person is a lecturer and is not allowed to join any course',
+            "Added person is a lecturer and is not allowed to join any course",
             { errors }
           );
         }
 
         if (!course) {
-          errors.general = 'Course do not exist';
-          throw new UserInputError('Course do not exist', { errors });
+          errors.general = "Course do not exist";
+          throw new UserInputError("Course do not exist", { errors });
         }
 
         const checkPending = await PendingEnrolledCourse.find({
@@ -571,8 +534,8 @@ module.exports = {
           );
 
           if (student) {
-            errors.general = 'Student already enrolled the course!';
-            throw new UserInputError('Student already enrolled the course', {
+            errors.general = "Student already enrolled the course!";
+            throw new UserInputError("Student already enrolled the course", {
               errors,
             });
           }
@@ -603,26 +566,26 @@ module.exports = {
         const kickedPerson = await Person.findById(participantID);
 
         if (!course) {
-          errors.general = 'Course do not exist';
-          throw new UserInputError('Course do not exist', { errors });
+          errors.general = "Course do not exist";
+          throw new UserInputError("Course do not exist", { errors });
         }
 
         if (course.creator != currUser._id) {
-          errors.general = 'You cannot kick the participant';
-          throw new Error('You cannot kick the participant', { errors });
+          errors.general = "You cannot kick the participant";
+          throw new Error("You cannot kick the participant", { errors });
         }
 
         if (!kickedPerson) {
-          errors.general = 'Participant do not exist';
-          throw new UserInputError('Participant do not exist', { errors });
+          errors.general = "Participant do not exist";
+          throw new UserInputError("Participant do not exist", { errors });
         }
 
         const checkStudentExist = course.enrolledStudents.find(
           (id) => id == participantID
         );
         if (!checkStudentExist) {
-          errors.general = 'Participant do not exist in this course';
-          throw new UserInputError('Participant do not exist in this course', {
+          errors.general = "Participant do not exist in this course";
+          throw new UserInputError("Participant do not exist in this course", {
             errors,
           });
         }
@@ -651,7 +614,7 @@ module.exports = {
           { owner: currUser, course: course }
         );
 
-        return 'Kick Success!';
+        return "Kick Success!";
       } catch (err) {
         throw err;
       }
@@ -665,26 +628,26 @@ module.exports = {
         const warnedPerson = await Person.findById(participantID);
 
         if (!course) {
-          errors.general = 'Course do not exist';
-          throw new UserInputError('Course do not exist', { errors });
+          errors.general = "Course do not exist";
+          throw new UserInputError("Course do not exist", { errors });
         }
 
         if (course.creator != currUser._id) {
-          errors.general = 'You cannot warn the participant';
-          throw new Error('You cannot warn the participant', { errors });
+          errors.general = "You cannot warn the participant";
+          throw new Error("You cannot warn the participant", { errors });
         }
 
         if (!warnedPerson) {
-          errors.general = 'Participant do not exist';
-          throw new UserInputError('Participant do not exist', { errors });
+          errors.general = "Participant do not exist";
+          throw new UserInputError("Participant do not exist", { errors });
         }
 
         const checkStudentExist = course.enrolledStudents.find(
           (id) => id == participantID
         );
         if (!checkStudentExist) {
-          errors.general = 'Participant do not exist in this course';
-          throw new UserInputError('Participant do not exist in this course', {
+          errors.general = "Participant do not exist in this course";
+          throw new UserInputError("Participant do not exist in this course", {
             errors,
           });
         }
@@ -726,7 +689,7 @@ module.exports = {
           { owner: currUser, course: course }
         );
 
-        return 'Warn Success!';
+        return "Warn Success!";
       } catch (err) {
         throw err;
       }

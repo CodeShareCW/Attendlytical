@@ -48,12 +48,6 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
         </Link>
       </p>
       <p>
-        <Link to={'/addcourse'}>
-          <PlusCircleOutlined />
-          &nbsp; Add Course
-        </Link>
-      </p>
-      <p>
         <Link to={'/enrolrequest'}>
           <AliwangwangOutlined />
           &nbsp; Enrol Request ({enrolCount})

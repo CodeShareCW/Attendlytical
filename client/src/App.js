@@ -29,7 +29,6 @@ import {
   UserGuidelines,
 } from "./pages/common";
 import {
-  AddCourse,
   EnrolRequest,
   TakeAttendance,
 } from "./pages/lecturerPage";
@@ -88,11 +87,6 @@ function App() {
                           exact
                           path="/course/:id"
                           component={CourseDetails}
-                        />
-                        <LecturerRoute
-                          exact
-                          path="/addcourse"
-                          component={AddCourse}
                         />
                         {/* <AuthRoute exact path='/testing' component={Testing} /> */}
                         <LecturerRoute
