@@ -6,6 +6,7 @@ import Notifications from './notification/Notifications';
 import Profile from './profile/Profile';
 import MainAttendanceHistory from './attendance/mainHistory';
 import InCourseAttendanceHistory from './attendance/inCourseHistory';
+import SingleAttendanceHistory from './attendance/singleHistory';
 import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
 import PrivacyPolicy from './privacyPolicy/PrivacyPolicy';
 import TermCondition from './termCondition/TermCondition';
@@ -22,6 +23,7 @@ export {
   NoFound,
   MainAttendanceHistory,
   InCourseAttendanceHistory,
+  SingleAttendanceHistory,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
   TermCondition,

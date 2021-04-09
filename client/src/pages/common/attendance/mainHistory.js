@@ -2,8 +2,8 @@ import {
   ArrowRightOutlined,
   DeleteFilled,
   RedoOutlined,
-} from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/react-hooks';
+} from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
   Button,
   Card,
@@ -13,39 +13,27 @@ import {
   Space,
   Table,
   Tag,
-} from 'antd';
-import moment from 'moment';
-import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Modal from '../../../components/common/customModal';
+} from "antd";
+import moment from "moment";
+import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Modal from "../../../components/common/customModal";
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
-} from '../../../components/common/sharedLayout';
-import { AttendanceContext, AuthContext } from '../../../context';
-import { CheckError, ErrorComp } from '../../../ErrorHandling';
-import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
-import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
+} from "../../../components/common/sharedLayout";
+import { AttendanceContext, AuthContext } from "../../../context";
+import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { FETCH_ATTENDANCE_LIMIT, modalItems } from "../../../globalData";
+import { DELETE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
 import {
   FETCH_ATTENDANCES_COUNT_QUERY,
   FETCH_ATTENDANCES_QUERY,
-} from '../../../graphql/query';
-import { EmojiProcessing } from '../../../utils/EmojiProcessing';
+} from "../../../graphql/query";
 
 const { Content } = Layout;
-
-const ds = [
-  {
-    key: '1',
-    bil: '1',
-    date: '2020/8/19',
-    time: '10:19',
-    course: 'sss',
-    stats: '5/20',
-  },
-];
 
 export default (props) => {
   const { user } = useContext(AuthContext);
@@ -56,8 +44,8 @@ export default (props) => {
   const columns = [
     {
       title: <strong>Bil</strong>,
-      dataIndex: 'bil',
-      key: 'bil',
+      dataIndex: "bil",
+      key: "bil",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
@@ -69,67 +57,66 @@ export default (props) => {
       },
     },
     {
-      key: 'date',
+      key: "date",
       title: <strong>Date</strong>,
-      dataIndex: 'date',
+      dataIndex: "date",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      align: 'center',
-      sorter: (a, b) => a.date.localeCompare(b.date)
+      align: "center",
+      sorter: (a, b) => a.date.localeCompare(b.date),
     },
     {
-      key: 'time',
+      key: "time",
       title: <strong>Time</strong>,
-      dataIndex: 'time',
+      dataIndex: "time",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      align: 'center',
-      sorter: (a, b) => a.time.localeCompare(b.time)
+      align: "center",
+      sorter: (a, b) => a.time.localeCompare(b.time),
     },
     {
-      key: 'course',
+      key: "course",
       title: <strong>Course</strong>,
-      dataIndex: 'course',
-      align: 'center',
-      width: '30%',
+      dataIndex: "course",
+      align: "center",
+      width: "30%",
       render: (text, record) => (
         <Skeleton active loading={loading}>
           <Link to={`/course/${record.courseID}/history`}>{text}</Link>
         </Skeleton>
       ),
-      sorter: (a, b) => a.course.localeCompare(b.course)
+      sorter: (a, b) => a.course.localeCompare(b.course),
     },
     {
-      key: 'stats',
+      key: "stats",
       title: <strong>Stats</strong>,
-      dataIndex: 'stats',
+      dataIndex: "stats",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      align: 'center',
-      sorter: (a, b) => a.stats.localeCompare(b.stats)
-
+      align: "center",
+      sorter: (a, b) => a.stats.localeCompare(b.stats),
     },
     {
-      title: <strong>{user.userLevel === 1 ? 'Action' : 'Status'}</strong>,
-      dataIndex: user.userLevel === 1 ? 'action' : 'status',
-      render: (_, record) =>
-        user.userLevel === 1 ? (
-          <Skeleton active loading={loading}>
-            <Button
-              onClick={() => handleAccess(record)}
-              style={{ margin: '10px' }}
-              icon={<ArrowRightOutlined />}
-            ></Button>
+      title: <strong>Action</strong>,
+      dataIndex: "action",
+      render: (_, record) => (
+        <Skeleton active loading={loading}>
+          <Button
+            onClick={() => handleAccess(record)}
+            style={{ margin: "10px" }}
+            icon={<ArrowRightOutlined />}
+          ></Button>
 
+          {user.userLevel == 1 && (
             <Button
               onClick={() => handleDelete(record)}
               loading={
@@ -140,32 +127,16 @@ export default (props) => {
                 selectedAttendance.key == record.key &&
                 deleteAttendanceStatus.loading
               }
-              style={{ margin: '10px' }}
-              type='danger'
+              style={{ margin: "10px" }}
+              type="danger"
               icon={<DeleteFilled />}
             ></Button>
-          </Skeleton>
-        ) : (
-          <Skeleton active loading={loading}>
-            <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
-              {record.status}
-            </Tag>
-          </Skeleton>
-        ),
-      align: 'center',
-      sorter: user.userLevel === 1 ? null : (a, b) => a.status.localeCompare(b.status)
-    }
+          )}
+        </Skeleton>
+      ),
+      align: "center",
+    },
   ];
-
-  if (user.userLevel===0){
-    columns.push({
-      key: 'mood',
-      title: <strong>Mood</strong>,
-      dataIndex: 'mood',
-      render: (text) => <EmojiProcessing exp={text} size='xs' />,
-      align: 'center',
-    })
-  }
 
   //modal visible boolean
   const [visible, SetVisible] = useState(false);
@@ -229,7 +200,7 @@ export default (props) => {
     {
       onCompleted(data) {
         SetVisible(false);
-        message.success('Delete Success');
+        message.success("Delete Success");
         resetState();
         totalAttendancesCount.refetch();
         refetch();
@@ -273,28 +244,29 @@ export default (props) => {
         bil:
           !loading &&
           tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
-        date: moment(att.date).format('DD/MM/YYYY'),
-        time: moment(att.time).format('HH:mm'),
+        date: moment(att.date).format("DD/MM/YYYY"),
+        time: moment(att.time).format("HH:mm"),
         courseID: att.course.shortID,
         course:
           att.course.shortID +
-          ' - ' +
+          " - " +
           att.course.code +
-          ' ' +
+          " " +
           att.course.name +
-          ' (' +
+          " (" +
           att.course.session +
-          ')',
-        stats: att.attendees.length + '/' + att.participants.length,
+          ")",
+        stats: att.attendees.length + "/" + att.participants.length,
       };
 
       if (user.userLevel === 0) {
         const isAttend = att.attendees.filter(
           (stud) => stud.info._id === user._id
         );
-        Object.assign(tmp, { status: isAttend[0] ? 'Attend' : 'Absent' });
-        Object.assign(tmp, { mood: isAttend[0]?.expression? isAttend[0].expression : "-" });
-
+        Object.assign(tmp, { status: isAttend[0] ? "Attend" : "Absent" });
+        Object.assign(tmp, {
+          mood: isAttend[0]?.expression ? isAttend[0].expression : "-",
+        });
       }
       parsedData.push(tmp);
     });
@@ -303,31 +275,30 @@ export default (props) => {
   };
 
   const handleTableChange = (value) => {
-
     setTablePagination(value);
   };
 
   return (
-    <Layout className='layout'>
+    <Layout className="layout">
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb
-          titleList={[{ name: 'Attendance History', link: '/history' }]}
+          titleList={[{ name: "Attendance History", link: "/history" }]}
         />
         <Content>
           <Card>
             {error && <ErrorComp err={error} />}
 
             {!error && (
-              <Space direction='vertical' className='width100'>
+              <Space direction="vertical" className="width100">
                 <h1>
-                  Total Attendance:{' '}
+                  Total Attendance:{" "}
                   {totalAttendancesCount.data?.getAttendancesCount || 0}
                 </h1>
 
                 <Button
-                  style={{ float: 'right' }}
+                  style={{ float: "right" }}
                   icon={<RedoOutlined />}
                   disabled={loading}
                   loading={loading}
@@ -345,7 +316,7 @@ export default (props) => {
 
                 {/*modal backdrop*/}
                 <Modal
-                  title='Delete Attendance'
+                  title="Delete Attendance"
                   action={modalItems.attendance.action.delete}
                   itemType={modalItems.attendance.name}
                   visible={visible}

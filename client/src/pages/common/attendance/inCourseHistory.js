@@ -1,9 +1,9 @@
 import {
   ArrowRightOutlined,
   DeleteFilled,
-  RedoOutlined
-} from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/react-hooks';
+  RedoOutlined,
+} from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
   Button,
   Card,
@@ -14,39 +14,28 @@ import {
   Space,
   Table,
   Tag,
-  Typography
-} from 'antd';
-import moment from 'moment';
-import React, { useContext, useEffect, useState } from 'react';
-import Modal from '../../../components/common/customModal';
+  Typography,
+} from "antd";
+import moment from "moment";
+import React, { useContext, useEffect, useState } from "react";
+import Modal from "../../../components/common/customModal";
 import {
   Footer,
   Greeting,
   Navbar,
-  PageTitleBreadcrumb
-} from '../../../components/common/sharedLayout';
-import { AuthContext } from '../../../context';
-import { CheckError, ErrorComp } from '../../../ErrorHandling';
-import { FETCH_ATTENDANCE_LIMIT, modalItems } from '../../../globalData';
-import { DELETE_ATTENDANCE_MUTATION } from '../../../graphql/mutation';
+  PageTitleBreadcrumb,
+} from "../../../components/common/sharedLayout";
+import { AuthContext } from "../../../context";
+import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { FETCH_ATTENDANCE_LIMIT, modalItems } from "../../../globalData";
+import { DELETE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
 import {
-  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY, FETCH_ATTENDANCES_IN_COURSE_QUERY
-} from '../../../graphql/query';
-import { EmojiProcessing } from '../../../utils/EmojiProcessing';
+  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
+  FETCH_ATTENDANCES_IN_COURSE_QUERY,
+} from "../../../graphql/query";
 
 const { Title } = Typography;
 const { Content } = Layout;
-
-const ds = [
-  {
-    key: '1',
-    bil: '1',
-    date: '2020/8/19',
-    time: '10:19',
-    course: 'sss',
-    stats: '5/20',
-  },
-];
 
 export default (props) => {
   const { user } = useContext(AuthContext);
@@ -55,8 +44,8 @@ export default (props) => {
   const columns = [
     {
       title: <strong>Bil</strong>,
-      dataIndex: 'bil',
-      key: 'bil',
+      dataIndex: "bil",
+      key: "bil",
       render: (text) => <Skeleton loading={loading}>{text}</Skeleton>,
       sorter: {
         compare: (a, b) => a.bil - b.bil,
@@ -64,54 +53,53 @@ export default (props) => {
       },
     },
     {
-      key: 'date',
+      key: "date",
       title: <strong>Date</strong>,
-      dataIndex: 'date',
-      align: 'center',
+      dataIndex: "date",
+      align: "center",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      sorter: (a, b) => a.date.localeCompare(b.date)
+      sorter: (a, b) => a.date.localeCompare(b.date),
     },
     {
-      key: 'time',
+      key: "time",
       title: <strong>Time</strong>,
-      dataIndex: 'time',
-      align: 'center',
+      dataIndex: "time",
+      align: "center",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      sorter: (a, b) => a.time.localeCompare(b.time)
+      sorter: (a, b) => a.time.localeCompare(b.time),
     },
     {
-      key: 'stats',
+      key: "stats",
       title: <strong>Stats</strong>,
-      dataIndex: 'stats',
-      align: 'center',
+      dataIndex: "stats",
+      align: "center",
       render: (text) => (
         <Skeleton active loading={loading}>
           {text}
         </Skeleton>
       ),
-      sorter: (a, b) => a.stats.localeCompare(b.stats)
-
+      sorter: (a, b) => a.stats.localeCompare(b.stats),
     },
     {
-      title: <strong>{user.userLevel === 1 ? 'Action' : 'Your Status'}</strong>,
-      dataIndex: user.userLevel === 1 ? 'action' : 'status',
-      render: (_, record) =>
-        user.userLevel === 1 ? (
-          <Skeleton loading={loading} active>
-            <Button
-              onClick={() => handleAccess(record)}
-              style={{ margin: '10px' }}
-              icon={<ArrowRightOutlined />}
-            ></Button>
+      title: <strong>{"Action"}</strong>,
+      dataIndex: user.userLevel === 1 ? "action" : "status",
+      render: (_, record) => (
+        <Skeleton loading={loading} active>
+          <Button
+            onClick={() => handleAccess(record)}
+            style={{ margin: "10px" }}
+            icon={<ArrowRightOutlined />}
+          ></Button>
 
+          {user.userLevel == 1 && (
             <Button
               onClick={() => handleDelete(record)}
               loading={
@@ -122,32 +110,16 @@ export default (props) => {
                 selectedAttendance.key == record.key &&
                 deleteAttendanceStatus.loading
               }
-              style={{ margin: '10px' }}
-              type='danger'
+              style={{ margin: "10px" }}
+              type="danger"
               icon={<DeleteFilled />}
             ></Button>
-          </Skeleton>
-        ) : (
-          <Skeleton active loading={loading}>
-            <Tag color={record.status === 'Absent' ? 'volcano' : 'green'}>
-              {record.status}
-            </Tag>
-          </Skeleton>
-        ),
-      align: 'center',
-      sorter: user.userLevel === 1 ? null : (a, b) => a.status.localeCompare(b.status)
-    }
+          )}
+        </Skeleton>
+      ),
+      align: "center",
+    },
   ];
-
-  if (user.userLevel === 0) {
-    columns.push({
-      key: 'mood',
-      title: <strong>Mood</strong>,
-      dataIndex: 'mood',
-      render: (text) => <EmojiProcessing exp={text} size='xs' />,
-      align: 'center',
-    })
-  }
 
   //modal visible boolean
   const [visible, SetVisible] = useState(false);
@@ -189,8 +161,9 @@ export default (props) => {
         });
         if (
           totalAttendancesCountInCourse.data?.getAttendancesCountInCourse -
-          (tablePagination.current - 1) * tablePagination.pageSize <=
-          0 && tablePagination.current !== 1
+            (tablePagination.current - 1) * tablePagination.pageSize <=
+            0 &&
+          tablePagination.current !== 1
         ) {
           setTablePagination((prevState) => {
             return {
@@ -217,7 +190,7 @@ export default (props) => {
     {
       onCompleted(data) {
         SetVisible(false);
-        message.success('Delete Success');
+        message.success("Delete Success");
         totalAttendancesCountInCourse.refetch();
         refetch();
       },
@@ -260,19 +233,21 @@ export default (props) => {
         bil:
           !loading &&
           tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
-        date: moment(att.date).format('DD/MM/YYYY'),
-        time: moment(att.time).format('HH:mm'),
+        date: moment(att.date).format("DD/MM/YYYY"),
+        time: moment(att.time).format("HH:mm"),
         stats:
           att.attendees.length +
-          '/' +
+          "/" +
           (+att.absentees.length + +att.attendees.length),
       };
       if (user.userLevel === 0) {
         const isAttend = att.attendees.filter(
           (stud) => stud.info._id === user._id
         );
-        Object.assign(tmp, { status: isAttend[0] ? 'Attend' : 'Absent' });
-        Object.assign(tmp, { mood: isAttend[0]?.expression ? isAttend[0].expression : "-" });
+        Object.assign(tmp, { status: isAttend[0] ? "Attend" : "Absent" });
+        Object.assign(tmp, {
+          mood: isAttend[0]?.expression ? isAttend[0].expression : "-",
+        });
       }
       parsedData.push(tmp);
     });
@@ -285,19 +260,19 @@ export default (props) => {
   };
 
   return (
-    <Layout className='layout'>
+    <Layout className="layout">
       <Navbar />
       <Layout>
         <Greeting />
         <PageTitleBreadcrumb
           titleList={[
-            { name: 'Home', link: '/dashboard' },
+            { name: "Home", link: "/dashboard" },
             {
               name: `Course: ${props.match.params.id}`,
               link: `/course/${props.match.params.id}`,
             },
             {
-              name: 'Attendance History',
+              name: "Attendance History",
               link: `/course/${props.match.params.id}/history`,
             },
           ]}
@@ -306,21 +281,21 @@ export default (props) => {
           <Card>
             {error && <ErrorComp err={error} />}
             {!error && (
-              <Space direction='vertical' className='width100'>
+              <Space direction="vertical" className="width100">
                 {data && (
                   <Title level={4}>
-                    Course:{' '}
+                    Course:{" "}
                     {`${data.getAttendancesInCourse.course.code} ${data.getAttendancesInCourse.course.name} (${data.getAttendancesInCourse.course.session})`}
                   </Title>
                 )}
                 <Divider />
                 <h1>
-                  Total Attendance:{' '}
+                  Total Attendance:{" "}
                   {totalAttendancesCountInCourse.data
                     ?.getAttendancesCountInCourse || 0}
                 </h1>
                 <Button
-                  style={{ float: 'right' }}
+                  style={{ float: "right" }}
                   icon={<RedoOutlined />}
                   disabled={loading}
                   loading={loading}
@@ -338,7 +313,7 @@ export default (props) => {
 
                 {/*modal backdrop*/}
                 <Modal
-                  title='Delete Attendance'
+                  title="Delete Attendance"
                   action={modalItems.attendance.action.delete}
                   itemType={modalItems.attendance.name}
                   visible={visible}

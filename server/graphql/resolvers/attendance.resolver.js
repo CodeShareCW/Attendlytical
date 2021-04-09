@@ -2,7 +2,6 @@ const { UserInputError } = require('apollo-server');
 
 const Attendance = require('../../models/attendance.model');
 const Course = require('../../models/course.model');
-const Expression = require('../../models/expression.model');
 
 const {
   ExpressiongqlParser,
@@ -89,8 +88,8 @@ module.exports = {
 
         const course = await Course.findById(attendance.course);
 
-        if (course.creator != currUser._id) {
-          throw new Error('Access forbidden. You are not the course owner.');
+        if (course.creator != currUser._id && !course.enrolledStudents.find(user=>user._id==currUser._id)) {
+          throw new Error('Access forbidden. You are not the course owner or participants in this course.');
         }
 
         return AttendancegqlParser(attendance);

@@ -24,12 +24,7 @@ const courseSchema=new Schema({
     enrolledStudents: {
         type: [Schema.Types.ObjectId],
         ref: 'Person'
-    },
-    attendanceList: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Attendance'
     }
-
 },
 {timestamps: true})
 

@@ -22,6 +22,7 @@ import {
   SignUp,
   InCourseAttendanceHistory,
   MainAttendanceHistory,
+  SingleAttendanceHistory,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
   TermCondition,
@@ -31,7 +32,6 @@ import {
   AddCourse,
   EnrolRequest,
   SelectCourseForAttendance,
-  SingleAttendanceHistory,
   TakeAttendance,
 } from "./pages/lecturerPage";
 import { EnrolPending, FaceGallery } from "./pages/studentPage";
@@ -123,7 +123,7 @@ function App() {
                           component={InCourseAttendanceHistory}
                         />
 
-                        <LecturerRoute
+                        <AuthRoute
                           exact
                           path="/course/:courseID/history/:attendanceID"
                           component={SingleAttendanceHistory}
