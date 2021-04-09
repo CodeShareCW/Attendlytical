@@ -27,7 +27,6 @@ import {
   createMatcher,
   getFullFaceDescription,
   isFaceDetectionModelLoaded,
-  isFacialExpressionModelLoaded,
   isFacialLandmarkDetectionModelLoaded,
   isFeatureExtractionModelLoaded,
   loadModels,
@@ -131,9 +130,6 @@ export default (props) => {
         attendees: participants
           .filter((participant) => !absentees.includes(participant))
           .map((participant) => participant.student._id),
-        expressions: participants
-          .filter((participant) => !absentees.includes(participant))
-          .map((participant) => participant.expression),
       },
     }
   );
@@ -147,8 +143,7 @@ export default (props) => {
     if (
       !!isFaceDetectionModelLoaded() &&
       !!isFacialLandmarkDetectionModelLoaded() &&
-      !!isFeatureExtractionModelLoaded() &&
-      !!isFacialExpressionModelLoaded()
+      !!isFeatureExtractionModelLoaded()
     ) {
       setIsAllModelLoaded(true);
       return;

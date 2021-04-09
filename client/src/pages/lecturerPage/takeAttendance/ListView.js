@@ -55,15 +55,6 @@ export default ({ participants, absentees, setAbsentees }) => {
             description={
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div>
-                  <span>Mood Today: </span>
-                  {item.expression ? (
-                    <EmojiProcessing exp={item.expression} size='xs' />
-                  ) : (
-                    '-'
-                  )}
-                </div>
-
-                <div>
                   Number of sample photo:{' '}
                   {item.facePhotos?.length === 0 ? (
                     <span

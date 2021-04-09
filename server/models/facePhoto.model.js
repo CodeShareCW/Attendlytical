@@ -16,10 +16,6 @@ const facePhotoSchema=new Schema({
     faceDescriptor: {
         type: String,
         required: true
-    },
-    expression: {
-        type: String,
-        required: true
     }
 },
 {timestamps: true})

@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import { EmojiProcessing } from "../utils/EmojiProcessing";
-import { ROBOT_ICON_URL } from "../assets";
 import "./drawBox.css";
 import { FaceThresholdDistanceContext } from "../context";
 export default ({
@@ -18,7 +16,6 @@ export default ({
   const { threshold } = useContext(FaceThresholdDistanceContext);
   const [descriptors, setDescriptors] = useState(null);
   const [detections, setDetections] = useState(null);
-  const [expressions, setExpressions] = useState(null);
   const [match, setMatch] = useState(null);
 
   useEffect(() => {
@@ -26,7 +23,6 @@ export default ({
       if (!!fullDesc) {
         await setDescriptors(fullDesc.map((fd) => fd.descriptor));
         await setDetections(fullDesc.map((fd) => fd.detection));
-        await setExpressions(fullDesc.map((fd) => fd.expressions));
         if (!!descriptors && !!faceMatcher) {
           let match = await descriptors.map((descriptor) =>
             faceMatcher.findBestMatch(descriptor)
@@ -38,19 +34,9 @@ export default ({
 
             if (
               !!studentWhoAttend &&
-              studentWhoAttend.length > 0 &&
-              !!expressions &&
-              expressions.length > 0
+              studentWhoAttend.length > 0
             )
-              return Object.assign(studentWhoAttend[0], {
-                expression: Object.keys(expressions[index]).find(
-                  (key) =>
-                    expressions[index][key] ===
-                    Object.values(expressions[index]).reduce((a, b) =>
-                      Math.max(a, b)
-                    )
-                ),
-              });
+              return studentWhoAttend[0];
             return [];
           });
 
@@ -66,7 +52,6 @@ export default ({
     return () => {
       setDescriptors(null);
       setDetections(null);
-      setExpressions(null);
     };
   }, [fullDesc, faceMatcher]);
 
@@ -84,7 +69,7 @@ export default ({
       let _Y =
         (relativeBox._y * imageHeight * dimension._height) / dimension._width -
         imageHeight +
-        0.08 * imageHeight;
+        0.01 * imageHeight;
       let _W = imageWidth * relativeBox.width;
       let _H =
         (relativeBox.height * imageHeight * dimension._height) /
@@ -101,36 +86,7 @@ export default ({
                 width: _W,
                 transform: `translate(${_X}px,${_Y}px)`,
               }}
-            >
-              <div
-                className="drawBox__detection-label"
-                style={{
-                  width: _W,
-                  transform: `translate(-3px,${_H}px)`,
-                }}
-              >
-                <img
-                  src={ROBOT_ICON_URL.link}
-                  style={{
-                    width: ROBOT_ICON_URL.width,
-                    height: ROBOT_ICON_URL.height,
-                  }}
-                />
-                : Feel like you are&nbsp;
-                {!!expressions && expressions.length > 0 && (
-                  <EmojiProcessing
-                    exp={Object.keys(expressions[i]).find(
-                      (key) =>
-                        expressions[i][key] ===
-                        Object.values(expressions[i]).reduce((a, b) =>
-                          Math.max(a, b)
-                        )
-                    )}
-                    size="xs"
-                  />
-                )}
-              </div>
-            </div>
+            ></div>
           </div>
         );
       } //Recognition mode
@@ -163,7 +119,7 @@ export default ({
                       <div key={profile.student._id}>
                         {profile.student._id == match[i]._label && (
                           <>
-                            <div style={{color: "darkgreen"}}>
+                            <div style={{ color: "darkgreen" }}>
                               {`Euc Dist: ${match[i]._distance.toFixed(
                                 2
                               )} < ${threshold} thres`}
@@ -177,19 +133,7 @@ export default ({
                           </>
                         )}
                       </div>
-                    ))}                    
-                    {!!expressions && expressions.length > 0 && (
-                      <EmojiProcessing
-                        exp={Object.keys(expressions[i]).find(
-                          (key) =>
-                            expressions[i][key] ===
-                            Object.values(expressions[i]).reduce((a, b) =>
-                              Math.max(a, b)
-                            )
-                        )}
-                        size="xs"
-                      />
-                    )}
+                    ))}
                   </div>
                 </>
               ) : (

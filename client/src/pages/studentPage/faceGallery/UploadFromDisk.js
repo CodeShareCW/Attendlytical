@@ -5,7 +5,6 @@ import { ROBOT_ICON_URL } from "../../../assets";
 import { CheckError } from "../../../ErrorHandling";
 import { getFullFaceDescription } from "../../../faceUtil";
 import { inputSize } from "../../../globalData";
-import { EmojiProcessing } from "../../../utils/EmojiProcessing";
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -66,16 +65,6 @@ export const UploadFromDisk = ({
           setFullDesc(data);
           setDetectionCount(data.length);
           setFaceDescriptor(data[0]?.descriptor);
-          if (data[0])
-            setExpression(
-              Object.keys(data[0]?.expressions).find(
-                (key) =>
-                  data[0]?.expressions[key] ===
-                  Object.values(data[0]?.expressions).reduce((a, b) =>
-                    Math.max(a, b)
-                  )
-              )
-            );
           setIsRunningFaceDetector(false);
         }
       );
@@ -96,7 +85,6 @@ export const UploadFromDisk = ({
         variables: {
           photoData: previewImage,
           faceDescriptor: faceDescriptor.toString(),
-          expression: expression,
         },
       });
   };
@@ -156,10 +144,6 @@ export const UploadFromDisk = ({
                   height: ROBOT_ICON_URL.height,
                 }}
               />
-              <span style={{ color: "darkblue", fontWeight: 900 }}>
-                : Feel like you are{" "}
-              </span>
-              <EmojiProcessing exp={expression} size="sm" />
             </Card>
           )}
           <p>

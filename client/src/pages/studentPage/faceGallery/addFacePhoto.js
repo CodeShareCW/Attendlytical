@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { CheckError } from "../../../ErrorHandling";
 import {
   isFaceDetectionModelLoaded,
-  isFacialExpressionModelLoaded,
   isFacialLandmarkDetectionModelLoaded,
   isFeatureExtractionModelLoaded,
   loadModels,
@@ -48,9 +47,7 @@ export default ({ galleryRefetch, countRefetch }) => {
     if (
       !!isFaceDetectionModelLoaded() &&
       !!isFacialLandmarkDetectionModelLoaded() &&
-      !!isFeatureExtractionModelLoaded() &&
-      !!isFacialExpressionModelLoaded()
-    ) {
+      !!isFeatureExtractionModelLoaded()) {
       setIsAllModelLoaded(true);
       return;
     }

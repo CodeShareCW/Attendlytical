@@ -1,9 +1,7 @@
 import { Button, Card, Form, message, Select } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import Webcam from 'react-webcam';
 import { CheckError } from '../../../ErrorHandling';
 import { getFullFaceDescription } from '../../../faceUtil';
-import DrawBox from '../../../faceUtil/drawBox';
 import {
   DEFAULT_WEBCAM_RESOLUTION,
   inputSize,
@@ -25,7 +23,6 @@ export const UploadFromWebcam = ({
   const [selectedWebcam, setSelectedWebcam] = useState();
 
   const [fullDesc, setFullDesc] = useState(null);
-  const [expression, setExpression] = useState('');
 
   const [faceDescriptor, setFaceDescriptor] = useState([]);
 
@@ -65,16 +62,6 @@ export const UploadFromWebcam = ({
         getFullFaceDescription(webcam.current.getScreenshot(), inputSize)
           .then((data) => {
             setFullDesc(data);
-            data[0] &&
-              setExpression(
-                Object.keys(data[0]?.expressions).find(
-                  (key) =>
-                    data[0]?.expressions[key] ===
-                    Object.values(data[0]?.expressions).reduce((a, b) =>
-                      Math.max(a, b)
-                    )
-                )
-              );
             setFaceDescriptor(data[0]?.descriptor);
             setWaitText('');
 
@@ -106,7 +93,6 @@ export const UploadFromWebcam = ({
       variables: {
         photoData: previewImage,
         faceDescriptor: faceDescriptor.toString(),
-        expression: expression,
       },
     });
   };

@@ -109,7 +109,7 @@ module.exports = {
     },
   },
   Mutation: {
-    async addFacePhoto(_, { photoData, faceDescriptor, expression }, context) {
+    async addFacePhoto(_, { photoData, faceDescriptor }, context) {
       const currUser = checkAuth(context);
       let errors = {};
 
@@ -123,7 +123,6 @@ module.exports = {
           photoURL: uploadedResponse.secure_url,
           photoPublicID: uploadedResponse.public_id,
           faceDescriptor,
-          expression,
         });
 
         await facePhoto.save();

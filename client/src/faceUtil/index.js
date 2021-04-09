@@ -15,9 +15,6 @@ export async function loadModels(
 
     setLoadingMessage('Loading Feature Extractor');
     await faceapi.loadFaceRecognitionModel(MODEL_URL);
-
-    setLoadingMessage('Loading Facial Expression Detector');
-    await faceapi.loadFaceExpressionModel(MODEL_URL)
   } catch (err) {
     setLoadingMessageError(
       'Model loading failed. Please contact me about the bug:attendlytical@gmail.com'
@@ -42,7 +39,6 @@ export async function getFullFaceDescription(blob, inputSize = 512) {
   let fullDesc = await faceapi
     .detectAllFaces(img, OPTION)
     .withFaceLandmarks(useTinyModel)
-    .withFaceExpressions()
     .withFaceDescriptors();
   return fullDesc;
 }
@@ -78,8 +74,4 @@ export function isFeatureExtractionModelLoaded() {
 
 export function isFacialLandmarkDetectionModelLoaded() {
   return !!faceapi.nets.faceLandmark68TinyNet.params;
-}
-
-export function isFacialExpressionModelLoaded() {
-  return !!faceapi.nets.faceExpressionNet.params;
 }

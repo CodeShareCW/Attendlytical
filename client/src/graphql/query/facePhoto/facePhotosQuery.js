@@ -13,7 +13,6 @@ export const FETCH_FACE_PHOTOS_QUERY = gql`
         _id
         faceDescriptor
         photoURL
-        expression
         createdAt
       }
       hasNextPage

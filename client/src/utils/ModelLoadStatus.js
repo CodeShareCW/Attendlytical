@@ -3,7 +3,6 @@ import { LoadingOutlined } from '@ant-design/icons';
 import React from 'react';
 import {
   isFaceDetectionModelLoaded,
-  isFacialExpressionModelLoaded,
   isFeatureExtractionModelLoaded,
   isFacialLandmarkDetectionModelLoaded,
 } from '../faceUtil';
@@ -43,21 +42,6 @@ export default ({ errorMessage }) => (
     <p>
       Feature Extractor:{' '}
       {isFeatureExtractionModelLoaded() ? (
-        <strong>Loaded</strong>
-      ) :
-        errorMessage && errorMessage.length > 0 ?
-          (
-            <span style={{ color: 'red', fontWeight: 'bold' }}>
-              ERROR
-            </span>
-          ) : (
-            <>
-              <strong>Loading</strong> <LoadingOutlined />
-            </>)}
-    </p>
-    <p>
-      Facial Expression Detector:{' '}
-      {isFacialExpressionModelLoaded() ? (
         <strong>Loaded</strong>
       ) :
         errorMessage && errorMessage.length > 0 ?

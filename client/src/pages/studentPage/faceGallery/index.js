@@ -23,7 +23,6 @@ import {
   FETCH_FACE_PHOTOS_QUERY,
   FETCH_PHOTO_PRIVACY_QUERY,
 } from "../../../graphql/query";
-import { EmojiProcessing } from "../../../utils/EmojiProcessing";
 import { FetchChecker } from "../../../utils/FetchChecker";
 import { LoadingSpin } from "../../../utils/LoadingSpin";
 import AddFacePhoto from "./addFacePhoto";
@@ -209,12 +208,8 @@ export default () => {
                       style={{ fontSize: "25px", color: "blue" }}
                     />
                   )}
-                  &nbsp;Public:{" "}
-                  {photoPrivacyQuery.data?.getPhotoPrivacy ? "Yes" : "No"}{" "}
                   &nbsp;
-                  <strong style={{ color: "darkred" }}>
-                    (Lecturer can view your uploaded photo if public)
-                  </strong>
+                  {photoPrivacyQuery.data?.getPhotoPrivacy ? "Public Mode" : "Private Mode"}
                 </h1>
               </span>
               {facePhotos.map((photo, index) => (
@@ -229,21 +224,6 @@ export default () => {
                       alt={"Face Photo: " + index}
                     />
                     <br /> <br />
-                    <div>
-                      <img
-                        src={ROBOT_ICON_URL.link}
-                        style={{
-                          width: ROBOT_ICON_URL.width,
-                          height: ROBOT_ICON_URL.height,
-                        }}
-                      />
-                      <span style={{ color: "darkblue", fontWeight: 900 }}>
-                        : Feel like you are{" "}
-                      </span>
-                      <span>
-                        <EmojiProcessing exp={photo.expression} size="sm" />
-                      </span>
-                    </div>
                   </Card>
                   &nbsp;
                   <strong>Face Descriptor: </strong>
