@@ -1,15 +1,8 @@
 const { gql } = require('apollo-server');
 module.exports = gql`
-  type Expression {
-    attendance: Attendance!
-    creator: Person!
-    expression: String
-  }
-
   type Attendee {
     attendance: Attendance!
     person: Person!
-    expression: String!
   }
 
   type Attendance {
@@ -34,7 +27,6 @@ module.exports = gql`
     attendees: [ID!]
     absentees: [ID!]
     participants: [ID!]
-    expressions: [String!]
   }
   extend type Query {
     getAttendancesCount: Int!
@@ -46,10 +38,5 @@ module.exports = gql`
   extend type Mutation {
     createAttendance(attendanceInput: attendanceInput!): Attendance!
     deleteAttendance(attendanceID: ID!): Attendance!
-    createExpression(
-      attendanceID: ID!
-      participantID: ID!
-      expression: String!
-    ): Expression!
   }
 `;

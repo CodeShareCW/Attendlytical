@@ -1,18 +1,14 @@
 const { UserInputError } = require('apollo-server');
-
 const Attendance = require('../../models/attendance.model');
 const Course = require('../../models/course.model');
 
 const {
-  ExpressiongqlParser,
   CoursegqlParser,
   AttendancegqlParser,
 } = require('./merge');
 
 const { validateAttendanceInput } = require('../../util/validators');
-
 const checkAuth = require('../../util/check-auth');
-const { cloudinary } = require('../../util/cloudinary');
 
 module.exports = {
   Query: {
@@ -187,7 +183,6 @@ module.exports = {
           time,
           courseID,
           participants,
-          expressions,
           absentees,
           attendees,
         },
@@ -196,7 +191,6 @@ module.exports = {
     ) {
       const currUser = checkAuth(context);
       const { valid, errors } = validateAttendanceInput(date, time);
-      console.log(expressions)
       try {
         if (!valid) {
           throw new UserInputError('Errors', { errors });
@@ -212,43 +206,7 @@ module.exports = {
         });
 
         await attendance.save();
-
-        for (i = 0; i < attendees.length; i++) {
-          console.log(attendees)
-          const expressionsList = new Expression({
-            attendance: attendance._id,
-            creator: attendees[i],
-            expression: expressions[i]
-          });
-          await expressionsList.save();
-        }
-
         return AttendancegqlParser(attendance);
-      } catch (err) {
-        throw err;
-      }
-    },
-
-    async createExpression(
-      _,
-      { participantID, expression, attendanceID },
-      context
-    ) {
-      const currUser = checkAuth(context);
-      try {
-        const attendance = await Attendance.findById(attendanceID);
-
-        if (!attendance) throw new Error('Attendance do not found');
-
-        const exp = new Expression({
-          creator: participantID,
-          attendance: attendanceID,
-          expression,
-        });
-
-        await exp.save();
-
-        return ExpressiongqlParser(exp);
       } catch (err) {
         throw err;
       }
@@ -266,16 +224,7 @@ module.exports = {
             errors,
           });
         }
-
-        // attendance2Delete.attendees.map(async (at) => {
-        //   const exp = await Expression.findOne({
-        //     creator: at._id,
-        //     attendance: attendance2Delete,
-        //   });
-        //   if (!exp) throw new Error('Something wrong!');
-        //   await Expression.deleteOne(exp);
-        // });
-
+        
         await Attendance.deleteOne(attendance2Delete);
 
         return AttendancegqlParser(attendance2Delete);

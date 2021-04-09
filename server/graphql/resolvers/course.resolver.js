@@ -2,7 +2,6 @@ var shortid = require('shortid');
 const { UserInputError } = require('apollo-server');
 const Attendance = require('../../models/attendance.model');
 
-const Expression = require('../../models/expression.model');
 const Course = require('../../models/course.model');
 const Person = require('../../models/person.model');
 const PendingEnrolledCourse = require('../../models/pendingEnrolledCourse.model');

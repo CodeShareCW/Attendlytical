@@ -5,7 +5,6 @@ module.exports = gql`
     creator: Person!
     photoURL: String!
     faceDescriptor: String!
-    expression: String!
     createdAt: String
     updatedAt: String
   }
@@ -43,7 +42,6 @@ module.exports = gql`
     addFacePhoto(
       photoData: String!
       faceDescriptor: String!
-      expression: String
     ): FacePhoto!
     deleteFacePhoto(photoID: ID!): String
     togglePhotoPrivacy(isPublic: Boolean!): Boolean!

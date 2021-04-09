@@ -2,7 +2,7 @@ const Person = require('../../models/person.model');
 const Course = require('../../models/course.model');
 const Warning = require('../../models/warning.model');
 const Attendance = require('../../models/attendance.model');
-const Expression = require('../../models/expression.model');
+
 const person = async (personID) => {
   try {
     const result = await Person.findById(personID);
@@ -42,11 +42,6 @@ const ParticipantsgqlParser = async (
         course: course._id,
       });
 
-      const expression=await Expression.findOne({
-        attendance: attendanceID,
-        creator: stud._id
-      })
-
       const attendanceHistories = await Attendance.find({
         participants: stud._id,
         course: course._id,
@@ -70,9 +65,6 @@ const ParticipantsgqlParser = async (
       });
       Object.assign(obj, {
         warningCount: (await warning) ? warning.count : 0,
-      });
-      Object.assign(obj, {
-        expression: (await expression) ? expression.expression : "-",
       });
 
       return obj;
@@ -202,13 +194,6 @@ const AttendancegqlParser = (attendanceData) => {
       attendanceData._doc.course,
       attendanceData._id
     ),
-    // attendees: expressionList.map((exp) => {
-    //   return {
-    //     person: PersongqlParser(exp.creator),
-    //     expression: exp.expression,
-    //     attendance: AttendancegqlParser(exp.attendance),
-    //   };
-    // }),
     attendees: ParticipantsgqlParser(
       attendanceData._doc.attendees,
       attendanceData._doc.course,
@@ -216,14 +201,6 @@ const AttendancegqlParser = (attendanceData) => {
     ),
     creator: person.bind(this, attendanceData._doc.creator),
     course: course.bind(this, attendanceData._doc.course),
-  };
-};
-
-const ExpressiongqlParser = (expression) => {
-  return {
-    ...expression._doc,
-    attendance: AttendancegqlParser(expression._doc.attendance),
-    creator: PersongqlParser(expression._doc.creator),
   };
 };
 
@@ -269,5 +246,4 @@ module.exports = {
   FacePhotosgqlParser,
   PhotoPrivacygqlParser,
   ParticipantsgqlParser,
-  ExpressiongqlParser,
 };

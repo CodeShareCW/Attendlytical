@@ -5,7 +5,6 @@ module.exports = gql`
     info: Person!
     warningCount: Int!
     attendRate: Float
-    expression: String!
   }
 
   type Query {
