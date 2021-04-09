@@ -10,15 +10,16 @@ module.exports = gql`
     updatedAt: String
   }
 
+  type FacePhotos {
+    facePhotos: [FacePhoto!]
+    hasNextPage: Boolean
+  }
+
+
   type PhotoPrivacy {
     _id: ID!
     creator: Person!
     public: Boolean
-  }
-
-  type FacePhotos {
-    facePhotos: [FacePhoto!]
-    hasNextPage: Boolean
   }
 
   type FaceProfile {

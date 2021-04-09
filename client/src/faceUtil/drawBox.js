@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-import { EmojiProcessing } from '../utils/EmojiProcessing';
-import { ROBOT_ICON_URL } from '../assets';
-import './drawBox.css';
-import { FaceThresholdDistanceContext } from '../context';
+import React, { useContext, useEffect, useState } from "react";
+import { Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { EmojiProcessing } from "../utils/EmojiProcessing";
+import { ROBOT_ICON_URL } from "../assets";
+import "./drawBox.css";
+import { FaceThresholdDistanceContext } from "../context";
 export default ({
   fullDesc,
   faceMatcher,
@@ -13,9 +13,9 @@ export default ({
   imageHeight,
   setDetectionCount,
   setAbsentees,
-  mode = 'Recognition',
+  mode = "Recognition",
 }) => {
-  const {threshold} = useContext(FaceThresholdDistanceContext)
+  const { threshold } = useContext(FaceThresholdDistanceContext);
   const [descriptors, setDescriptors] = useState(null);
   const [detections, setDetections] = useState(null);
   const [expressions, setExpressions] = useState(null);
@@ -70,12 +70,10 @@ export default ({
     };
   }, [fullDesc, faceMatcher]);
 
+  useEffect(() => {
+    if (!!detections) setDetectionCount(detections?.length);
+  }, [detections]);
 
-  useEffect(()=>{
-    if (!!detections)
-      setDetectionCount(detections?.length);
-  }, [detections])
-  
   let box = null;
 
   if (!!detections) {
@@ -85,18 +83,19 @@ export default ({
       let _X = imageWidth * relativeBox._x;
       let _Y =
         (relativeBox._y * imageHeight * dimension._height) / dimension._width -
-        imageHeight +0.1*imageHeight;
+        imageHeight +
+        0.08 * imageHeight;
       let _W = imageWidth * relativeBox.width;
       let _H =
         (relativeBox.height * imageHeight * dimension._height) /
         dimension._width;
 
       //Detection mode
-      if (mode === 'Detection') {
+      if (mode === "Detection") {
         return (
           <div key={i}>
             <div
-              className='drawBox__detection-box'
+              className="drawBox__detection-box"
               style={{
                 height: _H,
                 width: _W,
@@ -104,7 +103,7 @@ export default ({
               }}
             >
               <div
-                className='drawBox__detection-label'
+                className="drawBox__detection-label"
                 style={{
                   width: _W,
                   transform: `translate(-3px,${_H}px)`,
@@ -127,7 +126,7 @@ export default ({
                           Math.max(a, b)
                         )
                     )}
-                    size='xs'
+                    size="xs"
                   />
                 )}
               </div>
@@ -140,42 +139,35 @@ export default ({
           <div key={i}>
             <div
               className={
-                !!match && match[i] && match[i]._label !== 'unknown'
-                  ? 'drawBox__recognition-knownBox'
-                  : 'drawBox__recognition-unknownBox'
+                !!match && match[i] && match[i]._label !== "unknown"
+                  ? "drawBox__recognition-knownBox"
+                  : "drawBox__recognition-unknownBox"
               }
-              style={
-                {
+              style={{
                 height: _H,
                 width: _W,
                 transform: `translate(${_X}px,${_Y}px)`,
               }}
             >
-              {!!match && match[i] && match[i]._label !== 'unknown' ? (
+              {!!match && match[i] && match[i]._label !== "unknown" ? (
                 <>
-                <div
-                      style={{
-                        position: "absolute",
-                        color: 'green',
-                        fontWeight: 900,
-                        width: _W,
-                        backgroundColor: 'lightgreen',
-                      }}
-                    >
-                      {`Euc Dist: ${match[i]._distance.toFixed(2)} < ${threshold} thres`}
-                    </div>
                   <div
-                    className='drawBox__recognition-knownLabel'
+                    className="drawBox__recognition-knownLabel"
                     style={{
                       minWidth: 100,
                       width: _W,
-                      transform: `translate(${_W}px,${-3}px)`,
+                      transform: `translate(${-3}px,${_H}px)`,
                     }}
                   >
                     {participants.map((profile) => (
                       <div key={profile.student._id}>
                         {profile.student._id == match[i]._label && (
                           <>
+                            <div style={{color: "darkgreen"}}>
+                              {`Euc Dist: ${match[i]._distance.toFixed(
+                                2
+                              )} < ${threshold} thres`}
+                            </div>
                             <Avatar
                               src={profile.student.profilePictureURL}
                               icon={<UserOutlined />}
@@ -185,16 +177,7 @@ export default ({
                           </>
                         )}
                       </div>
-                    ))}
-                    <br />
-                    <img
-                      src={ROBOT_ICON_URL.link}
-                      style={{
-                        width: ROBOT_ICON_URL.width,
-                        height: ROBOT_ICON_URL.height,
-                      }}
-                    />
-                    : &nbsp;
+                    ))}                    
                     {!!expressions && expressions.length > 0 && (
                       <EmojiProcessing
                         exp={Object.keys(expressions[i]).find(
@@ -204,18 +187,17 @@ export default ({
                               Math.max(a, b)
                             )
                         )}
-                        size='xs'
+                        size="xs"
                       />
                     )}
-
                   </div>
                 </>
               ) : (
                 <div
-                  className='drawBox__recognition-unknownLabel'
+                  className="drawBox__recognition-unknownLabel"
                   style={{
                     width: _W,
-                    transform: `translate(${_W}px,${-3}px)`,
+                    transform: `translate(${-3}px,${_H}px)`,
                   }}
                 >
                   unknown

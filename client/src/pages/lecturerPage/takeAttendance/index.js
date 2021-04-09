@@ -203,7 +203,7 @@ export default (props) => {
 
     let interval = setInterval(() => {
       capture();
-    }, 500);
+    }, 200);
 
     return () => clearInterval(interval);
   });
