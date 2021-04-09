@@ -78,14 +78,7 @@ export default (props) => {
         compare: (a, b) => a.attendRate - b.attendRate,
         multiple: 2,
       },
-    },
-    {
-      key: 'mood',
-      title: <strong>Mood</strong>,
-      dataIndex: 'mood',
-      render: (text) => <EmojiProcessing exp={text} size='xs' />,
-      align: 'center',
-    },
+    }
   ];
 
   const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
@@ -145,7 +138,6 @@ export default (props) => {
           ? 'Absent'
           : 'Attend',
         attendRate: participant.attendRate,
-        mood: participant.expression? participant.expression : "-",
       };
       parsedData.push(tmp);
     });

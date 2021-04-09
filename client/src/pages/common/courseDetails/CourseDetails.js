@@ -33,50 +33,8 @@ import Modal from "../../../components/common/customModal"
 const { Content } = Layout;
 
 export default (props) => {
-  const stud_columns = [
-    {
-      title: <strong>Avatar</strong>,
-      dataIndex: 'profilePictureURL',
-      key: 'profilePictureURL',
-      render: (imgURL, record) => (
-        <Avatar
-          src={imgURL}
-          size={50}
-          style={{
-            backgroundColor: `rgb(${Math.random() * 255 + 30}, ${Math.random() * 255 + 30
-              }, ${Math.random() * 255 + 30})`,
-          }}
-        >
-          {record.firstName[0]}
-        </Avatar>
-      ),
-    },
-    {
-      title: <strong>Matric Number</strong>,
-      dataIndex: 'cardID',
-      key: 'cardID',
-      align: 'center',
-    },
-    {
-      title: <strong>Name</strong>,
-      dataIndex: 'displayedName',
-      key: 'displayedName',
-      render: (text, record) => (
-        <p
-          style={
-            record.displayedName === 'You'
-              ? { color: 'darkblue', fontWeight: 900, fontSize: '130%' }
-              : null
-          }
-        >
-          {text}
-        </p>
-      ),
-      align: 'center',
-    },
-  ];
 
-  const lect_columns = [
+  const columns = [
     {
       title: <strong>Avatar</strong>,
       dataIndex: 'profilePictureURL',
@@ -106,7 +64,6 @@ export default (props) => {
       title: <strong>Name</strong>,
       dataIndex: 'displayedName',
       key: 'displayedName',
-      width: '50%',
       align: 'center',
       sorter: (a, b) => a.displayedName.localeCompare(b.displayedName)
     },
@@ -129,7 +86,7 @@ export default (props) => {
       },
     },
     {
-      title: <strong>Warning Count</strong>,
+      title: <strong>Warns</strong>,
       dataIndex: 'warningCount',
       key: 'warningCount',
       render: (text) => (
@@ -189,6 +146,10 @@ export default (props) => {
   const [attendanceCount, setAttendanceCount] = useState(0);
 
   const [visible, setVisible] = useState(false);
+  if (user.userLevel==0){
+    columns.splice(-1,1);
+  }
+
 
   const { loading, data, error, refetch } = useQuery(FETCH_COURSE_QUERY, {
     onError(err) {
@@ -281,10 +242,7 @@ export default (props) => {
         profilePictureURL: par.info.profilePictureURL,
         firstName: par.info.firstName,
         lastName: par.info.lastName,
-        displayedName:
-          par !== currUser
-            ? par.info.firstName + ' ' + par.info.lastName
-            : 'You',
+        displayedName: par.info.firstName + ' ' + par.info.lastName,
         cardID: par.info.cardID,
         attendRate: par.attendRate,
         warningCount: par.warningCount,
@@ -294,7 +252,7 @@ export default (props) => {
 
   const TableDisplay = () => (
     <Table
-      columns={user.userLevel === 0 ? stud_columns : lect_columns}
+      columns={columns}
       style={{ textAlign: 'center' }}
       dataSource={parsedParticipants(participants)}
       loading={loading}

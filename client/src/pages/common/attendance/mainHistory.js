@@ -258,16 +258,6 @@ export default (props) => {
           ")",
         stats: att.attendees.length + "/" + att.participants.length,
       };
-
-      if (user.userLevel === 0) {
-        const isAttend = att.attendees.filter(
-          (stud) => stud.info._id === user._id
-        );
-        Object.assign(tmp, { status: isAttend[0] ? "Attend" : "Absent" });
-        Object.assign(tmp, {
-          mood: isAttend[0]?.expression ? isAttend[0].expression : "-",
-        });
-      }
       parsedData.push(tmp);
     });
 
