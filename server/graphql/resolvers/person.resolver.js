@@ -71,31 +71,6 @@ module.exports = {
     },
   },
   Mutation: {
-    async testingRegisterStudent(_, { courseID }) {
-      try {
-        for (i = 0; i < 10; i++) {
-          const password = '123';
-          const hashedPassword = await bcrypt.hash(password, 12);
-
-          const newPerson = new Person({
-            firstName: 'Student FN ' + i,
-            lastName: 'Student LN ' + i,
-            email: 'Student' + i + '@gmail.com',
-            cardID: 'A17CS0022',
-            password: hashedPassword,
-            userLevel: 0,
-          });
-          await newPerson.save();
-          const course = await Course.findOne({ shortID: courseID });
-
-          course.enrolledStudents.push(newPerson._id);
-          course.save();
-        }
-        return 'Create 50 student';
-      } catch (err) {
-        throw err;
-      }
-    },
     async register(
       _,
       {

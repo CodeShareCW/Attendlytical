@@ -8,6 +8,18 @@ export const FETCH_COURSES_COUNT_QUERY = gql`
 `;
 
 export const FETCH_COURSE_QUERY = gql`
+  query getCourse($id: ID!) {
+    getCourse(courseID: $id) {
+        _id
+        shortID
+        name
+        code
+        session
+    }
+  }
+`;
+
+export const FETCH_COURSE_AND_PARTICIPANTS_QUERY = gql`
   query getCourseAndParticipants($id: ID!) {
     getCourseAndParticipants(courseID: $id) {
       course {

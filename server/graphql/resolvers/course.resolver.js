@@ -56,7 +56,7 @@ module.exports = {
 
     async getCoursesCount(_, __, context) {
       const currUser = checkAuth(context);
-      var count=0;
+      var count = 0;
       try {
         if (currUser.userLevel === 0) {
           const courseEnrolled = await Course.find(
@@ -65,9 +65,8 @@ module.exports = {
             },
             ["id"]
           );
-          count=courseEnrolled.length;
-        }
-        else if (currUser.userLevel === 1) {
+          count = courseEnrolled.length;
+        } else if (currUser.userLevel === 1) {
           const courseCreated = await Course.find(
             {
               creator: currUser._id,
@@ -75,12 +74,52 @@ module.exports = {
             ["id"]
           );
 
-          count=courseCreated.length;
+          count = courseCreated.length;
         } else {
           throw new Error("Something wrong");
         }
 
         return count;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    async getCourse(_, { courseID }, context) {
+      const currUser = checkAuth(context);
+      let errors = {};
+      try {
+        const course = await Course.findOne({ shortID: courseID });
+        if (!course) {
+          errors.general = "Course do not exist";
+          throw new UserInputError("Course do not exist", { errors });
+        }
+        if (currUser.userLevel === 1) {
+          if (course.creator != currUser._id) {
+            errors.general = "Access forbidden. You do not own this course.";
+            throw new UserInputError(
+              "Access forbidden. You do not own this course.",
+              {
+                errors,
+              }
+            );
+          }
+        } else {
+          const student = course.enrolledStudents.find(
+            (s) => s == currUser._id
+          );
+          if (!student) {
+            errors.general =
+              "Access forbidden. You do not enrol to this course.";
+            throw new UserInputError(
+              "Access forbidden. You do not enrol to this course.",
+              {
+                errors,
+              }
+            );
+          }
+        }
+        return CoursegqlParser(course);
       } catch (err) {
         throw err;
       }
@@ -139,63 +178,7 @@ module.exports = {
     },
   },
   Mutation: {
-    //TODO:/*Test*/
-    async testingCreateCourse(_, __, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-
-      try {
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "The user is not a lecturer but want to create course!";
-          throw new UserInputError(
-            "The user is not a lecturer but want to create course!",
-            { errors }
-          );
-        }
-        for (i = 0; i < 50; i++) {
-          let existingShortID;
-          let id;
-          do {
-            id = shortid.generate();
-            existingShortID = await Course.find({ shortID: id });
-          } while (existingShortID.length > 0);
-          const newCourse = new Course({
-            shortID: "Course_" + id,
-            creator: currUser._id,
-            code: i + " SCSV2013",
-            name: i + " Graphic",
-            session: "20192020-01",
-          });
-          await newCourse.save();
-        }
-        return "Create 50 Course...";
-      } catch (err) {
-        throw err;
-      }
-    },
-    //TODO:/*Test*/
-    async testingDeleteAllCourse(_, __, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-
-      try {
-        if (currUser.userLevel !== 1) {
-          errors.general =
-            "The user is not a lecturer but want to delete course!";
-          throw new UserInputError(
-            "The user is not a lecturer but want to delete course!",
-            { errors }
-          );
-        }
-
-        await Course.deleteMany({ create: currUser._id });
-
-        return "CDelete 50 Course...";
-      } catch (err) {
-        throw err;
-      }
-    },
+ 
     /*
         Course owner:
     */
@@ -348,10 +331,7 @@ module.exports = {
 
         if (!course2enrol) {
           errors.general = "Course do not exist!";
-          throw new UserInputError(
-            "Course do not exist!",
-            { errors }
-          );
+          throw new UserInputError("Course do not exist!", { errors });
         }
 
         const checkPending = await PendingEnrolledCourse.find({
@@ -666,7 +646,7 @@ module.exports = {
 
           const notification = new Notification({
             receiver: participantID,
-            title: `Attendance Warning (limit time) Notification - Course ID: ${courseID}`,
+            title: `Attendance Warning (1 time) Notification - Course ID: ${courseID}`,
             content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have warned your low attendance in the course: ${course.name} (${course.code}-${course.session})`,
           });
           await notification.save();

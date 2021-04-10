@@ -26,7 +26,7 @@ import {
   KICK_PARTICIPANT_MUTATION,
   WARN_PARTICIPANT_MUTATION,
 } from "../../../graphql/mutation";
-import { FETCH_COURSE_QUERY } from "../../../graphql/query";
+import { FETCH_COURSE_AND_PARTICIPANTS_QUERY } from "../../../graphql/query";
 import CourseDetailCard from "./CourseDetailCard";
 import "./CourseDetails.css";
 const { Content } = Layout;
@@ -149,7 +149,7 @@ export default (props) => {
     columns.splice(-1, 1);
   }
 
-  const { loading, data, error, refetch } = useQuery(FETCH_COURSE_QUERY, {
+  const { loading, data, error, refetch } = useQuery(FETCH_COURSE_AND_PARTICIPANTS_QUERY, {
     onError(err) {
       CheckError(err);
     },

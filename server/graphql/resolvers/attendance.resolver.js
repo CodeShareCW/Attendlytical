@@ -12,35 +12,12 @@ const checkAuth = require('../../util/check-auth');
 
 module.exports = {
   Query: {
-    async getAttendancesCount(_, __, context) {
+    async getAttendanceListCountInCourse(_, { courseID }, context) {
       const currUser = checkAuth(context);
       try {
-        let attendances;
-
-        if (currUser.userLevel === 0) {
-          attendances = await Attendance.find({ participants: currUser._id }, [
-            '_id',
-          ]);
-        } else if (currUser.userLevel === 1) {
-          attendances = await Attendance.find({ creator: currUser._id }, [
-            '_id',
-          ]);
-        } else
-          throw new Error(
-            `Something wrong with your role index: ${currUser.userLevel}!`
-          );
-
-        return attendances.length;
-      } catch (err) {
-        throw err;
-      }
-    },
-    async getAttendancesCountInCourse(_, { courseID }, context) {
-      const currUser = checkAuth(context);
-      try {
-        const course = await Course.findOne({ shortID: courseID });
+        const course = await Course.findOne({shortID: courseID});
         if (!course) {
-          throw new Error('Course do not exist', { errors });
+          throw new Error('Course do not exist');
         }
 
         if (
@@ -51,24 +28,24 @@ module.exports = {
             'Access forbidden. You are not the course owner or join this course.'
           );
         }
-        let attendances;
+        let attendanceList;
 
         if (currUser.userLevel === 0) {
-          attendances = await Attendance.find(
-            { participants: currUser._id, course: course._id },
+          attendanceList = await Attendance.find(
+            { course: course.shortID },
             ['id']
           );
         } else if (currUser.userLevel === 1) {
-          attendances = await Attendance.find(
-            { creator: currUser._id, course: course._id },
+          attendanceList = await Attendance.find(
+            { course: course.shortID },
             ['id']
           );
         } else
           throw new Error(
             `Something wrong with your role index: ${currUser.userLevel}!`
           );
-
-        return attendances.length;
+            console.log(attendanceList.length)
+        return attendanceList.length;
       } catch (err) {
         throw err;
       }
@@ -78,11 +55,15 @@ module.exports = {
       const currUser = checkAuth(context);
       try {
         const attendance = await Attendance.findById(attendanceID);
+
         if (!attendance) {
-          throw new Error('Attendance do not exist', { errors });
+          throw new Error('Attendance do not exist');
         }
 
-        const course = await Course.findById(attendance.course);
+        const course = await Course.findOne({shortID: attendance.course});
+        if (!course) {
+          throw new Error('Course do not exist');
+        }
 
         if (course.creator != currUser._id && !course.enrolledStudents.find(user=>user._id==currUser._id)) {
           throw new Error('Access forbidden. You are not the course owner or participants in this course.');
@@ -93,46 +74,15 @@ module.exports = {
         throw err;
       }
     },
-    async getAttendances(_, { currPage, pageSize }, context) {
-      const currUser = checkAuth(context);
-      console.log(currPage, pageSize);
-      try {
-        let attendanceList = [];
-        if (currUser.userLevel === 0) {
-          attendanceList = await Attendance.find({
-            participants: currUser._id,
-          })
-            .skip((currPage - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ _id: -1 });
-        } else if (currUser.userLevel === 1) {
-          attendanceList = await Attendance.find({
-            creator: currUser._id,
-          })
-            .skip((currPage - 1) * pageSize)
-            .limit(pageSize)
-            .sort({ _id: -1 });
-        } else {
-          throw new Error('Something wrong');
-        }
-
-        return attendanceList.map((attendance) =>
-          AttendancegqlParser(attendance)
-        );
-      } catch (err) {
-        throw err;
-      }
-    },
-    async getAttendancesInCourse(_, { courseID, currPage, pageSize }, context) {
+  
+    async getAttendanceListInCourse(_, { courseID, currPage, pageSize }, context) {
       const currUser = checkAuth(context);
       try {
-        const course = await Course.findOne({ shortID: courseID });
+        const course = await Course.findOne({shortID: courseID});
 
         if (!course) {
-          throw new Error('Course do not exist', { errors });
+          throw new Error('Course do not exist');
         }
-
-        console.log(currPage);
         if (
           course.creator != currUser._id &&
           !course.enrolledStudents.find((stud) => stud._id == currUser._id)
@@ -141,20 +91,19 @@ module.exports = {
             'Access forbidden. You are not the course owner or join this course.'
           );
         }
+        
 
         let createdAttendance_list = [];
         if (currUser.userLevel === 0) {
           createdAttendance_list = await Attendance.find({
-            participants: currUser._id,
-            course: course._id,
+            course: course.shortID,
           })
             .skip((currPage - 1) * pageSize)
             .limit(pageSize)
             .sort({ _id: -1 });
         } else if (currUser.userLevel === 1) {
           createdAttendance_list = await Attendance.find({
-            creator: currUser._id,
-            course: course._id,
+            course: course.shortID,
           })
             .skip((currPage - 1) * pageSize)
             .limit(pageSize)
@@ -162,10 +111,9 @@ module.exports = {
         } else {
           throw new Error('Something wrong');
         }
-
         return {
           course: CoursegqlParser(course),
-          attendances: createdAttendance_list.map((attendance) =>
+          attendanceList: createdAttendance_list.map((attendance) =>
             AttendancegqlParser(attendance)
           ),
         };
@@ -181,10 +129,8 @@ module.exports = {
         attendanceInput: {
           date,
           time,
+          mode,
           courseID,
-          participants,
-          absentees,
-          attendees,
         },
       },
       context
@@ -198,11 +144,8 @@ module.exports = {
         const attendance = new Attendance({
           date,
           time,
+          mode,
           course: courseID,
-          creator: currUser._id,
-          participants,
-          absentees,
-          attendees,
         });
 
         await attendance.save();
@@ -219,8 +162,8 @@ module.exports = {
         const attendance2Delete = await Attendance.findById(attendanceID);
 
         if (!attendance2Delete) {
-          errors.general = 'Try to delete a non existing attendance';
-          throw new UserInputError('Try to delete a non existing attendance', {
+          errors.general = 'Delete a non existing attendance';
+          throw new UserInputError('Delete a non existing attendance', {
             errors,
           });
         }

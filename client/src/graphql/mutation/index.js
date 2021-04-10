@@ -23,6 +23,7 @@ import {
 import { EDIT_PROFILE_MUTATION } from './user/editProfileMutation';
 import {EDIT_CARDID_AND_ROLE_MUTATION} from "./user/editCardIDAndUserLevel";
 import { OBTAIN_STUDENT_WARNING_MUTATION } from './warning/obtainStudentWarningMutation';
+import {CREATE_TRX_MUTATION} from "./trx/createTrxMutation";
 
 export { LOGIN_USER, LOGIN_GOOGLE_USER, REGISTER_USER };
 export { EDIT_PROFILE_MUTATION, EDIT_CARDID_AND_ROLE_MUTATION };
@@ -42,4 +43,4 @@ export { OBTAIN_STUDENT_WARNING_MUTATION };
 export { ADD_FACE_PHOTO_MUTATION, DELETE_FACE_PHOTO_MUTATION };
 export { TOGGLE_PHOTO_PRIVACY_MUTATION };
 export { CREATE_ATTENDANCE_MUTATION, DELETE_ATTENDANCE_MUTATION };
-
+export {CREATE_TRX_MUTATION}

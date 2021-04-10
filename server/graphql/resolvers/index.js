@@ -5,6 +5,7 @@ const notificationResolvers=require('./notification.resolver')
 const attendanceResolvers=require('./attendance.resolver')
 const facePhotoResolvers=require('./facePhoto.resolver')
 const warningResolvers=require('./warning.resolver')
+const trxResolvers=require('./trx.resolver')
 
 module.exports={
     Query: {
@@ -15,6 +16,7 @@ module.exports={
         ...attendanceResolvers.Query,
         ...facePhotoResolvers.Query,
         ...warningResolvers.Query,
+        ...trxResolvers.Query
     },
     Mutation: {
         ...personResolvers.Mutation,
@@ -23,6 +25,7 @@ module.exports={
         ...notificationResolvers.Mutation,
         ...attendanceResolvers.Mutation,
         ...facePhotoResolvers.Mutation,
-        ...warningResolvers.Mutation
+        ...warningResolvers.Mutation,
+        ...trxResolvers.Mutation
     }
 }

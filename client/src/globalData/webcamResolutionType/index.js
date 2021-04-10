@@ -34,10 +34,5 @@ export const webcamResolutionType = [
     label: '1280x960',
     width: 1280,
     height: 960,
-  },
-  {
-    label: '1600x1200',
-    width: 1600,
-    height: 1200,
-  },
+  }
 ];

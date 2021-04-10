@@ -18,20 +18,6 @@ module.exports = {
     },
   },
   Mutation: {
-    async obtainStudentWarning(_, { participantID, courseID }, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        const warning = await Warning.findOne({
-          student: participantID,
-          course: courseID,
-        });
-
-        if (!warning) return 0;
-        else return warning.count;
-      } catch (err) {
-        throw err;
-      }
-    },
+   
   }
 };

@@ -1,7 +1,6 @@
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, List } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { EmojiProcessing } from '../../../utils/EmojiProcessing';
 
 export default ({ participants, absentees, setAbsentees }) => {
   const [isPhotoVisible, setIsPhotoVisible] = useState({});

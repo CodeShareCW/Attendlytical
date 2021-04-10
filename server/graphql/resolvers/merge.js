@@ -1,7 +1,8 @@
-const Person = require('../../models/person.model');
-const Course = require('../../models/course.model');
-const Warning = require('../../models/warning.model');
-const Attendance = require('../../models/attendance.model');
+const Person = require("../../models/person.model");
+const Course = require("../../models/course.model");
+const Warning = require("../../models/warning.model");
+const Attendance = require("../../models/attendance.model");
+const Trx = require("../../models/trx.model");
 
 const person = async (personID) => {
   try {
@@ -86,6 +87,16 @@ const course = async (courseID) => {
   }
 };
 
+const courseUsingShortID = async (courseID) => {
+  try {
+    const result = await Course.findOne({ shortID: courseID });
+    if (result) return CoursegqlParser(result);
+    else return null;
+  } catch (err) {
+    throw err;
+  }
+};
+
 const courses = async (courseList) => {
   try {
     return courseList.map((r) => {
@@ -108,10 +119,9 @@ const notifications = async (notificationList) => {
 
 const attendance = async (attendanceID) => {
   try {
-    const results = await Attendance.findByID(attendanceID);
-    return results.map((r) => {
-      return AttendancegqlParser(r);
-    });
+    const result = await Attendance.findById(attendanceID);
+    if (result) return AttendancegqlParser(result);
+    else return null;
   } catch (err) {
     throw err;
   }
@@ -182,23 +192,19 @@ const NotificationsgqlParser = (notificationList, hasNextPage) => {
 const AttendancegqlParser = (attendanceData) => {
   return {
     ...attendanceData._doc,
-    participants: ParticipantsgqlParser(
-      attendanceData._doc.participants,
-      attendanceData._doc.course,
-      attendanceData._id
-    ),
-    absentees: ParticipantsgqlParser(
-      attendanceData._doc.absentees,
-      attendanceData._doc.course,
-      attendanceData._id
-    ),
-    attendees: ParticipantsgqlParser(
-      attendanceData._doc.attendees,
-      attendanceData._doc.course,
-      attendanceData._id
-    ),
-    creator: person.bind(this, attendanceData._doc.creator),
-    course: course.bind(this, attendanceData._doc.course),
+    course: courseUsingShortID.bind(this, attendanceData._doc.course),
+  };
+};
+
+const TrxgqlParser = (trxData) => {
+  console.log(trxData);
+  return {
+    ...trxData._doc,
+    attendance: attendance.bind(this, trxData._doc.attendance),
+    student: person.bind(this, trxData._doc.student),
+    createdAt: new Date(trxData._doc.createdAt).toISOString(),
+    updatedAt: new Date(trxData._doc.updatedAt).toISOString(),
+   
   };
 };
 
@@ -240,6 +246,7 @@ module.exports = {
   NotificationgqlParser,
   NotificationsgqlParser,
   AttendancegqlParser,
+  TrxgqlParser,
   FacePhotogqlParser,
   FacePhotosgqlParser,
   PhotoPrivacygqlParser,

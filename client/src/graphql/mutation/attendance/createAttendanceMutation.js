@@ -2,21 +2,17 @@ import gql from 'graphql-tag';
 
 export const CREATE_ATTENDANCE_MUTATION = gql`
   mutation createAttendance(
-    $courseID: ID!
+    $courseID: String!
     $date: String!
     $time: String!
-    $attendees: [ID!]
-    $absentees: [ID!]
-    $participants: [ID!]
+    $mode: String!
   ) {
     createAttendance(
       attendanceInput: {
         courseID: $courseID
         date: $date
         time: $time
-        attendees: $attendees
-        absentees: $absentees
-        participants: $participants
+        mode: $mode
       }
     ) {
       _id
@@ -29,30 +25,7 @@ export const CREATE_ATTENDANCE_MUTATION = gql`
       }
       date
       time
-      attendees {
-        info {
-          _id
-          firstName
-          lastName
-          cardID
-        }
-      }
-      absentees {
-        info {
-          _id
-          firstName
-          lastName
-          cardID
-        }
-      }
-      participants {
-        info {
-          _id
-          firstName
-          lastName
-          cardID
-        }
-      }
+      mode
     }
   }
 `;

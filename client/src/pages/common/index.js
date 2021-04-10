@@ -4,7 +4,6 @@ import { MainMenu, SignIn, SignUp } from './mainMenu';
 import NoFound from './noFound/NoFound';
 import Notifications from './notification/Notifications';
 import Profile from './profile/Profile';
-import MainAttendanceHistory from './attendance/mainHistory';
 import InCourseAttendanceHistory from './attendance/inCourseHistory';
 import SingleAttendanceHistory from './attendance/singleHistory';
 import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
@@ -21,7 +20,6 @@ export {
   SignIn,
   SignUp,
   NoFound,
-  MainAttendanceHistory,
   InCourseAttendanceHistory,
   SingleAttendanceHistory,
   UndefinedCardIDAndRole,

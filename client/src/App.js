@@ -21,7 +21,6 @@ import {
   SignIn,
   SignUp,
   InCourseAttendanceHistory,
-  MainAttendanceHistory,
   SingleAttendanceHistory,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
@@ -30,7 +29,8 @@ import {
 } from "./pages/common";
 import {
   EnrolRequest,
-  TakeAttendance,
+  AttendanceForm,
+  MakeAttendance
 } from "./pages/lecturerPage";
 import { EnrolPending, FaceGallery } from "./pages/studentPage";
 import {
@@ -91,18 +91,18 @@ function App() {
                         {/* <AuthRoute exact path='/testing' component={Testing} /> */}
                         <LecturerRoute
                           exact
-                          path="/course/:id/takeAttendance"
-                          component={TakeAttendance}
+                          path="/course/:id/attendanceForm"
+                          component={AttendanceForm}
+                        />
+                        <LecturerRoute
+                          exact
+                          path="/course/:courseID/attendanceRoom/:attendanceID"
+                          component={MakeAttendance}
                         />
                         <LecturerRoute
                           exact
                           path="/enrolrequest"
                           component={EnrolRequest}
-                        />
-                        <AuthRoute
-                          exact
-                          path="/history"
-                          component={MainAttendanceHistory}
                         />
 
                         <AuthRoute

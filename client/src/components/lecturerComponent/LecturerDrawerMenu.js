@@ -53,12 +53,6 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
           &nbsp; Enrol Request ({enrolCount})
         </Link>
       </p>
-      <p>
-        <Link to={'/history'}>
-          <HistoryOutlined />
-          &nbsp; Attendance History
-        </Link>
-      </p>
     </Drawer>
   );
 };

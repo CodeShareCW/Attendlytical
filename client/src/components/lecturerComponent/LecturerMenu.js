@@ -41,9 +41,6 @@ export default () => {
       <Menu.Item key={'enrolrequest'} icon={<AliwangwangOutlined />}>
         <Link to={'/enrolrequest'}>Enrol Request ({enrolCount})</Link>
       </Menu.Item>
-      <Menu.Item key={'history'} icon={<HistoryOutlined />}>
-        <Link to={'/history'}>Attendance History</Link>
-      </Menu.Item>
       {!collapsed && <FpsView width={190} height={100} top={525} />}
     </Menu>
   );

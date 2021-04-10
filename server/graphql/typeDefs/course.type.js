@@ -32,6 +32,8 @@ module.exports = gql`
     getCourses(currPage: Int!, pageSize: Int!): Courses
     getCoursesCount: Int!
     getCourseAndParticipants(courseID: ID!): CourseVParticipants!
+    getCourse(courseID: ID!): Course!
+
   }
 
   extend type Mutation {

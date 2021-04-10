@@ -30,8 +30,8 @@ import { CheckError, ErrorComp } from "../../../ErrorHandling";
 import { FETCH_ATTENDANCE_LIMIT, modalItems } from "../../../globalData";
 import { DELETE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
 import {
-  FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
-  FETCH_ATTENDANCES_IN_COURSE_QUERY,
+  FETCH_ATTENDANCE_LIST_COUNT_IN_COURSE_QUERY,
+  FETCH_ATTENDANCE_LIST_IN_COURSE_QUERY,
 } from "../../../graphql/query";
 
 const { Title } = Typography;
@@ -39,7 +39,7 @@ const { Content } = Layout;
 
 export default (props) => {
   const { user } = useContext(AuthContext);
-  const [attendances, setAttendances] = useState([]);
+  const [attendanceList, setAttendanceList] = useState([]);
 
   const columns = [
     {
@@ -77,6 +77,18 @@ export default (props) => {
       sorter: (a, b) => a.time.localeCompare(b.time),
     },
     {
+      key: "mode",
+      title: <strong>Mode</strong>,
+      dataIndex: "mode",
+      align: "center",
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
+      sorter: (a, b) => a.mode.localeCompare(b.mode),
+    },
+    {
       key: "stats",
       title: <strong>Stats</strong>,
       dataIndex: "stats",
@@ -104,11 +116,11 @@ export default (props) => {
               onClick={() => handleDelete(record)}
               loading={
                 selectedAttendance.key == record.key &&
-                deleteAttendanceStatus.loading
+                deleteAttendanceListtatus.loading
               }
               disabled={
                 selectedAttendance.key == record.key &&
-                deleteAttendanceStatus.loading
+                deleteAttendanceListtatus.loading
               }
               style={{ margin: "10px" }}
               type="danger"
@@ -130,16 +142,16 @@ export default (props) => {
     total: 0,
   });
 
-  //get total attendances count query
+  //get total attendanceList count query
   const [selectedAttendance, setSelectedAttendance] = useState({});
-  const totalAttendancesCountInCourse = useQuery(
-    FETCH_ATTENDANCES_COUNT_IN_COURSE_QUERY,
+  const totalAttendanceListCountInCourse = useQuery(
+    FETCH_ATTENDANCE_LIST_COUNT_IN_COURSE_QUERY,
     {
       onCompleted(data) {
-        totalAttendancesCountInCourse.refetch();
+        totalAttendanceListCountInCourse.refetch();
         setTablePagination({
           ...tablePagination,
-          total: data.getAttendancesCountInCourse,
+          total: data.getAttendanceListCountInCourse,
         });
       },
       variables: {
@@ -151,16 +163,16 @@ export default (props) => {
     }
   );
   const { data, loading, error, refetch } = useQuery(
-    FETCH_ATTENDANCES_IN_COURSE_QUERY,
+    FETCH_ATTENDANCE_LIST_IN_COURSE_QUERY,
     {
       onCompleted(data) {
         setTablePagination({
           ...tablePagination,
           total:
-            totalAttendancesCountInCourse.data?.getAttendancesCountInCourse,
+            totalAttendanceListCountInCourse.data?.getAttendanceListCountInCourse,
         });
         if (
-          totalAttendancesCountInCourse.data?.getAttendancesCountInCourse -
+          totalAttendanceListCountInCourse.data?.getAttendanceListCountInCourse -
             (tablePagination.current - 1) * tablePagination.pageSize <=
             0 &&
           tablePagination.current !== 1
@@ -185,13 +197,13 @@ export default (props) => {
     }
   );
 
-  const [deleteAttendanceCallback, deleteAttendanceStatus] = useMutation(
+  const [deleteAttendanceCallback, deleteAttendanceListtatus] = useMutation(
     DELETE_ATTENDANCE_MUTATION,
     {
       onCompleted(data) {
         SetVisible(false);
         message.success("Delete Success");
-        totalAttendancesCountInCourse.refetch();
+        totalAttendanceListCountInCourse.refetch();
         refetch();
       },
       onError(err) {
@@ -204,7 +216,7 @@ export default (props) => {
   );
 
   useEffect(() => {
-    setAttendances(data?.getAttendancesInCourse.attendances || []);
+    setAttendanceList(data?.getAttendanceListInCourse.attendanceList || []);
   }, [data]);
 
   const handleAccess = (attendance) => {
@@ -225,9 +237,9 @@ export default (props) => {
     SetVisible(false);
   };
 
-  const parseAttendanceData = (attendances) => {
+  const parseAttendanceData = (attendanceList) => {
     let parsedData = [];
-    attendances.map((att, index) => {
+    attendanceList.map((att, index) => {
       const tmp = {
         key: att._id,
         bil:
@@ -235,10 +247,7 @@ export default (props) => {
           tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
         date: moment(att.date).format("DD/MM/YYYY"),
         time: moment(att.time).format("HH:mm"),
-        stats:
-          att.attendees.length +
-          "/" +
-          (+att.absentees.length + +att.attendees.length),
+        mode: att.mode
       };
       parsedData.push(tmp);
     });
@@ -276,14 +285,14 @@ export default (props) => {
                 {data && (
                   <Title level={4}>
                     Course:{" "}
-                    {`${data.getAttendancesInCourse.course.code} ${data.getAttendancesInCourse.course.name} (${data.getAttendancesInCourse.course.session})`}
+                    {`${data.getAttendanceListInCourse.course.code} ${data.getAttendanceListInCourse.course.name} (${data.getAttendanceListInCourse.course.session})`}
                   </Title>
                 )}
                 <Divider />
                 <h1>
                   Total Attendance:{" "}
-                  {totalAttendancesCountInCourse.data
-                    ?.getAttendancesCountInCourse || 0}
+                  {totalAttendanceListCountInCourse.data
+                    ?.getAttendanceListCountInCourse || 0}
                 </h1>
                 <Button
                   style={{ float: "right" }}
@@ -298,7 +307,7 @@ export default (props) => {
                   scroll={{ x: "max-content" }}
                   loading={loading}
                   pagination={tablePagination}
-                  dataSource={parseAttendanceData(attendances)}
+                  dataSource={parseAttendanceData(attendanceList)}
                   onChange={handleTableChange}
                   columns={columns}
                 />
@@ -309,7 +318,7 @@ export default (props) => {
                   action={modalItems.attendance.action.delete}
                   itemType={modalItems.attendance.name}
                   visible={visible}
-                  loading={deleteAttendanceStatus.loading}
+                  loading={deleteAttendanceListtatus.loading}
                   handleOk={handleOk}
                   handleCancel={handleCancel}
                   payload={selectedAttendance}

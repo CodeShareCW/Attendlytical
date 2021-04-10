@@ -1,6 +1,9 @@
 import EnrolRequest from './enrolRequest';
-import TakeAttendance from './takeAttendance';
+import AttendanceForm from './attendanceForm';
+import MakeAttendance from './makeAttendance';
+
 export {
   EnrolRequest,
-  TakeAttendance,
+  AttendanceForm,
+  MakeAttendance,
 };

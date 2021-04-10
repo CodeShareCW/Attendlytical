@@ -57,12 +57,6 @@ export default ({ isCollapseMenuOpen, setIsCollapseMenuOpen }) => {
           &nbsp; Face Gallery
         </Link>
       </p>
-      <p>
-        <Link to={'/history'}>
-          <HistoryOutlined />
-          &nbsp; Attendance History
-        </Link>
-      </p>
     </Drawer>
   );
 };
