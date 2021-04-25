@@ -16,12 +16,6 @@ module.exports = gql`
     courses: [Course!]
   }
 
-  type CourseVParticipants {
-    course: Course!
-    attendanceCount: Int!
-    participants: [Participant!]
-  }
-
   input courseInput {
     code: String!
     name: String!
@@ -31,7 +25,7 @@ module.exports = gql`
   extend type Query {
     getCourses(currPage: Int!, pageSize: Int!): Courses
     getCoursesCount: Int!
-    getCourseAndParticipants(courseID: ID!): CourseVParticipants!
+    getParticipants(courseID: ID!): [Person!]
     getCourse(courseID: ID!): Course!
 
   }
@@ -40,7 +34,7 @@ module.exports = gql`
     createCourse(courseInput: courseInput!): Course!
     deleteCourse(courseID: ID!): Course
 
-    enrolCourse(courseID: ID!): pendingEnrolledCourse!
+    enrolCourse(courseID: ID!): String
     withdrawCourse(courseID: ID!): String
   }
 `;

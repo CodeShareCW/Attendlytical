@@ -13,13 +13,10 @@ oAuth2Client.setCredentials({
 
 const {
   Welcome,
-  EnrolRequest,
-  ApproveEnrolment,
-  WarnStudent,
   KickStudent,
   DeleteCourse,
   WithdrawCourse,
-  DeletePendingCourse,
+  CreateAttendance,
 } = require("./mailTemplate");
 
 //global mail type naming
@@ -41,30 +38,6 @@ const getEmailData = (to, firstName, template, payload) => {
         html: Welcome(firstName),
       };
       break;
-    case MAIL_TEMPLATE_TYPE.EnrolRequest:
-      data = {
-        from: "Attendlytical <attendlytical@gmail.com>",
-        to,
-        subject: `Course ID: ${payload.course.shortID} - You have a new enrol request`,
-        html: EnrolRequest(firstName, payload),
-      };
-      break;
-    case MAIL_TEMPLATE_TYPE.ApproveEnrolment:
-      data = {
-        from: "Attendlytical <attendlytical@gmail.com>",
-        to,
-        subject: `Course ID: ${payload.course.shortID} - Your enrolment is approved`,
-        html: ApproveEnrolment(firstName, payload),
-      };
-      break;
-    case MAIL_TEMPLATE_TYPE.WarnStudent:
-      data = {
-        from: "Attendlytical <attendlytical@gmail.com>",
-        to,
-        subject: `Course ID: ${payload.course.shortID} - You have an attendance warning`,
-        html: WarnStudent(firstName, payload),
-      };
-      break;
     case MAIL_TEMPLATE_TYPE.KickStudent:
       data = {
         from: "Attendlytical <attendlytical@gmail.com>",
@@ -81,14 +54,6 @@ const getEmailData = (to, firstName, template, payload) => {
         html: DeleteCourse(firstName, payload),
       };
       break;
-    case MAIL_TEMPLATE_TYPE.DeletePendingCourse:
-      data = {
-        from: "Attendlytical <attendlytical@gmail.com>",
-        to,
-        subject: `Course ID: ${payload.course.shortID} - A course was deleted by course owner`,
-        html: DeletePendingCourse(firstName, payload),
-      };
-      break;
     case MAIL_TEMPLATE_TYPE.WithdrawCourse:
       data = {
         from: "Attendlytical <attendlytical@gmail.com>",
@@ -97,6 +62,14 @@ const getEmailData = (to, firstName, template, payload) => {
         html: WithdrawCourse(firstName, payload),
       };
       break;
+      case MAIL_TEMPLATE_TYPE.CreateAttendance:
+        data = {
+          from: "Attendlytical <attendlytical@gmail.com>",
+          to,
+          subject: `Course ID: ${payload.course.shortID} - New Attendance`,
+          html: CreateAttendance(firstName, payload),
+        };
+        break;
     default:
       data;
   }

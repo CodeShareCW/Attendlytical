@@ -11,6 +11,7 @@ module.exports = gql`
     time: String!
     date: String!
     mode: String!
+    isOn: Boolean!
   }
 
   type AttendanceListInCourse {
@@ -21,7 +22,6 @@ module.exports = gql`
   input attendanceInput {
     time: String!
     date: String!
-    mode: String!
     courseID: String!
   }
   extend type Query {
@@ -31,6 +31,9 @@ module.exports = gql`
   }
   extend type Mutation {
     createAttendance(attendanceInput: attendanceInput!): Attendance!
+    editAttendanceMode(attendanceID: ID!, mode: String!): Attendance!
+    editAttendanceOnOff(attendanceID: ID!, isOn: Boolean!): Attendance!
+
     deleteAttendance(attendanceID: ID!): Attendance!
   }
 `;

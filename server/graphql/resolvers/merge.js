@@ -1,8 +1,5 @@
 const Person = require("../../models/person.model");
 const Course = require("../../models/course.model");
-const Warning = require("../../models/warning.model");
-const Attendance = require("../../models/attendance.model");
-const Trx = require("../../models/trx.model");
 
 const person = async (personID) => {
   try {
@@ -16,11 +13,9 @@ const person = async (personID) => {
 
 const people = async (personID) => {
   try {
-    const results = await Person.find({ _id: { $in: personID } }).sort({
-      cardID: 1,
-    });
-    if (results)
-      return results.map((r) => {
+    const results = await Person.find({ _id: { $in: personID } });
+    return results.map((r) => {
+
         return PersongqlParser(r);
       });
   } catch (err) {
@@ -28,54 +23,6 @@ const people = async (personID) => {
   }
 };
 
-const ParticipantsgqlParser = async (
-  participantIDList,
-  course,
-  attendanceID
-) => {
-  try {
-    let participants = await people(participantIDList);
-    let parsedParticipants = participants.map(async (stud) => {
-      let obj = {};
-
-      const warning = await Warning.findOne({
-        student: stud._id,
-        course: course._id,
-      });
-
-      const attendanceHistories = await Attendance.find({
-        participants: stud._id,
-        course: course._id,
-      });
-
-      const countAttend = attendanceHistories.reduce((prev, curr) => {
-        const isAttend = curr.attendees.includes(stud._id);
-
-        return isAttend ? prev + 1 : prev; //if got attend add 1 else remain
-      }, 0);
-
-      const info = await Person.findById(stud._id);
-
-      Object.assign(obj, { info: await PersongqlParser(info) });
-
-      Object.assign(obj, {
-        attendRate:
-          (await attendanceHistories.length) > 0
-            ? ((countAttend / attendanceHistories.length) * 100).toFixed(2)
-            : null,
-      });
-      Object.assign(obj, {
-        warningCount: (await warning) ? warning.count : 0,
-      });
-
-      return obj;
-    });
-
-    return parsedParticipants;
-  } catch (err) {
-    throw err;
-  }
-};
 
 const course = async (courseID) => {
   try {
@@ -117,16 +64,6 @@ const notifications = async (notificationList) => {
   }
 };
 
-const attendance = async (attendanceID) => {
-  try {
-    const result = await Attendance.findById(attendanceID);
-    if (result) return AttendancegqlParser(result);
-    else return null;
-  } catch (err) {
-    throw err;
-  }
-};
-
 const PersongqlParser = (person, token) => {
   return {
     ...person._doc,
@@ -152,25 +89,6 @@ const CoursesgqlParser = (coursesList) => {
   };
 };
 
-const PendingEnrolledCoursegqlParser = (enrolment) => {
-  return {
-    ...enrolment._doc,
-    createdAt: new Date(enrolment._doc.createdAt).toISOString(),
-    updatedAt: new Date(enrolment._doc.updatedAt).toISOString(),
-    student: person.bind(this, enrolment._doc.student),
-    course: course.bind(this, enrolment._doc.course),
-    courseOwner: person.bind(this, enrolment._doc.courseOwner),
-  };
-};
-
-const PendingEnrolledCoursesgqlParser = (enrolments, hasNextPage) => {
-  return {
-    pendingEnrolledCourses: enrolments.map((e) =>
-      PendingEnrolledCoursegqlParser(e)
-    ),
-    hasNextPage,
-  };
-};
 
 const NotificationgqlParser = (notification, hasNextPage) => {
   return {
@@ -197,14 +115,12 @@ const AttendancegqlParser = (attendanceData) => {
 };
 
 const TrxgqlParser = (trxData) => {
-  console.log(trxData);
   return {
     ...trxData._doc,
-    attendance: attendance.bind(this, trxData._doc.attendance),
-    student: person.bind(this, trxData._doc.student),
+    attendanceID: trxData._doc.attendance,
+    studentID: trxData._doc.student,
     createdAt: new Date(trxData._doc.createdAt).toISOString(),
     updatedAt: new Date(trxData._doc.updatedAt).toISOString(),
-   
   };
 };
 
@@ -224,14 +140,6 @@ const FacePhotosgqlParser = (photoList, hasNextPage) => {
   };
 };
 
-const PhotoPrivacygqlParser = (privacy) => {
-  console.log(privacy);
-  return {
-    ...privacy._doc,
-    creator: person.bind(this, privacy._doc.creator),
-  };
-};
-
 module.exports = {
   person,
   people,
@@ -240,8 +148,6 @@ module.exports = {
   notifications,
   CoursegqlParser,
   CoursesgqlParser,
-  PendingEnrolledCoursegqlParser,
-  PendingEnrolledCoursesgqlParser,
   PersongqlParser,
   NotificationgqlParser,
   NotificationsgqlParser,
@@ -249,6 +155,4 @@ module.exports = {
   TrxgqlParser,
   FacePhotogqlParser,
   FacePhotosgqlParser,
-  PhotoPrivacygqlParser,
-  ParticipantsgqlParser,
 };

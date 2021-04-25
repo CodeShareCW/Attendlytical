@@ -5,9 +5,7 @@ const jwt = require('jsonwebtoken');
 const { cloudinary } = require('../../util/cloudinary');
 
 const Person = require('../../models/person.model');
-const Course = require('../../models/course.model'); //TODO: Testing
 const Notification = require('../../models/notification.model');
-const PhotoPrivacy = require('../../models/photoPrivacy.model');
 
 const { PersongqlParser } = require('./merge');
 const {
@@ -129,15 +127,6 @@ module.exports = {
               'Please remember to upload your face photograph for attendance verification',
           });
           await notification.save();
-
-          //give a slot for photo privacy
-          const privacyExist = await PhotoPrivacy.findOne({
-            creator: newPerson._id,
-          });
-          if (!privacyExist) {
-            const privacy = new PhotoPrivacy({ creator: newPerson._id });
-            await privacy.save();
-          }
         }
         const savedPerson = await newPerson.save();
 
@@ -196,7 +185,6 @@ module.exports = {
     ) => {
       try {
         const person = await Person.findOne({ email: googleEmail });
-        console.log(person);
         //register new one if not exist
         if (!person) {
           const newPerson = new Person({
@@ -263,15 +251,6 @@ module.exports = {
               'Please remember to upload your face photograph for attendance verification',
           });
           await notification.save();
-
-          //give a slot for photo privacy
-          const privacyExist = await PhotoPrivacy.findOne({
-            creator: updatedPerson._id,
-          });
-          if (!privacyExist) {
-            const privacy = new PhotoPrivacy({ creator: updatedPerson._id });
-            await privacy.save();
-          }
         }
 
         const token = generateToken(updatedPerson);

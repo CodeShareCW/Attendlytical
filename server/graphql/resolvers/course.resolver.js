@@ -4,18 +4,14 @@ const Attendance = require("../../models/attendance.model");
 
 const Course = require("../../models/course.model");
 const Person = require("../../models/person.model");
-const PendingEnrolledCourse = require("../../models/pendingEnrolledCourse.model");
 const Notification = require("../../models/notification.model");
-const Warning = require("../../models/warning.model");
 
 const { validateCourseInput } = require("../../util/validators");
 
 const {
-  ParticipantsgqlParser,
-  PersongqlParser,
+  people,
   CoursegqlParser,
   CoursesgqlParser,
-  PendingEnrolledCoursegqlParser,
 } = require("./merge");
 
 const checkAuth = require("../../util/check-auth");
@@ -125,7 +121,7 @@ module.exports = {
       }
     },
 
-    async getCourseAndParticipants(_, { courseID }, context) {
+    async getParticipants(_, { courseID }, context) {
       const currUser = checkAuth(context);
       let errors = {};
       try {
@@ -160,18 +156,8 @@ module.exports = {
           }
         }
 
-        const courseAttendance = await Attendance.find(
-          {
-            course: course._id,
-          },
-          ["_id"]
-        );
-
-        return {
-          course: CoursegqlParser(course),
-          attendanceCount: courseAttendance.length,
-          participants: ParticipantsgqlParser(course.enrolledStudents, course),
-        };
+        return people(course.enrolledStudents);
+        
       } catch (err) {
         throw err;
       }
@@ -312,90 +298,7 @@ module.exports = {
       }
     },
 
-    /*
-        Student
-    */
-    async enrolCourse(_, { courseID }, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        if (currUser.userLevel !== 0) {
-          errors.general = "Invalid role, only student allowed to enrol!";
-          throw new UserInputError(
-            "Invalid role, only student allowed to enrol",
-            { errors }
-          );
-        }
-
-        const course2enrol = await Course.findOne({ shortID: courseID });
-
-        if (!course2enrol) {
-          errors.general = "Course do not exist!";
-          throw new UserInputError("Course do not exist!", { errors });
-        }
-
-        const checkPending = await PendingEnrolledCourse.find({
-          course: course2enrol.id,
-          student: currUser._id,
-          status: "pending",
-        });
-
-        if (checkPending.length > 0) {
-          errors.general = `Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`;
-          throw new UserInputError(
-            `Course enrolment: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}) is pending!`,
-            { errors }
-          );
-        }
-
-        if (course2enrol.enrolledStudents.length > 0) {
-          const student = course2enrol.enrolledStudents.find(
-            (s) => s == currUser._id
-          );
-
-          if (student) {
-            errors.general = "You already enrolled!";
-            throw new UserInputError("You already enrol the course");
-          }
-        }
-        //just pending the course
-        const pending = new PendingEnrolledCourse({
-          student: currUser._id,
-          course: course2enrol.id,
-          courseOwner: course2enrol.creator,
-        });
-
-        await pending.save();
-
-        const owner = await Person.findById(course2enrol.creator);
-
-        if (!owner) {
-          errors.general = "Course owner do not exist";
-          throw new UserInputError("Course owner do not exist", { errors });
-        }
-
-        //notify lecturer
-        notification = new Notification({
-          receiver: owner.id,
-          title: `Enrolment Request - Course ID: ${courseID}`,
-          content: `Student: [${currUser.firstName} ${currUser.lastName}(${currUser.cardID})] requested to enrol course: ${course2enrol.name} (${course2enrol.code}-${course2enrol.session}).`,
-        });
-
-        await notification.save();
-
-        //notify lecturer through email
-        await sendEmail(
-          owner.email,
-          owner.firstName,
-          MAIL_TEMPLATE_TYPE.EnrolRequest,
-          { student: currUser, course: course2enrol }
-        );
-
-        return PendingEnrolledCoursegqlParser(pending);
-      } catch (err) {
-        throw err;
-      }
-    },
+   
     async withdrawCourse(_, { courseID }, context) {
       const currUser = checkAuth(context);
       let errors = {};
@@ -465,27 +368,18 @@ module.exports = {
       }
     },
 
-    async addParticipant(_, { email, courseID }, context) {
+    async enrolCourse(_, { courseID }, context) {
       const currUser = checkAuth(context);
       let errors = {};
       try {
-        if (currUser.userLevel !== 1) {
-          errors.general = "You are not a lecturer";
-          throw new UserInputError("You are not a lecturer", { errors });
-        }
-        const addedPerson = await Person.findOne({ email });
         const course = await Course.findOne({ shortID: courseID });
 
-        if (!addedPerson) {
-          errors.general = "Student do not exist";
-          throw new UserInputError("Student do not exist", { errors });
-        }
 
-        if (addedPerson.userLevel !== 0) {
+        if (currUser.userLevel !== 0) {
           errors.general =
-            "Added person is a lecturer and is not allowed to join any course";
+            "Added person is a not student and is not allowed to join any course";
           throw new UserInputError(
-            "Added person is a lecturer and is not allowed to join any course",
+            "Added person is a not student and is not allowed to join any course",
             { errors }
           );
         }
@@ -495,44 +389,23 @@ module.exports = {
           throw new UserInputError("Course do not exist", { errors });
         }
 
-        const checkPending = await PendingEnrolledCourse.find({
-          course: course.id,
-          student: addedPerson.id,
-        });
-
-        if (checkPending.length > 0) {
-          errors.general = `The student you added have this course in pending, check your notifications`;
-          throw new UserInputError(
-            `The student you added have this course in pending, check your notifications`,
-            { errors }
-          );
-        }
 
         if (course.enrolledStudents.length > 0) {
           const student = course.enrolledStudents.find(
-            (s) => s == addedPerson.id
+            (s) => s == currUser._id
           );
 
           if (student) {
-            errors.general = "Student already enrolled the course!";
-            throw new UserInputError("Student already enrolled the course", {
+            errors.general = "You already enrolled the course!";
+            throw new UserInputError("You already enrolled the course", {
               errors,
             });
           }
         }
-
-        course.enrolledStudents.push(addedPerson.id);
+        course.enrolledStudents.push(currUser._id);
         await course.save();
-
-        const notification = new Notification({
-          receiver: addedPerson.id,
-          title: `Added Notification - Course ID: ${courseID}`,
-          content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have added you in the course: ${course.name} (${course.code}-${course.session})`,
-        });
-
-        await notification.save();
-
-        return PersongqlParser(addedPerson);
+        
+        return "Enrol Success";
       } catch (err) {
         throw err;
       }
@@ -600,79 +473,5 @@ module.exports = {
       }
     },
 
-    async warnParticipant(_, { participantID, courseID }, context) {
-      const currUser = checkAuth(context);
-      let errors = {};
-      try {
-        const course = await Course.findOne({ shortID: courseID });
-        const warnedPerson = await Person.findById(participantID);
-
-        if (!course) {
-          errors.general = "Course do not exist";
-          throw new UserInputError("Course do not exist", { errors });
-        }
-
-        if (course.creator != currUser._id) {
-          errors.general = "You cannot warn the participant";
-          throw new Error("You cannot warn the participant", { errors });
-        }
-
-        if (!warnedPerson) {
-          errors.general = "Participant do not exist";
-          throw new UserInputError("Participant do not exist", { errors });
-        }
-
-        const checkStudentExist = course.enrolledStudents.find(
-          (id) => id == participantID
-        );
-        if (!checkStudentExist) {
-          errors.general = "Participant do not exist in this course";
-          throw new UserInputError("Participant do not exist in this course", {
-            errors,
-          });
-        }
-
-        const warning = await Warning.findOne({
-          student: participantID,
-          course: course.id,
-        });
-
-        if (!warning) {
-          const newWarning = new Warning({
-            student: participantID,
-            course: course.id,
-          });
-          await newWarning.save();
-
-          const notification = new Notification({
-            receiver: participantID,
-            title: `Attendance Warning (1 time) Notification - Course ID: ${courseID}`,
-            content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have warned your low attendance in the course: ${course.name} (${course.code}-${course.session})`,
-          });
-          await notification.save();
-        } else {
-          warning.count += 1;
-          await warning.save();
-          const notification = new Notification({
-            receiver: participantID,
-            title: `Attendance Warning (${warning.count} times) Notification - Course ID: ${courseID}`,
-            content: `Course owner: [${currUser.firstName} ${currUser.lastName}] have warned your low attendance in the course: ${course.name} (${course.code}-${course.session})`,
-          });
-          await notification.save();
-        }
-
-        //notify student through email
-        await sendEmail(
-          warnedPerson.email,
-          warnedPerson.firstName,
-          MAIL_TEMPLATE_TYPE.WarnStudent,
-          { owner: currUser, course: course }
-        );
-
-        return "Warn Success!";
-      } catch (err) {
-        throw err;
-      }
-    },
   },
 };

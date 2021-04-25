@@ -14,36 +14,26 @@ module.exports = gql`
     hasNextPage: Boolean
   }
 
-
-  type PhotoPrivacy {
-    _id: ID!
-    creator: Person!
-    public: Boolean
-  }
-
   type FaceProfile {
     student: Person!
     facePhotos: [FacePhoto!]
-    photoPrivacy: PhotoPrivacy!
   }
   type FaceMatcher {
     course: Course!
     matcher: [FaceProfile!]
   }
 
-  extend type Query {
+  type Query {
     getFacePhotosCount: Int!
     getFacePhotos(cursor: ID, limit: Int!): FacePhotos
-    getPhotoPrivacy: Boolean!
     getFaceMatcherInCourse(courseID: String!): FaceMatcher!
   }
 
-  extend type Mutation {
+  type Mutation {
     addFacePhoto(
       photoData: String!
       faceDescriptor: String!
     ): FacePhoto!
     deleteFacePhoto(photoID: ID!): String
-    togglePhotoPrivacy(isPublic: Boolean!): Boolean!
   }
 `;

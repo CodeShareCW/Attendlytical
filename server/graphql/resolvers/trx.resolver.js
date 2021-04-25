@@ -18,14 +18,13 @@ module.exports = {
         throw err;
       }
     },
-    async getTrxListInAttendance(_, __, context) {
+    async getTrxListInAttendance(_, {attendanceID}, context) {
       const user = checkAuth(context);
 
       try {
         const trxList = await Trx.find({
           attendance: attendanceID,
         });
-        if (!trx) throw new Error("Transaction does not exist");
         return trxList.map((trx) => TrxgqlParser(trx));
       } catch (err) {
         throw err;
@@ -43,7 +42,6 @@ module.exports = {
         });
 
         if (existingTrx.length <= 0) {
-          console.log("Lol");
           const trx = new Trx({
             attendance: attendanceID,
             student: studentID,

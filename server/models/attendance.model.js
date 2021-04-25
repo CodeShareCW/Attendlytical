@@ -12,7 +12,11 @@ const attendanceSchema = new Schema(
     },
     mode: {
       type: String,
-      required: true
+      default: "Remote"
+    },
+    isOn: {
+      type: Boolean,
+      default: true
     },
     date: {
       type: String,

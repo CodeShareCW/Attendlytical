@@ -3,8 +3,8 @@ const { gql } = require("apollo-server");
 module.exports = gql`
   type Trx {
     _id: ID!
-    attendance: Attendance!
-    student: Person!
+    attendanceID: String!
+    studentID: String!
     createdAt: String!
     updatedAt: String!
   }

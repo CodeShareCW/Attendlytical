@@ -42,6 +42,7 @@ module.exports = gql`
     register(personInput: personInput!): Person!
     login(email: String!, password: String!): Person!
     googleSignIn(googlePersonInput: googlePersonInput!) : Person!
+    kickParticipant(participantID: ID!, courseID: String!): String!
     editCardIDAndUserLevel(cardID: String!, userLevel: Int!): Person!
     editProfile(
       firstName: String!
