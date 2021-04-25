@@ -9,7 +9,6 @@ import {
   message,
   Space,
   Table,
-  Tag,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import Modal from "../../../components/common/customModal";
@@ -20,13 +19,12 @@ import {
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
 import { AuthContext } from "../../../context";
-import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { modalItems } from "../../../globalData";
 import {
   KICK_PARTICIPANT_MUTATION,
-  WARN_PARTICIPANT_MUTATION,
 } from "../../../graphql/mutation";
-import { FETCH_COURSE_AND_PARTICIPANTS_QUERY } from "../../../graphql/query";
+import { FETCH_COURSE_QUERY, FETCH_PARTICIPANTS_QUERY } from "../../../graphql/query";
 import CourseDetailCard from "./CourseDetailCard";
 import "./CourseDetails.css";
 const { Content } = Layout;
@@ -67,57 +65,10 @@ export default (props) => {
       sorter: (a, b) => a.displayedName.localeCompare(b.displayedName),
     },
     {
-      title: <strong>Attend Rate</strong>,
-      dataIndex: "attendRate",
-      key: "attendRate",
-      render: (text) =>
-        text !== null ? (
-          <Tag color={text === 0 ? "#f00" : text <= 80 ? "#f90" : "#0c8"}>
-            {text}%
-          </Tag>
-        ) : (
-          <Tag className="alert">No attendance record yet</Tag>
-        ),
-      align: "center",
-      sorter: {
-        compare: (a, b) => a.attendRate - b.attendRate,
-        multiple: 2,
-      },
-    },
-    {
-      title: <strong>Warns</strong>,
-      dataIndex: "warningCount",
-      key: "warningCount",
-      render: (text) => (
-        <div>
-          <p>{text}</p>
-        </div>
-      ),
-      align: "center",
-      sorter: {
-        compare: (a, b) => a.warningCount - b.warningCount,
-        multiple: 2,
-      },
-    },
-    {
       title: <strong>Action</strong>,
       key: "action",
       render: (index) => (
         <Space size="middle">
-          <Button
-            danger
-            className="courseDetails__warnBtn"
-            onClick={() => {
-              handleWarnParticipant(index.key, props.match.params.id);
-              setSelectedParticipant(index);
-            }}
-            loading={
-              index.key === selectedParticipant.key &&
-              warnParticipantStatus.loading
-            }
-          >
-            Warn
-          </Button>
           <Button
             danger
             className="courseDetails__kickBtn"
@@ -142,47 +93,49 @@ export default (props) => {
 
   const [participants, setParticipants] = useState([]);
   const [selectedParticipant, setSelectedParticipant] = useState({});
-  const [attendanceCount, setAttendanceCount] = useState(0);
 
   const [visible, setVisible] = useState(false);
   if (user.userLevel == 0) {
     columns.splice(-1, 1);
   }
 
-  const { loading, data, error, refetch } = useQuery(FETCH_COURSE_AND_PARTICIPANTS_QUERY, {
-    onError(err) {
-      CheckError(err);
-    },
-    variables: {
-      id: props.match.params.id,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  const fetchCourseGQLQuery = useQuery(
+    FETCH_COURSE_QUERY,
+    {
+      onError(err) {
+        CheckError(err);
+      },
+      variables: {
+        id: props.match.params.id,
+      },
+      notifyOnNetworkStatusChange: true,
+    }
+  );
+
+  const fetchParticipantGQLQuery = useQuery(
+    FETCH_PARTICIPANTS_QUERY,
+    {
+      onError(err) {
+        CheckError(err);
+      },
+      variables: {
+        id: props.match.params.id,
+      },
+      notifyOnNetworkStatusChange: true,
+    }
+  );
 
   useEffect(() => {
-    if (data) {
-      setParticipants(data.getCourseAndParticipants.participants);
-      setAttendanceCount(data.getCourseAndParticipants.attendanceCount);
+    if (fetchParticipantGQLQuery.data) {
+      setParticipants(fetchParticipantGQLQuery.data.getParticipants);
     }
-  }, [data]);
+  }, [fetchParticipantGQLQuery.data]);
 
   const [kickParticipantCallback, kickParticipantStatus] = useMutation(
     KICK_PARTICIPANT_MUTATION,
     {
       onCompleted: (data) => {
         message.success(data.kickParticipant);
-      },
-      onError(err) {
-        CheckError(err);
-      },
-    }
-  );
-
-  const [warnParticipantCallback, warnParticipantStatus] = useMutation(
-    WARN_PARTICIPANT_MUTATION,
-    {
-      onCompleted: (data) => {
-        message.success(data.warnParticipant);
       },
       onError(err) {
         CheckError(err);
@@ -198,22 +151,8 @@ export default (props) => {
         );
         setParticipants(updatedParticipant);
         //refetch the participant after kicked
-        refetch();
+        fetchParticipantGQLQuery.refetch();
         setVisible(false);
-      },
-      variables: { participantID, courseID },
-    });
-  };
-
-  const handleWarnParticipant = (participantID, courseID) => {
-    warnParticipantCallback({
-      update() {
-        const updatedParticipant = participants.filter(
-          (participant) => participant.key === participantID
-        );
-        updatedParticipant.map((item) => (item.warningCount += 1));
-        //refetch the participant after warned
-        refetch();
       },
       variables: { participantID, courseID },
     });
@@ -228,22 +167,20 @@ export default (props) => {
   ];
 
   const parsedParticipants = (participants) => {
-    const currUser = participants.find((par) => par.info._id === user._id);
+    const currUser = participants.find((par) => par._id === user._id);
     if (currUser)
       participants = [
         currUser,
-        ...participants.filter((par) => par.info._id !== user._id),
+        ...participants.filter((par) => par._id !== user._id),
       ];
     return participants.map((par) => {
       return {
-        key: par.info._id,
-        profilePictureURL: par.info.profilePictureURL,
-        firstName: par.info.firstName,
-        lastName: par.info.lastName,
-        displayedName: par.info.firstName + " " + par.info.lastName,
-        cardID: par.info.cardID,
-        attendRate: par.attendRate,
-        warningCount: par.warningCount,
+        key: par._id,
+        profilePictureURL: par.profilePictureURL,
+        firstName: par.firstName,
+        lastName: par.lastName,
+        displayedName: par.firstName + " " + par.lastName,
+        cardID: par.cardID,
       };
     });
   };
@@ -259,15 +196,10 @@ export default (props) => {
         <PageTitleBreadcrumb titleList={titleList} />
         <Content>
           <Card className="courseDetails__card">
-            {error && <ErrorComp err={error} />}
-            {!error && (
-                  data && (
-                    <CourseDetailCard
-                      course={data?.getCourseAndParticipants.course}
-                      attendanceCount={attendanceCount}
-                      participants={participants}
-                    />
-                  )
+            {fetchCourseGQLQuery.data && (
+              <CourseDetailCard
+                course={fetchCourseGQLQuery.data.getCourse}
+              />
             )}
           </Card>
           <Divider
@@ -280,15 +212,15 @@ export default (props) => {
             scroll={{ x: "max-content" }}
             columns={columns}
             dataSource={parsedParticipants(participants)}
-            loading={loading}
+            loading={fetchParticipantGQLQuery.loading}
           />
 
           <Button
             style={{ float: "right" }}
             icon={<RedoOutlined />}
-            disabled={loading}
-            loading={loading}
-            onClick={() => refetch()}
+            disabled={fetchParticipantGQLQuery.loading}
+            loading={fetchParticipantGQLQuery.loading}
+            onClick={() => fetchParticipantGQLQuery.refetch()}
           >
             Refresh Table
           </Button>

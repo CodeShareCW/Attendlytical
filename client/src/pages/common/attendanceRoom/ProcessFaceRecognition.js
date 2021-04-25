@@ -1,49 +1,34 @@
-import { useQuery, useMutation } from "@apollo/react-hooks";
-import {
-  Card,
-  Col,
-  Form,
-  Layout,
-  message,
-  Row,
-  Select,
-  Slider,
-  Typography,
-} from "antd";
+import { useMutation } from "@apollo/react-hooks";
+import { Card, Form, Layout, message, Row, Select, Typography } from "antd";
 import React, { useContext, useEffect, useRef, useState } from "react";
+import Webcam from "react-webcam";
 import { FaceThresholdDistanceContext } from "../../../context";
-import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import {
-  createMatcher,
   getFullFaceDescription,
   isFaceDetectionModelLoaded,
   isFacialLandmarkDetectionModelLoaded,
   isFeatureExtractionModelLoaded,
   loadModels,
 } from "../../../faceUtil";
-import WebcamFR from "../../../faceUtil/WebcamFR";
 import {
   DEFAULT_WEBCAM_RESOLUTION,
   inputSize,
   webcamResolutionType,
 } from "../../../globalData";
-import { FETCH_FACE_MATCHER_IN_COURSE_QUERY } from "../../../graphql/query";
 import { CREATE_TRX_MUTATION } from "../../../graphql/mutation";
-
+import { drawRectAndLabelFace } from "../../../utils/drawRectAndLabelFace";
 import ModelLoading from "../../../utils/ModelLoading";
 import ModelLoadStatus from "../../../utils/ModelLoadStatus";
-import ParticipantAttendanceDisplay from "./ParticipantAttendanceDisplay";
-import Webcam from "react-webcam";
-import { drawRectAndLabelFace } from "../../../utils/drawRectAndLabelFace";
 
 const { Title } = Typography;
 const { Content } = Layout;
 const { Option } = Select;
 
 export default (props) => {
-  const { threshold, setFaceThresholdDistance } = useContext(
-    FaceThresholdDistanceContext
-  );
+  const { participants, faceMatcher, facePhotos } = props;
+
+  const { threshold } = useContext(FaceThresholdDistanceContext);
 
   const webcamRef = useRef();
   const canvasRef = useRef();
@@ -54,59 +39,21 @@ export default (props) => {
   const [camWidth, setCamWidth] = useState(DEFAULT_WEBCAM_RESOLUTION.width);
   const [camHeight, setCamHeight] = useState(DEFAULT_WEBCAM_RESOLUTION.height);
 
-  const [course, setCourse] = useState({});
-  const [participants, setParticipants] = useState([]);
-  const [facePhotos, setFacePhotos] = useState([]);
-  const [absentees, setAbsentees] = useState([]);
-
   const [isAllModelLoaded, setIsAllModelLoaded] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loadingMessageError, setLoadingMessageError] = useState("");
-
-  const [detectionCount, setDetectionCount] = useState(0);
-
-  const [faceMatcher, setFaceMatcher] = useState(null);
   const [fullDesc, setFullDesc] = useState(null);
-
   const [waitText, setWaitText] = useState("");
 
-  const { data, loading, error } = useQuery(
-    FETCH_FACE_MATCHER_IN_COURSE_QUERY,
-    {
-      onCompleted: async (data) => {
-        setCourse(data.getFaceMatcherInCourse.course);
-        setParticipants(data.getFaceMatcherInCourse.matcher);
-        setAbsentees(data.getFaceMatcherInCourse.matcher);
-        data.getFaceMatcherInCourse.matcher.map((item) => {
-          item.facePhotos.map((photo) =>
-            setFacePhotos((prevState) => [...prevState, photo])
-          );
-        });
-
-        if (data.getFaceMatcherInCourse.matcher.length === 0) {
-          message.info("Course do not have any participant yet!");
-        }
-      },
-      onError(err) {
-        CheckError(err);
-      },
-      variables: {
-        courseID: props.match.params.courseID,
-      },
-    }
-  );
-
-  const [createTrxCallback, createTrxStatus] = useMutation(
+  const [ createTrxCallback ] = useMutation(
     CREATE_TRX_MUTATION,
     {
       update(_, { data }) {
-        if (data.createTrx!="")
-          message.success(data.createTrx);
+        if (data.createTrx != "") message.success(data.createTrx);
       },
       onError(err) {
         CheckError(err);
       },
-      
     }
   );
 
@@ -134,25 +81,6 @@ export default (props) => {
       setInputDevices({ ...inputDevices, inputDevice });
     });
   }, []);
-
-  useEffect(() => {
-    async function matcher() {
-      //check there should be at least one matcher
-      if (
-        data.getFaceMatcherInCourse.matcher.length > 0 &&
-        facePhotos.length > 0
-      ) {
-        const validMatcher = data.getFaceMatcherInCourse.matcher.filter(
-          (m) => m.facePhotos.length > 0
-        );
-        const profileList = await createMatcher(validMatcher, threshold);
-        setFaceMatcher(profileList);
-      }
-    }
-    if (!!data) {
-      matcher();
-    }
-  }, [data, facePhotos, threshold]);
 
   useEffect(() => {
     function capture() {
@@ -186,33 +114,31 @@ export default (props) => {
 
         drawRectAndLabelFace(fullDesc, faceMatcher, participants, ctx);
 
-        if (!!fullDesc){
-          console.log("Now got full desc")
-          fullDesc.map(desc=>{
-            const bestMatch=faceMatcher.findBestMatch(desc.descriptor);
+        if (!!fullDesc) {
+          console.log("Now got full desc");
+          fullDesc.map((desc) => {
+            const bestMatch = faceMatcher.findBestMatch(desc.descriptor);
             console.log(bestMatch);
-            if (bestMatch._label!="unknown"){
+            if (bestMatch._label != "unknown") {
               createTrxCallback({
                 variables: {
                   attendanceID: props.match.params.attendanceID,
-                  studentID: bestMatch._label
+                  studentID: bestMatch._label,
                 },
-              })
-              console.log("Saving in db now")
-  
+              });
+              console.log("Saving in db now");
             }
-          })
+          });
         }
       }
     }
 
     let interval = setInterval(() => {
       capture();
-    }, 500);
+    }, 700);
 
     return () => clearInterval(interval);
   });
-
 
   const handleSelectWebcam = (value) => {
     setSelectedWebcam(value);
@@ -229,16 +155,7 @@ export default (props) => {
 
   return (
     <Content>
-      {error && <ErrorComp err={error} />}
       <Card>
-        <Title level={4}>F2F Attendance Mode</Title>
-
-        {data && (
-          <Title level={4}>
-            Course:{" "}
-            {course.code + "-" + course.name + "(" + course.session + ")"}
-          </Title>
-        )}
         <Form>
           <Form.Item label="Webcam">
             <Select
@@ -300,6 +217,7 @@ export default (props) => {
                 <Webcam
                   muted={true}
                   ref={webcamRef}
+                  audio={false}
                   width={camWidth}
                   height={camHeight}
                   screenshotFormat="image/jpeg"
@@ -322,36 +240,6 @@ export default (props) => {
             </>
           </Card>
         )}
-
-        <p
-          style={{
-            textAlign: "center",
-            fontWeight: 900,
-            fontSize: "20px",
-          }}
-        >
-          Total Participants: {participants.length}
-        </p>
-
-        <ParticipantAttendanceDisplay
-          loading={loading}
-          absentees={absentees}
-          participants={participants}
-          setAbsentees={setAbsentees}
-        />
-        {/* <div style={{ textAlign: 'center' }}>
-              <div className='alert'>
-                Something wrong? Double click the participant to reverse.
-              </div>
-            </div> */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "30px",
-          }}
-        ></div>
       </Card>
     </Content>
   );

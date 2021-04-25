@@ -3,7 +3,7 @@ import { Button, Card, Form, Input, Layout, message } from "antd";
 import React, { useContext } from "react";
 import { Footer, Greeting, Navbar, PageTitleBreadcrumb } from "../sharedLayout";
 import { AuthContext, CourseContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { ADD_COURSE_MUTATION } from "../../../graphql/mutation";
 import { useForm } from "../../../utils/hooks";
 

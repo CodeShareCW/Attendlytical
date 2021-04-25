@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { HeaderNavbar } from '../../../components/common/mainMenu';
 import { Footer } from '../../../components/common/sharedLayout';
 import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError } from "../../../utils/ErrorHandling";
 import { REGISTER_USER } from '../../../graphql/mutation';
 import { useForm } from '../../../utils/hooks';
 
@@ -221,17 +221,10 @@ export default (props) => {
             </Form.Item>
             <Divider />
 
-            <Checkbox checked disabled>
-              By signing up, I agree to Attendlytical's <Link to="/privacypolicy">Privacy Policy</Link> and <Link to="/termandcondition">Term & Condition</Link>
-            </Checkbox>
-            <div>
-              Get confused? Please visit <Link to='/userguidelines'> User Guidelines</Link> for more information. 
-            </div>
-            <Divider />
             <Form.Item>
               <Button type='primary' htmlType='submit' loading={loading} disabled={pressedGoogleLogin || loginGoogleUserStatus.loading}>
                 Submit
-            </Button>
+              </Button>
             </Form.Item>
           </Form>
         </Card>

@@ -8,7 +8,7 @@ import { Button, Layout, Typography, Badge, Avatar } from 'antd';
 import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext, NotificationContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError } from '../../../utils/ErrorHandling';
 import { FETCH_UNCHECKED_NOTIFICATIONS_QUERY } from '../../../graphql/query';
 import { LecturerDrawerMenu } from '../../lecturerComponent';
 import { StudentDrawerMenu } from '../../studentComponent';

@@ -1,9 +1,5 @@
 import {
-  AliwangwangOutlined,
-  AuditOutlined,
-  HistoryOutlined,
-  HomeOutlined,
-  PlusCircleOutlined,
+  HomeOutlined
 } from '@ant-design/icons';
 import { useQuery } from '@apollo/react-hooks';
 import { Menu } from 'antd';
@@ -11,8 +7,7 @@ import React, { useContext, useEffect } from 'react';
 import { FpsView } from 'react-fps';
 import { Link } from 'react-router-dom';
 import { EnrolmentContext, NavbarContext } from '../../context';
-import { CheckError } from '../../ErrorHandling';
-import { FETCH_ENROLREQUEST_COUNT_QUERY } from '../../graphql/query';
+import { CheckError } from '../../utils/ErrorHandling';
 
 export default () => {
   const pathname = window.location.pathname;
@@ -21,25 +16,10 @@ export default () => {
   const { enrolCount, getEnrolCount } = useContext(EnrolmentContext);
   const { collapsed } = useContext(NavbarContext);
 
-  const { data } = useQuery(FETCH_ENROLREQUEST_COUNT_QUERY, {
-    onError(err) {
-      CheckError(err);
-    },
-  });
-
-  useEffect(() => {
-    if (data) {
-      getEnrolCount(data.getEnrolRequestCount);
-    }
-  }, [data]);
-
   return (
     <Menu theme='dark' mode='vertical' defaultSelectedKeys={[path]}>
       <Menu.Item key={'dashboard'} icon={<HomeOutlined />}>
         <Link to={'/dashboard'}>Courses</Link>
-      </Menu.Item>
-      <Menu.Item key={'enrolrequest'} icon={<AliwangwangOutlined />}>
-        <Link to={'/enrolrequest'}>Enrol Request ({enrolCount})</Link>
       </Menu.Item>
       {!collapsed && <FpsView width={190} height={100} top={525} />}
     </Menu>

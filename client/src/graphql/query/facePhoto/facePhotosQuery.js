@@ -42,9 +42,6 @@ export const FETCH_FACE_MATCHER_IN_COURSE_QUERY = gql`
           faceDescriptor
           photoURL
         }
-        photoPrivacy {
-          public
-        }
       }
     }
   }

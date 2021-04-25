@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Sector, Cell } from 'recharts';
+import React, { useState, useEffect } from "react";
+import { PieChart, Pie, Sector, Cell } from "recharts";
 
 export default ({ attendeesLength, absenteesLength }) => {
-  const [data] = useState([
-    { name: 'Attendees', value: attendeesLength },
-    { name: 'Absentees', value: absenteesLength },
+  const [data, setData] = useState([
+    { name: "Attendees", value: attendeesLength },
+    { name: "Absentees", value: absenteesLength },
   ]);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -12,17 +12,24 @@ export default ({ attendeesLength, absenteesLength }) => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const PIECOLORS = ['#00C49F', '#ee8888'];
+  const PIECOLORS = ["#00C49F", "#ee8888"];
 
   const onPieEnter = (data, index) => {
     setActiveIndex(index);
   };
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       setPieSize({ width: window.innerWidth, height: window.innerHeight });
     });
   }, []);
+
+  useEffect(() => {
+    setData([
+      { name: "Attendees", value: attendeesLength },
+      { name: "Absentees", value: absenteesLength },
+    ]);
+  }, [attendeesLength, absenteesLength]);
 
   const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
@@ -47,11 +54,11 @@ export default ({ attendeesLength, absenteesLength }) => {
     const my = cy + (outerRadius + 30) * sin;
     const ex = mx + (cos >= 0 ? 1 : -1) * 22;
     const ey = my;
-    const textAnchor = cos >= 0 ? 'start' : 'end';
+    const textAnchor = cos >= 0 ? "start" : "end";
 
     return (
       <g>
-        <text x={cx} y={cy} dy={8} textAnchor='middle' fill={fill}>
+        <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
           {payload.name}
         </text>
         <Sector
@@ -75,21 +82,21 @@ export default ({ attendeesLength, absenteesLength }) => {
         <path
           d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
           stroke={fill}
-          fill='none'
+          fill="none"
         />
-        <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none' />
+        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
         <text
           x={ex + (cos >= 0 ? 1 : -1) * 12}
           y={ey}
           textAnchor={textAnchor}
-          fill='#333'
+          fill="#333"
         >{`${value}`}</text>
         <text
           x={ex + (cos >= 0 ? 1 : -1) * 12}
           y={ey}
           dy={18}
           textAnchor={textAnchor}
-          fill='#999'
+          fill="#999"
         >
           {`(${(percent * 100).toFixed(2)}%)`}
         </text>
@@ -103,12 +110,12 @@ export default ({ attendeesLength, absenteesLength }) => {
         activeIndex={activeIndex}
         activeShape={renderActiveShape}
         data={data}
-        dataKey='value'
-        cx={pieSize.width*3/7}
+        dataKey="value"
+        cx={(pieSize.width * 3) / 7}
         cy={200}
         innerRadius={70}
         outerRadius={100}
-        fill='#8884d8'
+        fill="#8884d8"
         onMouseEnter={onPieEnter}
       >
         {data.map((entry, index) => (

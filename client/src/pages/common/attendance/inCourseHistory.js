@@ -1,7 +1,10 @@
 import {
-  ArrowRightOutlined,
   DeleteFilled,
+  ProfileOutlined,
   RedoOutlined,
+  RightCircleFilled,
+  ClockCircleFilled,
+  StopOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import {
@@ -14,10 +17,12 @@ import {
   Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Modal from "../../../components/common/customModal";
 import {
   Footer,
@@ -26,7 +31,7 @@ import {
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
 import { AuthContext } from "../../../context";
-import { CheckError, ErrorComp } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { FETCH_ATTENDANCE_LIMIT, modalItems } from "../../../globalData";
 import { DELETE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
 import {
@@ -51,6 +56,18 @@ export default (props) => {
         compare: (a, b) => a.bil - b.bil,
         multiple: 2,
       },
+    },
+    {
+      key: "room",
+      title: <strong>Attendance Room ID</strong>,
+      dataIndex: "room",
+      align: "center",
+      render: (text) => (
+        <Skeleton active loading={loading}>
+          {text}
+        </Skeleton>
+      ),
+      sorter: (a, b) => a.mode.localeCompare(b.mode),
     },
     {
       key: "date",
@@ -89,43 +106,55 @@ export default (props) => {
       sorter: (a, b) => a.mode.localeCompare(b.mode),
     },
     {
-      key: "stats",
-      title: <strong>Stats</strong>,
-      dataIndex: "stats",
-      align: "center",
+      title: <strong>Open</strong>,
+      dataIndex: "open",
+      key: "open",
       render: (text) => (
-        <Skeleton active loading={loading}>
-          {text}
-        </Skeleton>
+        <Tag color={text == "On" ? "#0c8" : "#f00"}>
+          {text} {text == "On" ? <ClockCircleFilled /> : <StopOutlined />}
+        </Tag>
       ),
-      sorter: (a, b) => a.stats.localeCompare(b.stats),
+      align: "center",
+      sorter: (a, b) => a.open.localeCompare(b.open),
     },
     {
       title: <strong>{"Action"}</strong>,
       dataIndex: user.userLevel === 1 ? "action" : "status",
       render: (_, record) => (
         <Skeleton loading={loading} active>
-          <Button
-            onClick={() => handleAccess(record)}
-            style={{ margin: "10px" }}
-            icon={<ArrowRightOutlined />}
-          ></Button>
+          <Tooltip placement="topLeft" title="Go to Room">
+            <Button
+              onClick={() => handleAccessRoom(record)}
+              style={{ margin: "10px" }}
+              icon={<RightCircleFilled />}
+            ></Button>
+          </Tooltip>
+
+          <Tooltip placement="topLeft" title="History Record">
+            <Button
+              onClick={() => handleAccessHistory(record)}
+              style={{ margin: "10px" }}
+              icon={<ProfileOutlined />}
+            ></Button>
+          </Tooltip>
 
           {user.userLevel == 1 && (
-            <Button
-              onClick={() => handleDelete(record)}
-              loading={
-                selectedAttendance.key == record.key &&
-                deleteAttendanceListtatus.loading
-              }
-              disabled={
-                selectedAttendance.key == record.key &&
-                deleteAttendanceListtatus.loading
-              }
-              style={{ margin: "10px" }}
-              type="danger"
-              icon={<DeleteFilled />}
-            ></Button>
+            <Tooltip placement="topLeft" title="Delete Record">
+              <Button
+                onClick={() => handleDelete(record)}
+                loading={
+                  selectedAttendance.key == record.key &&
+                  deleteAttendanceListtatus.loading
+                }
+                disabled={
+                  selectedAttendance.key == record.key &&
+                  deleteAttendanceListtatus.loading
+                }
+                style={{ margin: "10px" }}
+                type="danger"
+                icon={<DeleteFilled />}
+              ></Button>
+            </Tooltip>
           )}
         </Skeleton>
       ),
@@ -169,10 +198,12 @@ export default (props) => {
         setTablePagination({
           ...tablePagination,
           total:
-            totalAttendanceListCountInCourse.data?.getAttendanceListCountInCourse,
+            totalAttendanceListCountInCourse.data
+              ?.getAttendanceListCountInCourse,
         });
         if (
-          totalAttendanceListCountInCourse.data?.getAttendanceListCountInCourse -
+          totalAttendanceListCountInCourse.data
+            ?.getAttendanceListCountInCourse -
             (tablePagination.current - 1) * tablePagination.pageSize <=
             0 &&
           tablePagination.current !== 1
@@ -219,9 +250,15 @@ export default (props) => {
     setAttendanceList(data?.getAttendanceListInCourse.attendanceList || []);
   }, [data]);
 
-  const handleAccess = (attendance) => {
+  const handleAccessHistory = (attendance) => {
     props.history.push(
-      `/course/${props.match.params.id}/history/${attendance.key}`
+      `/course/${props.match.params.id}/attendanceList/${attendance.key}`
+    );
+  };
+
+  const handleAccessRoom = (attendance) => {
+    props.history.push(
+      `/course/${props.match.params.id}/attendanceRoom/${attendance.key}`
     );
   };
 
@@ -240,6 +277,7 @@ export default (props) => {
   const parseAttendanceData = (attendanceList) => {
     let parsedData = [];
     attendanceList.map((att, index) => {
+      console.log(att);
       const tmp = {
         key: att._id,
         bil:
@@ -247,7 +285,9 @@ export default (props) => {
           tablePagination.pageSize * (tablePagination.current - 1) + index + 1,
         date: moment(att.date).format("DD/MM/YYYY"),
         time: moment(att.time).format("HH:mm"),
-        mode: att.mode
+        room: att._id,
+        mode: att.mode,
+        open: att.isOn ? "On" : "Off",
       };
       parsedData.push(tmp);
     });
@@ -272,59 +312,65 @@ export default (props) => {
               link: `/course/${props.match.params.id}`,
             },
             {
-              name: "Attendance History",
-              link: `/course/${props.match.params.id}/history`,
+              name: "Attendance List",
+              link: `/course/${props.match.params.id}/attendanceList`,
             },
           ]}
         />
         <Content>
           <Card>
-            {error && <ErrorComp err={error} />}
-            {!error && (
-              <Space direction="vertical" className="width100">
-                {data && (
-                  <Title level={4}>
-                    Course:{" "}
-                    {`${data.getAttendanceListInCourse.course.code} ${data.getAttendanceListInCourse.course.name} (${data.getAttendanceListInCourse.course.session})`}
-                  </Title>
-                )}
-                <Divider />
-                <h1>
-                  Total Attendance:{" "}
-                  {totalAttendanceListCountInCourse.data
-                    ?.getAttendanceListCountInCourse || 0}
-                </h1>
-                <Button
-                  style={{ float: "right" }}
-                  icon={<RedoOutlined />}
-                  disabled={loading}
-                  loading={loading}
-                  onClick={() => refetch()}
-                >
-                  Refresh Table
+            <Space direction="vertical" className="width100">
+              {data && (
+                <Title level={4}>
+                  Course:{" "}
+                  {`${data.getAttendanceListInCourse.course.code} ${data.getAttendanceListInCourse.course.name} (${data.getAttendanceListInCourse.course.session})`}
+                </Title>
+              )}
+              <Divider />
+              <h1>
+                Total Attendance:{" "}
+                {totalAttendanceListCountInCourse.data
+                  ?.getAttendanceListCountInCourse || 0}
+              </h1>
+              {user.userLevel === 1 && (
+                <Button style={{ float: "right" }} type="primary">
+                  <Link
+                    to={`/course/${props.match.params.id}/attendanceForm`}
+                  >
+                    Create Attendance
+                  </Link>
                 </Button>
-                <Table
-                  scroll={{ x: "max-content" }}
-                  loading={loading}
-                  pagination={tablePagination}
-                  dataSource={parseAttendanceData(attendanceList)}
-                  onChange={handleTableChange}
-                  columns={columns}
-                />
+              )}
+              <Button
+                style={{ float: "right" }}
+                icon={<RedoOutlined />}
+                disabled={loading}
+                loading={loading}
+                onClick={() => refetch()}
+              >
+                Refresh Table
+              </Button>
+              <Table
+                scroll={{ x: "max-content" }}
+                loading={loading}
+                pagination={tablePagination}
+                dataSource={parseAttendanceData(attendanceList)}
+                onChange={handleTableChange}
+                columns={columns}
+              />
 
-                {/*modal backdrop*/}
-                <Modal
-                  title="Delete Attendance"
-                  action={modalItems.attendance.action.delete}
-                  itemType={modalItems.attendance.name}
-                  visible={visible}
-                  loading={deleteAttendanceListtatus.loading}
-                  handleOk={handleOk}
-                  handleCancel={handleCancel}
-                  payload={selectedAttendance}
-                />
-              </Space>
-            )}
+              {/*modal backdrop*/}
+              <Modal
+                title="Delete Attendance"
+                action={modalItems.attendance.action.delete}
+                itemType={modalItems.attendance.name}
+                visible={visible}
+                loading={deleteAttendanceListtatus.loading}
+                handleOk={handleOk}
+                handleCancel={handleCancel}
+                payload={selectedAttendance}
+              />
+            </Space>
           </Card>
         </Content>
 

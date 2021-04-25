@@ -6,6 +6,7 @@ import Notifications from './notification/Notifications';
 import Profile from './profile/Profile';
 import InCourseAttendanceHistory from './attendance/inCourseHistory';
 import SingleAttendanceHistory from './attendance/singleHistory';
+import AttendanceRoom from './attendanceRoom';
 import UndefinedCardIDAndRole from './undefinedCardIDAndRole';
 import PrivacyPolicy from './privacyPolicy/PrivacyPolicy';
 import TermCondition from './termCondition/TermCondition';
@@ -22,6 +23,7 @@ export {
   NoFound,
   InCourseAttendanceHistory,
   SingleAttendanceHistory,
+  AttendanceRoom,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
   TermCondition,

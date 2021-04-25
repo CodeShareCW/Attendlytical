@@ -17,7 +17,7 @@ import {
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
 import { AuthContext, CourseContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { FETCH_COURSE_LIMIT, modalItems } from "../../../globalData";
 import {
   WITHDRAW_COURSE_MUTATION,

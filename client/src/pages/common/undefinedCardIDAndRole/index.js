@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 import { APP_LOGO_URL } from "../../../assets";
 import Footer from "../../../components/common/sharedLayout/Footer";
 import { AuthContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { EDIT_CARDID_AND_ROLE_MUTATION } from "../../../graphql/mutation";
 import { useForm } from "../../../utils/hooks";
 
@@ -117,17 +117,6 @@ export default (props) => {
                 <Radio value={1}>Lecturer</Radio>
               </Radio.Group>
             </Form.Item>
-            <Divider />
-            <Checkbox checked disabled>
-              By submitting this form, I agree to Attendlytical's{" "}
-            </Checkbox>
-            <Link to="/privacypolicy">Privacy Policy</Link> and{" "}
-            <Link to="/termandcondition">Term & Condition</Link>
-            <Divider />
-            <div>
-              First time user? Please visit{" "}
-              <Link to="/userguidelines"> User Guidelines</Link>
-            </div>
             <Divider />
             <Form.Item>
               <Button

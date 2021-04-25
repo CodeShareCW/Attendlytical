@@ -20,6 +20,7 @@ export const FETCH_ATTENDANCE_QUERY = gql`
       time
       date
       mode
+      isOn
     }
   }
 `;
@@ -47,6 +48,7 @@ export const FETCH_ATTENDANCE_LIST_IN_COURSE_QUERY = gql`
         time
         date
         mode
+        isOn
       }
     }
   }

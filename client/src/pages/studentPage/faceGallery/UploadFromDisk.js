@@ -1,8 +1,7 @@
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, message, Modal, Row, Upload } from "antd";
 import React, { useState } from "react";
-import { ROBOT_ICON_URL } from "../../../assets";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { getFullFaceDescription } from "../../../faceUtil";
 import { inputSize } from "../../../globalData";
 
@@ -24,7 +23,6 @@ export const UploadFromDisk = ({
   const [previewVisible, setPreviewVisible] = useState(false);
   const [fullDesc, setFullDesc] = useState([]);
   const [faceDescriptor, setFaceDescriptor] = useState([]);
-  const [expression, setExpression] = useState("");
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [isRunningFaceDetector, setIsRunningFaceDetector] = useState(false);
@@ -134,17 +132,6 @@ export const UploadFromDisk = ({
           )}
           {detectionCount === 0 && (
             <span className="alert">No face detected</span>
-          )}
-          {detectionCount === 1 && expression.length > 0 && (
-            <Card>
-              <img
-                src={ROBOT_ICON_URL.link}
-                style={{
-                  width: ROBOT_ICON_URL.width,
-                  height: ROBOT_ICON_URL.height,
-                }}
-              />
-            </Card>
           )}
           <p>
             Number of detection:{" "}

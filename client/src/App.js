@@ -22,17 +22,16 @@ import {
   SignUp,
   InCourseAttendanceHistory,
   SingleAttendanceHistory,
+  AttendanceRoom,
   UndefinedCardIDAndRole,
   PrivacyPolicy,
   TermCondition,
   UserGuidelines,
 } from "./pages/common";
 import {
-  EnrolRequest,
   AttendanceForm,
-  MakeAttendance
 } from "./pages/lecturerPage";
-import { EnrolPending, FaceGallery } from "./pages/studentPage";
+import { FaceGallery } from "./pages/studentPage";
 import {
   AuthRoute,
   LecturerRoute,
@@ -94,34 +93,24 @@ function App() {
                           path="/course/:id/attendanceForm"
                           component={AttendanceForm}
                         />
-                        <LecturerRoute
+                        <AuthRoute
                           exact
                           path="/course/:courseID/attendanceRoom/:attendanceID"
-                          component={MakeAttendance}
-                        />
-                        <LecturerRoute
-                          exact
-                          path="/enrolrequest"
-                          component={EnrolRequest}
+                          component={AttendanceRoom}
                         />
 
                         <AuthRoute
                           exact
-                          path="/course/:id/history"
+                          path="/course/:id/attendanceList"
                           component={InCourseAttendanceHistory}
                         />
 
                         <AuthRoute
                           exact
-                          path="/course/:courseID/history/:attendanceID"
+                          path="/course/:courseID/attendanceList/:attendanceID"
                           component={SingleAttendanceHistory}
                         />
 
-                        <StudentRoute
-                          exact
-                          path="/enrolpending"
-                          component={EnrolPending}
-                        />
                         <StudentRoute
                           exact
                           path="/facegallery"

@@ -3,7 +3,7 @@ import { notification } from "antd";
 import React, { useContext, useEffect } from "react";
 import { Redirect, Route } from "react-router-dom";
 import { AuthContext } from "../context/auth";
-import { CheckError } from "../ErrorHandling";
+import { CheckError } from "../utils/ErrorHandling";
 import { FETCH_FACE_PHOTOS_COUNT_QUERY } from "../graphql/query";
 
 function StudentRoute({ component: Component, ...rest }) {

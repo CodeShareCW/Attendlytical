@@ -15,7 +15,7 @@ import HeaderNavbar from '../../../components/common/mainMenu/HeaderNavbar';
 import Footer from '../../../components/common/sharedLayout/Footer';
 import { GOOGLE_CLIENT_ID } from "../../../config";
 import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError } from "../../../utils/ErrorHandling";
 import { LOGIN_GOOGLE_USER, LOGIN_USER } from '../../../graphql/mutation';
 import { useForm } from '../../../utils/hooks';
 const { Content } = Layout;

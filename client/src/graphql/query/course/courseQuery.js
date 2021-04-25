@@ -19,30 +19,14 @@ export const FETCH_COURSE_QUERY = gql`
   }
 `;
 
-export const FETCH_COURSE_AND_PARTICIPANTS_QUERY = gql`
-  query getCourseAndParticipants($id: ID!) {
-    getCourseAndParticipants(courseID: $id) {
-      course {
-        _id
-        shortID
-        name
-        code
-        session
-        createdAt
-      }
-      participants {
-        info {
-          _id
-          firstName
-          lastName
-          profilePictureURL
-          cardID
-        }
-        warningCount
-        attendRate
-      }
-      attendanceCount
-
+export const FETCH_PARTICIPANTS_QUERY = gql`
+  query getParticipants($id: ID!) {
+    getParticipants(courseID: $id) {
+      _id
+      firstName
+      lastName
+      profilePictureURL
+      cardID
     }
   }
 `;

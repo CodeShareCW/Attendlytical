@@ -19,8 +19,7 @@ import {
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
 import { AttendanceContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
-import { attendanceMode, DEFAULT_ATTENDANCE_MODE } from "../../../globalData";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { CREATE_ATTENDANCE_MUTATION } from "../../../graphql/mutation";
 import { FETCH_COURSE_QUERY } from "../../../graphql/query";
 const { Content } = Layout;
@@ -34,14 +33,13 @@ export default (props) => {
     },
     { name: "Take Attendance", link: "takeAttendance" },
   ];
-  const { addAttendance } = useContext(AttendanceContext);
 
   const [selectedDate, setSelectedDate] = useState(moment().toISOString());
   const [selectedTime, setSelectedTime] = useState(moment().toISOString());
-  const [selectedMode, setSelectedMode] = useState(DEFAULT_ATTENDANCE_MODE);
 
   const courseGQLQuery = useQuery(FETCH_COURSE_QUERY, {
     onError(err) {
+      props.history.push("/dashboard");
       CheckError(err);
     },
     variables: {
@@ -71,19 +69,13 @@ export default (props) => {
   const handleTimeChange = (value) => {
     setSelectedTime(value?._d.toISOString());
   };
-  const handleModeChange = (value) => {
-    console.log(value);
-    setSelectedMode(value);
-  };
 
   const handleSubmit = () => {
-    console.log(selectedMode);
     if (courseGQLQuery.data)
       submitAttendanceCallback({
         variables: {
           date: selectedDate,
           time: selectedTime,
-          mode: selectedMode,
           courseID: props.match.params.id,
         },
       });
@@ -127,20 +119,6 @@ export default (props) => {
                 />
               </Form.Item>
 
-              <Form.Item label="Mode">
-                <Select
-                  defaultValue={DEFAULT_ATTENDANCE_MODE}
-                  style={{ width: 500 }}
-                  onChange={handleModeChange}
-                >
-                  {attendanceMode.map((mode) => (
-                    <Option key={mode} value={mode}>
-                      {mode}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
               <Form.Item>
                 <Button
                   disabled={courseGQLQuery.loading}
@@ -148,7 +126,7 @@ export default (props) => {
                   htmlType="submit"
                   loading={submitAttendanceStatus.loading}
                 >
-                  Start
+                  Submit
                 </Button>
               </Form.Item>
             </Form>

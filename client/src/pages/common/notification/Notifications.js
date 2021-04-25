@@ -9,7 +9,7 @@ import {
   PageTitleBreadcrumb,
 } from '../../../components/common/sharedLayout';
 import { NotificationContext } from '../../../context';
-import { CheckError, ErrorComp } from '../../../ErrorHandling';
+import { CheckError } from "../../../utils/ErrorHandling";
 import { FETCH_NOTIFICATION_LIMIT } from '../../../globalData';
 import { FETCH_NOTIFICATIONS_QUERY } from '../../../graphql/query';
 import './Notifications.css';

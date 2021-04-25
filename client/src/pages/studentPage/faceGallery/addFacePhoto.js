@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/react-hooks";
 import { Card, Col, Form, Row, Select } from "antd";
 import React, { useEffect, useState } from "react";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import {
   isFaceDetectionModelLoaded,
   isFacialLandmarkDetectionModelLoaded,
@@ -69,8 +69,6 @@ export default ({ galleryRefetch, countRefetch }) => {
         isAllModelLoaded &&
         loadingMessageError.length === 0 && (
           <div>
-            {" "}
-            <Row>
               <Form>
                 <Form.Item label="Upload Option">
                   <Select
@@ -86,14 +84,7 @@ export default ({ galleryRefetch, countRefetch }) => {
                   </Select>
                 </Form.Item>
               </Form>
-            </Row>
-            <Row>
-              <Col>
-                Selected Option: <strong>{selectedUploadOption}</strong>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
+
                 {selectedUploadOption === "From Disk" ? (
                   <UploadFromDisk
                     addFacePhotoCallback={addFacePhotoCallback}
@@ -109,11 +100,9 @@ export default ({ galleryRefetch, countRefetch }) => {
                     loading={loading}
                   />
                 )}
-              </Col>
-            </Row>
-          </div>
-        )
-      )}
+
+        
+        </div>))}
     </Card>
   );
 };

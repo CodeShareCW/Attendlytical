@@ -1,4 +1,7 @@
 import { CREATE_ATTENDANCE_MUTATION } from './attendance/createAttendanceMutation';
+import { EDIT_ATTENDANCE_MODE_MUTATION } from './attendance/editAttendanceModeMutation';
+import { EDIT_ATTENDANCE_ON_OFF_MUTATION } from './attendance/editAttendanceOnOffMutation';
+
 import { DELETE_ATTENDANCE_MUTATION } from './attendance/deleteAttendanceMutation';
 import { ADD_COURSE_MUTATION } from './course/addCourseMutation';
 import { DELETE_COURSE_MUTATION } from './course/deleteCourseMutation';
@@ -10,7 +13,6 @@ import {
 } from './enrolment/enrolmentMutation';
 import { ADD_FACE_PHOTO_MUTATION } from './facePhoto/addFacePhotoMutation';
 import { DELETE_FACE_PHOTO_MUTATION } from './facePhoto/deleteFacePhotoMutation';
-import { TOGGLE_PHOTO_PRIVACY_MUTATION } from './facePhoto/photoPrivacyMutation';
 import {
   LOGIN_GOOGLE_USER, LOGIN_USER
 } from './login_register/loginUserMutation';
@@ -41,6 +43,5 @@ export {
 };
 export { OBTAIN_STUDENT_WARNING_MUTATION };
 export { ADD_FACE_PHOTO_MUTATION, DELETE_FACE_PHOTO_MUTATION };
-export { TOGGLE_PHOTO_PRIVACY_MUTATION };
-export { CREATE_ATTENDANCE_MUTATION, DELETE_ATTENDANCE_MUTATION };
+export { CREATE_ATTENDANCE_MUTATION, EDIT_ATTENDANCE_MODE_MUTATION, EDIT_ATTENDANCE_ON_OFF_MUTATION, DELETE_ATTENDANCE_MUTATION };
 export {CREATE_TRX_MUTATION}

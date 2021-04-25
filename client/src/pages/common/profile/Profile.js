@@ -9,7 +9,7 @@ import {
   PageTitleBreadcrumb,
 } from '../../../components/common/sharedLayout';
 import { AuthContext } from '../../../context';
-import { CheckError } from '../../../ErrorHandling';
+import { CheckError } from "../../../utils/ErrorHandling";
 import { EDIT_PROFILE_MUTATION } from '../../../graphql/mutation';
 import './Profile.css';
 

@@ -11,18 +11,22 @@ import {
   Button,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Footer,
   Greeting,
   Navbar,
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
-import { CheckError, ErrorComp } from "../../../ErrorHandling";
-import { FETCH_ATTENDANCE_QUERY } from "../../../graphql/query";
-import { EmojiProcessing } from "../../../utils/EmojiProcessing";
+import { CheckError } from "../../../utils/ErrorHandling";
+import {
+  FETCH_ATTENDANCE_QUERY,
+  FETCH_PARTICIPANTS_QUERY,
+  FETCH_TRX_LIST_IN_ATTENDANCE,
+} from "../../../graphql/query";
 import HistoryViz from "./HistoryViz";
 import { LoadingSpin } from "../../../utils/LoadingSpin";
+import moment from "moment";
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -62,42 +66,34 @@ export default (props) => {
       sorter: (a, b) => a.status.localeCompare(b.status),
     },
     {
-      key: "attendRate",
-      title: <strong>Attend Rate</strong>,
-      dataIndex: "attendRate",
-      render: (text) =>
-        text !== null ? (
-          <Tag color={text === 0 ? "#f00" : text <= 80 ? "#f90" : "#0c8"}>
-            {text}%
-          </Tag>
-        ) : (
-          <Tag className="alert">No attendance record yet</Tag>
-        ),
+      title: <strong>Check In Date</strong>,
+      dataIndex: "checkin_date",
+      render: (_, record) => record.checkin_date,
       align: "center",
-      sorter: {
-        compare: (a, b) => a.attendRate - b.attendRate,
-        multiple: 2,
-      },
+      sorter: (a, b) => a.checkin_date.localeCompare(b.checkin_date),
+    },
+    {
+      title: <strong>Check In Time</strong>,
+      dataIndex: "checkin_time",
+      render: (_, record) => record.checkin_time,
+      align: "center",
+      sorter: (a, b) => a.checkin_time.localeCompare(b.checkin_time),
     },
   ];
 
-  const { data, loading, refetch, error } = useQuery(FETCH_ATTENDANCE_QUERY, {
-    onCompleted(data) {
-      if (data.getAttendance.course.shortID !== props.match.params.courseID) {
-        setCourseIDError(new Error("Course ID do not match"));
-      } else {
-        setCourseIDError();
-        {
-          /*set stats*/
-        }
-        console.log(data);
+  const [participants, setParticipants] = useState([]);
+  const [attendees, setAttendees] = useState([]);
+  const [absentees, setAbsentees] = useState([]);
+  const [trx, setTrx] = useState([]);
 
-        setStats(
-          `${data.getAttendance.attendees.length}/${data.getAttendance.participants.length}`
-        );
-      }
-    },
+  const [stats, setStats] = useState("");
+
+  const attendanceGQLQuery = useQuery(FETCH_ATTENDANCE_QUERY, {
     onError(err) {
+      props.history.push(
+        `/course/${props.match.params.courseID}/attendanceList`
+      );
+
       CheckError(err);
     },
     variables: {
@@ -106,21 +102,89 @@ export default (props) => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const [courseIDError, setCourseIDError] = useState();
-  const [stats, setStats] = useState("");
+  const courseAndParticipantsGQLQuery = useQuery(
+    FETCH_PARTICIPANTS_QUERY,
+    {
+      onError(err) {
+        props.history.push(`/dashboard`);
+
+        CheckError(err);
+      },
+      variables: {
+        id: props.match.params.courseID,
+      },
+      notifyOnNetworkStatusChange: true,
+    }
+  );
+
+  const trxListInAttendanceGQLQuery = useQuery(FETCH_TRX_LIST_IN_ATTENDANCE, {
+    onError(err) {
+      CheckError(err);
+    },
+    variables: {
+      attendanceID: props.match.params.attendanceID,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+  
+  useEffect(() => {
+    if (courseAndParticipantsGQLQuery.data) {
+      setParticipants(
+        courseAndParticipantsGQLQuery.data.getParticipants
+      );
+    }
+  }, [courseAndParticipantsGQLQuery.data]);
+
+  useEffect(() => {
+    if (trxListInAttendanceGQLQuery.data) {
+      const currAbsentees = participants.filter((participant) => {
+        delete participant.attend_at;
+
+        const result = trxListInAttendanceGQLQuery.data.getTrxListInAttendance.filter(
+          (attendee) => participant._id == attendee.studentID
+        );
+
+        return result.length == 0; //count as absentee if no found
+      });
+
+
+      const currAttendees = participants.filter((participant) => {
+        const result = trxListInAttendanceGQLQuery.data.getTrxListInAttendance.filter(
+          (attendee) => participant._id == attendee.studentID
+        );
+          console.log("result", result);
+        if (result.length >= 1) {
+          Object.assign(participant, { attend_at: result[0].createdAt });
+        }
+        return result.length >= 1; //count as attendee if found
+      });
+
+      setAbsentees(currAbsentees);
+      setAttendees(currAttendees);
+    }
+    return ()=>{
+      
+      setAbsentees([]);
+      setAttendees([]);
+    }
+  }, [participants, trxListInAttendanceGQLQuery.data]);
+
+  useEffect(() => {
+    setStats(`${attendees.length}/${participants.length}`);
+    return ()=>{
+      setStats("");
+    }
+  }, [attendees, absentees, participants]);
 
   const parseParticipantData = (participants, absentees) => {
     let parsedData = [];
-    {
-      console.log(participants);
-    }
-
+    console.log(absentees)
     participants.map((participant, index) => {
       const tmp = {
-        key: participant.info._id,
+        key: participant._id,
         avatar: (
           <Avatar
-            src={participant.info.profilePictureURL}
+            src={participant.profilePictureURL}
             style={{
               backgroundColor: `rgb(${Math.random() * 150 + 30}, ${
                 Math.random() * 150 + 30
@@ -128,16 +192,21 @@ export default (props) => {
             }}
           >
             {/* Set the avatar to participant's first name */}
-            {participant.info.firstName[0]}
+            {participant.firstName[0]}
           </Avatar>
         ),
-        cardID: participant.info.cardID,
-        name: participant.info.firstName + " " + participant.info.lastName,
+        cardID: participant.cardID,
+        name: participant.firstName + " " + participant.lastName,
 
-        status: absentees.find((abs) => abs.info._id === participant.info._id)
+        status: absentees.find((abs) => abs._id == participant._id)
           ? "Absent"
           : "Attend",
-        attendRate: participant.attendRate,
+        checkin_date: participant.attend_at
+          ? moment(participant.attend_at).format("DD/MM/YYYY")
+          : "-",
+        checkin_time: participant.attend_at
+          ? moment(participant.attend_at).format("h:mm:ss a")
+          : "-",
       };
       parsedData.push(tmp);
     });
@@ -158,68 +227,80 @@ export default (props) => {
               link: `/course/${props.match.params.courseID}`,
             },
             {
-              name: `Attendance History`,
-              link: `/course/${props.match.params.courseID}/history`,
+              name: `Attendance List`,
+              link: `/course/${props.match.params.courseID}/attendanceList`,
             },
             {
-              name: `History ID: ${props.match.params.attendanceID}`,
-              link: `/course/${props.match.params.courseID}/history/${props.match.params.attendanceID}`,
+              name: `Attendance Record: ${props.match.params.attendanceID}`,
+              link: `/course/${props.match.params.courseID}/attendanceList/${props.match.params.attendanceID}`,
             },
           ]}
         />
         <Content>
           <Card>
-            {(error && <ErrorComp err={error} />) ||
-              (courseIDError && <ErrorComp err={courseIDError} />)}
-            {!error && !courseIDError && (
-              <Space direction="vertical" className="width100">
-                {data && (
+            <Space direction="vertical" className="width100">
+              {attendanceGQLQuery.data && (
+                <Card>
                   <Title
                     level={4}
-                  >{`Course: ${data.getAttendance.course.code} ${data.getAttendance.course.name} (${data.getAttendance.course.session})`}</Title>
-                )}
-                <Divider />
+                  >{`Course: ${attendanceGQLQuery.data.getAttendance.course.shortID} - ${attendanceGQLQuery.data.getAttendance.course.code} - ${attendanceGQLQuery.data.getAttendance.course.name} - ${attendanceGQLQuery.data.getAttendance.course.session}`}</Title>
 
-                <Card style={{ display: "flex", justifyContent: "center" }}>
-                  {" "}
                   <p>
-                    <strong>Statistics:</strong> {stats || "-"}
+                    Date:{" "}
+                    <strong>
+                      {moment(
+                        attendanceGQLQuery.data.getAttendance.date
+                      ).format("DD/MM/YYYY")}
+                    </strong>
                   </p>
-                  <br />
+                  <p>
+                    Time:{" "}
+                    <strong>
+                      {moment(
+                        attendanceGQLQuery.data.getAttendance.time
+                      ).format("h:mm a")}
+                    </strong>
+                  </p>
                 </Card>
-                {data ? (
-                  <HistoryViz
-                    attendeesLength={data.getAttendance.attendees.length}
-                    absenteesLength={data.getAttendance.absentees.length}
-                  />
-                ) : (
-                  <LoadingSpin loading={loading} />
-                )}
-                <Button
-                  style={{ float: "right" }}
-                  icon={<RedoOutlined />}
-                  disabled={loading}
-                  loading={loading}
-                  onClick={() => refetch()}
-                >
-                  Refresh Table
-                </Button>
-                <Table
-                  scroll={{ x: "max-content" }}
-                  loading={loading}
-                  pagination={{ pageSize: 5 }}
-                  dataSource={
-                    data
-                      ? parseParticipantData(
-                          data?.getAttendance.participants,
-                          data?.getAttendance.absentees
-                        )
-                      : []
-                  }
-                  columns={columns}
+              )}
+              <Divider />
+
+              <Card style={{ display: "flex", justifyContent: "center" }}>
+                {" "}
+                <p>
+                  <strong>Attendance Transaction:</strong> {stats || "-"}
+                </p>
+                <br />
+              </Card>
+              {courseAndParticipantsGQLQuery.data ? (
+                <HistoryViz
+                  attendeesLength={attendees.length}
+                  absenteesLength={absentees.length}
                 />
-              </Space>
-            )}
+              ) : (
+                <LoadingSpin loading={courseAndParticipantsGQLQuery.loading} />
+              )}
+              <Button
+                style={{ float: "right" }}
+                icon={<RedoOutlined />}
+                disabled={attendanceGQLQuery.loading}
+                loading={attendanceGQLQuery.loading}
+                onClick={() => attendanceGQLQuery.refetch()}
+              >
+                Refresh Table
+              </Button>
+              <Table
+                scroll={{ x: "max-content" }}
+                loading={courseAndParticipantsGQLQuery.loading}
+                pagination={{ pageSize: 5 }}
+                dataSource={
+                  courseAndParticipantsGQLQuery.data
+                    ? parseParticipantData(participants, absentees)
+                    : []
+                }
+                columns={columns}
+              />
+            </Space>
           </Card>
         </Content>
 

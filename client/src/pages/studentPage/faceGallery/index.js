@@ -3,7 +3,6 @@ import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Button, Card, Layout, message, Switch } from "antd";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
-import { ROBOT_ICON_URL } from "../../../assets";
 import Modal from "../../../components/common/customModal";
 import {
   Footer,
@@ -12,7 +11,7 @@ import {
   PageTitleBreadcrumb,
 } from "../../../components/common/sharedLayout";
 import { FacePhotoContext } from "../../../context";
-import { CheckError } from "../../../ErrorHandling";
+import { CheckError } from "../../../utils/ErrorHandling";
 import { FETCH_FACE_PHOTOS_LIMIT, modalItems } from "../../../globalData";
 import {
   DELETE_FACE_PHOTO_MUTATION,
@@ -21,7 +20,6 @@ import {
 import {
   FETCH_FACE_PHOTOS_COUNT_QUERY,
   FETCH_FACE_PHOTOS_QUERY,
-  FETCH_PHOTO_PRIVACY_QUERY,
 } from "../../../graphql/query";
 import { FetchChecker } from "../../../utils/FetchChecker";
 import { LoadingSpin } from "../../../utils/LoadingSpin";
@@ -40,7 +38,6 @@ export default () => {
 
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState();
-  const [photoPrivacy, setPhotoPrivacy] = useState(false);
 
   const { data, loading, refetch, fetchMore } = useQuery(
     FETCH_FACE_PHOTOS_QUERY,
@@ -63,36 +60,12 @@ export default () => {
     }
   );
 
-  const photoPrivacyQuery = useQuery(FETCH_PHOTO_PRIVACY_QUERY, {
-    onCompleted(data) {
-      setPhotoPrivacy(data.getPhotoPrivacy);
-    },
-    onError(err) {
-      CheckError(err);
-    },
-    notifyOnNetworkStatusChange: true,
-  });
-
   const facePhotosCountQuery = useQuery(FETCH_FACE_PHOTOS_COUNT_QUERY, {
     onError(err) {
       CheckError(err);
     },
   });
 
-  const [togglePhotoPrivacyCallback, togglePhotoPrivacyStatus] = useMutation(
-    TOGGLE_PHOTO_PRIVACY_MUTATION,
-    {
-      onCompleted(data) {
-        message.success(
-          data.togglePhotoPrivacy ? "Set to public mode" : "Set to private mode"
-        );
-        photoPrivacyQuery.refetch();
-      },
-      onError(err) {
-        CheckError(err);
-      },
-    }
-  );
 
   const [deleteFacePhotoCallback, deleteFacePhotoStatus] = useMutation(
     DELETE_FACE_PHOTO_MUTATION,
@@ -135,17 +108,6 @@ export default () => {
 
   const handleCancel = () => {
     setIsDeleteModalVisible(false);
-  };
-
-  const handleTogglePhotoPrivacy = (value) => {
-    togglePhotoPrivacyCallback({
-      update(_, { data }) {
-        setPhotoPrivacy(data.togglePhotoPrivacy);
-      },
-      variables: {
-        isPublic: value,
-      },
-    });
   };
 
   const handleFetchMore = () => {
@@ -194,24 +156,6 @@ export default () => {
                 </strong>
               }
             >
-              <span>
-                <h1>
-                  {" "}
-                  {!photoPrivacyQuery.loading &&
-                  !togglePhotoPrivacyStatus.loading ? (
-                    <Switch
-                      onChange={handleTogglePhotoPrivacy}
-                      checked={photoPrivacy}
-                    />
-                  ) : (
-                    <LoadingOutlined
-                      style={{ fontSize: "25px", color: "blue" }}
-                    />
-                  )}
-                  &nbsp;
-                  {photoPrivacyQuery.data?.getPhotoPrivacy ? "Public Mode" : "Private Mode"}
-                </h1>
-              </span>
               {facePhotos.map((photo, index) => (
                 <Card key={photo._id}>
                   <Card>
