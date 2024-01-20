@@ -34,7 +34,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy:preview": "netlify build && netlify deploy",
+    "deploy": "netlify build && netlify deploy --prod"
   },
   "eslintConfig": {
     "extends": "react-app"
