@@ -1,0 +1,13 @@
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/graphql"
+  status = 200
+  force = true
+  
+[functions]
+  node_bundler = "esbuild" # To resolve encoding MODULE_NOT_FOUND error
+
+[build]
+  command = "npm run build"
+  functions = "build" # netlify-lambda build artifacts
+  publish = "build" # netlify deploy folder

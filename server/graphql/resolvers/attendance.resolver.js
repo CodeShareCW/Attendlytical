@@ -2,12 +2,13 @@ const { UserInputError } = require("apollo-server");
 const Attendance = require("../../models/attendance.model");
 const Course = require("../../models/course.model");
 const Notification = require("../../models/notification.model");
-const Trx = require("../../models/trx.model");
+const Person = require("../../models/person.model");
 
 const { CoursegqlParser, AttendancegqlParser } = require("./merge");
 const { validateAttendanceInput } = require("../../util/validators");
 const checkAuth = require("../../util/check-auth");
 const { OfficialURL, MAIL_TEMPLATE_TYPE } = require("../../globalData");
+const { sendEmail } = require("../../util/mail");
 
 module.exports = {
   Query: {
@@ -150,7 +151,7 @@ module.exports = {
           throw new Error("Course does not exist.");
         }
 
-        course.enrolledStudents.map(async (studentID) => {
+        await Promise.all(course.enrolledStudents.map(async (studentID) => {
           const sendNotification = new Notification({
             receiver: studentID,
             title: `New Attendance Notification - Course ID: ${course.shortID}`,
@@ -159,11 +160,11 @@ module.exports = {
           });
           await sendNotification.save();
           Object.assign(course, {
-            attendanceID: attendanceID,
+            attendanceID: attendance.id,
             attendanceURL: `${OfficialURL}/course/${course.shortID}/attendanceRoom/${attendance._id}`,
           });
 
-          const studentDoc = await Person.findById(enrolment.student);
+          const studentDoc = await Person.findById(studentID);
           //notify student through email
           await sendEmail(
             studentDoc.email,
@@ -171,7 +172,7 @@ module.exports = {
             MAIL_TEMPLATE_TYPE.CreateAttendance,
             { owner: currUser, course: course }
           );
-        });
+        }))
 
         return AttendancegqlParser(attendance);
       } catch (err) {
