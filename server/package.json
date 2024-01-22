@@ -9,9 +9,9 @@
     "dev:apollo": "nodemon index.js",
     "start:lambda": "netlify-lambda serve lambdas",
     "build:lambda:": "netlify-lambda build lambdas",
-    "deploy:preview": "netlify build && netlify deploy",
-    "deploy": "netlify build && netlify deploy --prod",
-    "start:express": "node bin/www",
+    "deploy:netlify:preview": "netlify build && netlify deploy",
+    "deploy:netlify": "netlify build && netlify deploy --prod",
+    "start": "node ./bin/www",
     "dev:express": "nodemon --watch bin/www"
   },
   "keywords": [],
