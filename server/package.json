@@ -11,8 +11,9 @@
     "build:lambda:": "netlify-lambda build lambdas",
     "deploy:netlify:preview": "netlify build && netlify deploy",
     "deploy:netlify": "netlify build && netlify deploy --prod",
-    "start": "node ./bin/www",
-    "dev:express": "nodemon --watch bin/www"
+    "start:express": "node express/graphql",
+    "dev:express": "nodemon express/graphql",
+    "start:openshift": "cross-env DEBUG=sandbox-nodejs:server node ./bin/www"
   },
   "keywords": [],
   "author": "",
