@@ -13,7 +13,7 @@
     "deploy:netlify": "netlify build && netlify deploy --prod",
     "start:express": "node express/graphql",
     "dev:express": "nodemon express/graphql",
-    "start:openshift": "cross-env DEBUG=sandbox-nodejs:server node ./bin/www"
+    "start": "node ./bin/www"
   },
   "keywords": [],
   "author": "",
