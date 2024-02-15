@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+  namespace: attendlytical
+data:
+  mongo-url: mongo-service
+  mongo-db-name: Attendlytical
+  

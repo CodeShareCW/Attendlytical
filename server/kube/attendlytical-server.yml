@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+  namespace: attendlytical
+  labels:
+    app: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+      - name: server
+        image: cheahwen/attendlytical-server:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: MONGO_USER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: MONGO_USER_PWD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password 
+        - name: MONGO_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-url
+        - name: MONGO_URI
+          value: "mongodb://$(MONGO_USER_NAME):$(MONGO_USER_PWD)@$(MONGO_URL).attendlytical.svc.cluster.local"
+        - name: SECRET_KEY
+          value: sfssdfsdfsdfsdf
+        - name: CLOUDINARY_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cloudinary-secret
+              key: cloudinary-name
+        - name: CLOUDINARY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudinary-secret
+              key: cloudinary-api-key
+        - name: CLOUDINARY_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cloudinary-secret
+              key: cloudinary-api-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-service
+  namespace: attendlytical
+spec:
+  type: NodePort
+  selector:
+    app: server
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+      nodePort: 30002
