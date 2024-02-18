@@ -18,9 +18,9 @@
     "docker:build": "docker build -t cheahwen/attendlytical-server .",
     "docker:run": "docker run --name attendlytical-server -p 4000:4000 -d cheahwen/attendlytical-server",
     "docker:push": "docker push cheahwen/attendlytical-server",
-    "kube:setup": "kubectl apply -f kube/namespace.yml && kubectl apply -f kube/mongo-config.yml && kubectl apply -f kube/mongo-secret.yml && kubectl apply -f kube/mongo.yml && kubectl apply -f kube/mongo-express.yml && kubectl apply -f kube/cloudinary-secret.yml && kubectl apply -f kube/attendlytical-server.yml",
-    "kube:start": "kubectl port-forward svc/server-service -n attendlytical 4000:4000",
-    "kube:start:mongo-express": "kubectl port-forward svc/mongo-express-service -n attendlytical 8081:8081"
+    "kube:setup": "kubectl apply -f kube/namespace.yml && kubectl apply -f kube/mongo-config.yml && kubectl apply -f kube/mongo-secret.yml &&  kubectl apply -f kube/mongo-pv.yml &&  kubectl apply -f kube/mongo-pvc.yml && kubectl apply -f kube/mongo.yml && kubectl apply -f kube/mongo-express.yml && kubectl apply -f kube/cloudinary-secret.yml && kubectl apply -f kube/attendlytical-server.yml",
+    "kube:pf:server": "kubectl port-forward svc/server-service -n attendlytical 4000:4000",
+    "kube:pf:mongo-express": "kubectl port-forward svc/mongo-express-service -n attendlytical 8081:8081"
   },
   "keywords": [],
   "author": "",

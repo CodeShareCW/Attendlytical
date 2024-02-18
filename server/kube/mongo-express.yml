@@ -18,6 +18,7 @@ spec:
       containers:
         - name: mongo-express
           image: mongo-express
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
@@ -36,6 +37,11 @@ spec:
                 configMapKeyRef:
                   name: mongo-config
                   key: mongo-url
+            - name: ME_CONFIG_MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: mongo-port
 ---
 apiVersion: v1
 kind: Service
@@ -50,4 +56,3 @@ spec:
     - protocol: TCP
       port: 8081
       targetPort: 8081
-      nodePort: 30001 # Uncomment for external service

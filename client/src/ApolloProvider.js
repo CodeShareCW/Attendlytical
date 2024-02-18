@@ -8,9 +8,10 @@ import { setContext } from "apollo-link-context";
 
 const httpLink = createHttpLink({
   uri:
-    !process.env.NODE_ENV || process.env.NODE_ENV === "development"
-      ? "http://localhost:9000/graphql"
-      : "https://api-attendlytical.netlify.app",
+    process.env.REACT_APP_BASE_URL ??
+    (!process.env.NODE_ENV || process.env.NODE_ENV === "development"
+      ? "http://localhost:4000"
+      : "https://api-attendlytical.netlify.app"),
 });
 
 const authLink = setContext(() => {

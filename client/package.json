@@ -36,7 +36,13 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy:preview": "netlify build && netlify deploy",
-    "deploy": "netlify build && netlify deploy --prod"
+    "docker:login": "docker login -u cheahwen",
+    "deploy": "netlify build && netlify deploy --prod",
+    "docker:build": "docker build -t cheahwen/attendlytical-client .",
+    "docker:rm": "docker rm -f attendlytical-client",
+    "docker:run": "docker run --name attendlytical-client -p 3000:3000 -d cheahwen/attendlytical-client",
+    "docker:push": "docker push cheahwen/attendlytical-client",
+    "kube:setup": "kubectl apply -f kube/namespace.yml && kubectl apply -f kube/config.yml && kubectl apply -f kube/attendlytical-client.yml"
   },
   "eslintConfig": {
     "extends": "react-app"

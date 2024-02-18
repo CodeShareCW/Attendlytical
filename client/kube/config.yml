@@ -1,9 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mongo-config
+  name: client-config
   namespace: attendlytical
 data:
-  mongo-url: mongo-service
-  mongo-port: '27018'
+  base-url: http://localhost:4000/graphql
   

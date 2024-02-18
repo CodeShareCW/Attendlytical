@@ -20,6 +20,9 @@ spec:
         image: mongo:5.0
         ports:
         - containerPort: 27017
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongo-data
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
@@ -31,11 +34,11 @@ spec:
             secretKeyRef:
               name: mongo-secret
               key: mongo-password
-        - name: MONGO_INITDB_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: mongo-config
-              key: mongo-db-name
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongo-data-pvc
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
@@ -45,7 +48,8 @@ metadata:
 spec:
   selector:
     app: mongo
+  type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 27017
+      port: 27018  # Testing different port, will be using this port to access db
       targetPort: 27017

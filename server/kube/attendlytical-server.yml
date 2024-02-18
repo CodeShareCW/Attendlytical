@@ -18,8 +18,9 @@ spec:
       containers:
       - name: server
         image: cheahwen/attendlytical-server:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 4000
+        - containerPort: 4000 #  Need to be same as target port in service
         env:
         - name: MONGO_USER_NAME
           valueFrom:
@@ -31,13 +32,18 @@ spec:
             secretKeyRef:
               name: mongo-secret
               key: mongo-password 
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-port 
         - name: MONGO_URL
           valueFrom:
             configMapKeyRef:
               name: mongo-config
               key: mongo-url
         - name: MONGO_URI
-          value: "mongodb://$(MONGO_USER_NAME):$(MONGO_USER_PWD)@$(MONGO_URL).attendlytical.svc.cluster.local"
+          value: "mongodb://$(MONGO_USER_NAME):$(MONGO_USER_PWD)@$(MONGO_URL).attendlytical.svc.cluster.local:$(MONGO_PORT)" # Check mongo.yml to see db service running port 27018
         - name: SECRET_KEY
           value: sfssdfsdfsdfsdf
         - name: CLOUDINARY_NAME
@@ -62,11 +68,10 @@ metadata:
   name: server-service
   namespace: attendlytical
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: server
   ports:
     - protocol: TCP
-      port: 4000
-      targetPort: 4000
-      nodePort: 30002
+      port: 4000 # Service running port (minikube tunnel will proxy this port)
+      targetPort: 4000 #  Need to be same as container port in deployment
