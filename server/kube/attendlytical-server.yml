@@ -75,3 +75,4 @@ spec:
     - protocol: TCP
       port: 4000 # Service running port (minikube tunnel will proxy this port)
       targetPort: 4000 #  Need to be same as container port in deployment
+      
